@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Main page</title>
+	<script src="lib/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="website.css" rel="stylesheet" type="text/css"> 
+	
+</head>
+<body  ng-app="homePage" ng-controller="controller">
+<div class="container-fluid">
+		<div class="containerHomePage">
+			<h3 class="text-center mt-2">Home Page</h3>
+			<hr><hr>
+			<div data-ng-init="getModels()">
+				<div class="row">
+					<div class="col-md-3">
+					<hr>
+						<div class="p-3" style="background-color:#eee">
+							<a href="http://193.205.92.133:8080/ChorChain/deploy.html">Personal page</a>
+						</div>
+						<form class="text-center p-3" style="background-color:#eee">
+							<div class="form-group">
+								<label for="searchModel"><h6>Search a model </h6></label>
+						    	<input type="text" class="form-control" id="searchModel" name="role" style="width:100%;">
+							  </div>
+							  <input type="submit" value="Search" class="btn btn-primary" style="width:100%;" >
+						</form>
+						<hr>
+						<form action="rest/upload" method="POST" enctype="multipart/form-data" class="text-center p-3" style="background-color:#eee">
+							<!-- <div class="form-group">
+								<label for="file"><h6>Select BPMN file </h6></label>
+								<input type="file" class="form-control-file" id="file"  name="fileName" placeholder="No file selected">
+							</div>--->
+							<label for="uplaodModel"><h6>Upload a new model</h6></label>
+							    <div class="custom-file mb-3">
+    							  <input type="file" class="custom-file-input" id="customFile"  name="fileName" accept=".bpmn">
+      							  <label class="custom-file-label" for="customFile">
+      							  	 
+      							  </label>
+      							    <input type="hidden" id="" name="cookieId" value="{{cookieId}}">
+ 							    </div>
+							<input type="submit"  value="Publish"  class="btn btn-primary mb-2" style="width:100%;">
+						</form>
+						<hr>						
+						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+							<h6>Model list </h6>
+							<a ng-repeat="model in models" class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
+						</div>	
+						
+					</div>
+					<div class="col-md-9">
+						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent">
+							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab"  data-ng-init="getInstances(model.name)">
+								<div class="card-body">
+									Uploaded by: {{model.uploadedBy}}<br>
+									Maximum number of participants: {{model.maxNumber}}<br>
+									Model roles: {{model.roles}}<br>
+									<button ng-click="getInstances(model.name)" class="btn btn-primary my-2">See instances</button>
+									<button ng-click="createInstance(model) " class="btn btn-success">Create a new instance</button>
+									 <div class="btn-group">
+									 
+									    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+									       Search for role
+									    </button>
+									    <div class="dropdown-menu">
+									      <a class="dropdown-item" ng-repeat="role in model.roles track by $index"  href="#">{{role}}</a>
+									    </div>
+									  </div>
+
+									<div class="" ng-if="instances!=undefined">
+									
+								
+										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
+											<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
+											<div class="card-body">
+												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
+													Free roles in the instance: {{instance.freeRoles}}<br>
+													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{instance.maxNumber}})
+												
+												<!--<button ng-click="deploy(instance)" ng-if="instance.actualNumber == instance.maxNumber" class="btn btn-success">
+													Deploy {{instance.name}}
+												</button>--->
+												
+													<div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"  data-ng-init="deploy(instance)">
+														<div class="spinner-border text-success" role="status">
+														  <span class="">deploying...</span>
+														</div>
+													</div>
+		
+	  												<div class="input-group col-6" ng-if="instance.actualNumber < instance.maxNumber">
+													  <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
+													    <option ng-repeat="role in instance.freeRoles track by $index" value="{{role}}" >{{role}}</option>
+													  </select>
+													  <div class="input-group-append">
+													    <button class="btn btn-outline-secondary" ng-click="subscribe(instance)" type="button">Subscribe</button>
+													  </div>
+													</div>
+												<!-- <form class="collapse" ng-if="instance.actualNumber < instance.maxNumber" id="collapseExample">
+													<div class="form-group mr-2">
+													    <label for="subAs" class="mr-2">Sub as </label>
+													    <input type="text" class="form-control" id="subAs"  ng-model="user.role" name="role">
+													  </div>
+													  <input type="submit" class="btn btn-primary" ng-click="subscribe(instance)" value="Submit">
+												</form>-->
+											</div>
+										</div>
+											
+										{{msg}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+    </div>
+
+	
+	
+	<script src="lib/app.js"></script>
+	<script src="lib/controller.js"></script>
+	<script src="lib/service.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

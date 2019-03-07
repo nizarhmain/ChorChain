@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Deploy of smart contract</title>
+<script
+	src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+	integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="
+	crossorigin="anonymous"></script>
+	<script src="lib/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="website.css" rel="stylesheet" type="text/css"> 
+</head>
+<body ng-app="monitor" ng-controller="monitorCtrl">
+	<div class="container-fluid">
+		<div class="containerDeployPage">
+			<div class="header-form text-center">
+					<h3 class="span-header-form m-4">Personal area</h3>
+			</div>
+			<hr><hr>
+			<div class="row mt-4">
+				<div class="col-2">
+					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+							<div ng-repeat="contract in contracts track by $index" >
+								<a ng-click="getTask(contract.name)" class="nav-link" id="{{contract.name}}-tab" data-toggle="pill" href="#{{contract.name}}" role="tab" aria-controls="v-pills-profile" aria-selected="false">{{contract.name}}</a>
+							</div>
+						
+							
+						<!-- <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false">{{contract.name}}</a>--->
+					</div>
+				</div>
+				<div class="col-10">
+					<div class="tab-content p-2" id="v-pills-tabContent" style="border: 1px solid rgba(0,0,0,.125); background-color:#eee; height:500px;">
+						<div  ng-repeat="contract in contracts track by $index" class="tab-pane fade" id="{{contract.name}}" role="tabpanel" aria-labelledby="{{contract.name}}-tab" >
+							<div class="row">
+								<div class="col-9">
+								<div class="col-8">Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
+									<ul class="list-group">
+										<li class="list-group-item my-2" ng-repeat="msg in msgs" >{{actualContract.tasks[$index]}}<div class="float-right"> Status: {{msg.status}}</div>
+											<form class="mt-3" ng-if="msg.show==1 && currentRole == user.userRoles[0]">
+												<div class="form-group">
+													<input type="text" class="form-control" id="inputProva" placeholder="Function input" ng-model="sendParams.par">
+												</div>
+													<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.name)">
+											</form>
+										</li>
+									</ul>
+								</div>
+								<div class="col-3">
+									<ul class="list-group">
+										<li class="list-group-item" ng-repeat="data in memory track by $index">{{valueNames[$index]}}: {{data}}</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+			
+	<script src="lib/app.js"></script>
+	<script src="lib/controller.js"></script>
+	<script src="lib/service.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+</body>
+<script>
+var app = angular.module('monitor', ['ngCookies']);
+
+app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
+	console.log($cookies);
+	$scope.user = {};
+	$scope.sendParams = {};
+	$scope.contracts = {};
+	$scope.tasks = {};
+	var web3 = new Web3("http://193.205.92.133:8545");
+    var web777 = new Web3("ws://193.205.92.133:8546");
+    $scope.actualContract = {};
+    $scope.myContract = {};
+    $scope.abi = {};
+    $scope.inputs = {};
+    $scope.memory = {};
+ 	$scope.msgs = {};
+ 	$scope.singleMemory = null;
+ 	$scope.index = null;
+ 	$scope.valueNames = {};
+ 	$scope.currentRole = "";
+    
+	//var abiContract = JSON.parse(sessionStorage.getItem('contract'));
+	
+	//$scope.params = $scope.contract.tasks[0].params[0].split(",");
+	
+
+	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
+
+
+$scope.launch =  async function(task, $index, refresh){
+		var params = $scope.sendParams.par;
+		var name = $scope.actualContract.tasks[$index];
+		console.log($scope.actualContract.tasks[$index]);
+		var n1 = name.split('\(');
+		//var n2 = n1.split(',');
+		var n3 = n1[1].split(' ');
+		console.log(n3);
+		var complete = task + '(';
+		for(var i in n3){
+
+			if(n3[i] == 'uint' || n3[i] == 'string' || n3[i] == 'bool'){
+				if(n3[i] == 'uint'){
+					n3[i] = 'uint256';
+				}
+				complete += n3[i] + ' , ';
+			}
+		}
+		var addPar = complete.split(' ');
+	 	console.log(addPar);
+		addPar.pop();
+		addPar.pop();
+		console.log(addPar);
+		complete = "";
+		for(i in addPar){
+			complete += addPar[i];
+		}
+		complete += ')';
+		var replaced = complete.replace(/-/g,'_');
+		for(var method in $scope.myContract.methods){
+			if(method == replaced){
+			await unlock();
+			var parArray = [];
+			if($scope.sendParams.par.includes(',')){
+				var a = $scope.sendParams.par;
+				parArray = a.split('\,');
+			}
+			else{
+				parArray.push($scope.sendParams.par);
+			}
+			console.log(parArray);
+				$scope.myContract.methods[method].apply(this, parArray).send({
+					from : $scope.user.address,
+					gas: 200000,
+				}).then(function(error, receipt){
+				//	console.log(error);
+							//console.log(receipt);
+						//	$scope.getTask(refresh);
+				});
+			}
+		}
+	}
+	
+	
+	
+	$scope.getUserContracts = function(){
+		
+		$http.post("rest/getCont/" + $cookies.get('UserId')).then(function(response){
+			$scope.contracts = response.data;
+		});
+	}
+	
+	$scope.getSingleMem = function(){
+		for(var i in $scope.memory){
+		//console.log(i);
+		}
+		
+		$scope.singleMemory = $scope.memory[$scope.index];
+		//console.log($scope.singleMemory);
+	}
+	
+	$scope.getTask = function(name){
+		for(var i in $scope.contracts){
+			if($scope.contracts[i].name == name){
+				$scope.actualContract =  $scope.contracts[i];
+				$scope.tasks = $scope.contracts[i].tasks;
+				$scope.valueNames = $scope.contracts[i].varNames;
+				break;
+			}
+		}
+		$scope.abi = JSON.parse($scope.actualContract.abi);
+		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
+		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
+			$scope.msgs = receipt[0];
+			$scope.memory = receipt[1];
+			$scope.setRoleActive();
+		});
+		console.log($scope.user);
+		console.log($scope.actualContract);
+		console.log("nome contratto" + name);
+		sub(name);
+		
+		
+	}
+	
+	$scope.setUser = function(){
+		$http.post("rest/getUserInfo/" + $cookies.get('UserId')).then(function(response){
+		
+			$scope.user = response.data;
+			//console.log($scope.user);
+		});
+	}
+	
+	async function unlock(){
+		console.log($scope.user);
+		//TODO java method. optional: rimettere psw quando tento di sbloccare account $scope.user.address
+		/*$http.post("rest/getUserInfo/").then(function(response){
+			 web3.eth.personal.unlockAccount(
+					response.data.address, response.data.privateKey)
+					.then(console.log('Account unlocked'));
+		});*/console.log($scope.user.address);
+		await web3.eth.personal.unlockAccount($scope.user.address
+					, $scope.user.privateKey, 10000)
+					.then(console.log('Account unlocked'));
+	}
+	
+		function sub(refresh){
+			console.log("i'm the sub starting");
+		for(var type in $scope.abi){
+			if($scope.abi[type].name=="stateChanged"){
+				$scope.inputs = $scope.abi[type].inputs;
+			}
+		}
+		const subscription = web777.eth.subscribe('logs', {
+		    //address: $scope.actualContract.address,
+		    address : $scope.actualContract.address,
+		    topics: ['0x8fd8f487a1d703cca2ded1250c8e7c8c1ae6f0b6cdc81883a282e0863a6d7283']//prendere da bytecode
+		}, function(error, result){
+			console.log("inside sub on callback");
+			 if (!error) {
+				 	console.log("inside sub on good");
+			        const eventObj = web3.eth.abi.decodeLog(
+			            $scope.inputs,
+			            result.data,
+			            result.topics
+			          )
+			        $scope.actualContract =  null;
+					$scope.tasks = null;
+					$scope.valueNames = null;
+			        $scope.getTask(refresh);
+			        $scope.getTask(refresh);
+			       
+			      }
+			 else
+				 console.log(error);    
+			});
+		}
+		
+	
+	
+	$scope.getPast = function(){
+		myContract.getPastEvents('allEvents', {
+		    fromBlock: 0,
+		    toBlock: 'latest'
+		}, (error, events) => { console.log(events); })
+		.then((events) => {
+		    console.log(events) 
+		});
+	}
+	
+	$scope.setRoleActive = function(){
+		var activeSid = {};
+		//console.log($scope.actualContract);
+		for(var i in $scope.msgs){
+
+			if($scope.msgs[i].status == 1){
+				$scope.msgs[i].show = 1;
+				activeSid = $scope.msgs[i].ID;
+				$scope.msgs[i].status = "Enabled";
+				$scope.currentRole = $scope.actualContract.taskRoles[i];
+				console.log($scope.currentRole);
+				console.log($scope.user.userRoles[0]);
+			}
+			else if($scope.msgs[i].status == 0){
+				$scope.msgs[i].status = "Disabled";
+			}
+			else if($scope.msgs[i].status == 2){
+				$scope.msgs[i].status = "Done";
+			}
+		}
+
+		for(var i in $scope.actualContract.tasksID){
+			
+			if($scope.actualContract.tasksID[i] == activeSid){
+				/*console.log("ecco il sid del contratto:" + $scope.actualContract.tasksID[i]);
+				console.log("con nome: " + $scope.actualContract.tasks[i]);
+				console.log("e role: " +  $scope.actualContract.taskRoles[i])
+				/*for(var r in $scope.user.userRoles[r]){
+					if(){
+						hyzh
+					}
+				}*/
+			}
+		}
+	
+	}
+	
+	$scope.getUserContracts();
+	$scope.setUser();
+	
+	//deve partire quando clicco contratto sub();
+	
+	
+});
+
+
+	
+</script>
+</html>
