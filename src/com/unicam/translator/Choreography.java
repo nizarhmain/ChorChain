@@ -245,7 +245,7 @@ public class Choreography {
 
 
 	private static void fileAll(String fileName) throws IOException, Exception {
-		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath + "/resources/" + ContractFunctions.parseName(fileName, ".sol")));
+		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath +  File.separator + "resources"+  File.separator + ContractFunctions.parseName(fileName, ".sol")));
 		BufferedWriter bChor = new BufferedWriter(wChor);
 		bChor.write(choreographyFile);
 		bChor.flush();

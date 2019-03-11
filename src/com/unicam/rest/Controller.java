@@ -400,7 +400,7 @@ public class Controller {
 		mongoInstances.deleteOne(InstanceForDeploy);
 		InstanceForDeploy.append("Done", true);
 		
-		String path = ContractFunctions.projectPath + "/compiled/";
+		String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
 		
 		ContractFunctions contract = new ContractFunctions();
 		System.out.println(Arrays.toString(instance.getSubbedRoles().toArray()));
@@ -418,7 +418,7 @@ public class Controller {
 		contractReturn.setAddress(cAddress);
 
 		contractReturn.setAbi(contract.readLineByLineJava8(path + contract.parseName(instance.getName(), ".abi"), false));
-		contractReturn.setBin(contract.readLineByLineJava8(path + contract.parseName(instance.getName(), ".bin"), true));
+		contractReturn.setBin("0x"+contract.readLineByLineJava8(path + contract.parseName(instance.getName(), ".bin"), true));
 		//get all the users in the db subscribed to the model
 		//and insert the deployed contract address
 		MongoCollection<Document> accounts = db.getCollection("account");

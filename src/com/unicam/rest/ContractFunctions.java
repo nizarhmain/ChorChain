@@ -75,7 +75,8 @@ public class ContractFunctions {
 	public String CONTRACT_ADDRESS = "";
 	private static final String VirtualProsAccount = "0x0D49A19F4732184E03549a4A190684a316c725F7";
 	
-	public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
+	//public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
+	public static String projectPath = System.getenv("projectPath"); 
 	
 	Web3j web3j = Web3j.build(new HttpService("http://193.205.92.133:8545"));
 	Admin adm = Admin.build(new HttpService("http://193.205.92.133:8545"));
@@ -84,7 +85,7 @@ public class ContractFunctions {
 
 	public ContractObject createSolidity(String fileName, List<String> roles, List<String> addresses) {
 		Choreography cho = new Choreography();
-		File f = new File(projectPath + "/bpmn/" + fileName);
+		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
 			System.out.println(f.getAbsolutePath());
 			cho.start(f, roles, addresses);
@@ -106,9 +107,9 @@ public class ContractFunctions {
 		
 			 String fin = parseName(fileName, ".sol");
 
-			String solPath = projectPath+"/resources/"+fin;
+			String solPath = projectPath + File.separator + "resources" + File.separator + fin;
 			System.out.println("Solidity PATTT: " + solPath);
-			String destinationPath =projectPath+"/compiled";
+			String destinationPath = projectPath +  File.separator + "compiled";
 			System.out.println("destination path "+destinationPath);
 			String[] comm = { "solc", solPath, "--bin", "--abi", "--overwrite", "-o", destinationPath };
 			
@@ -141,14 +142,14 @@ public class ContractFunctions {
 	}
 
 	public void wrapper(String fileName) {
-		String path = projectPath + "/resources/";
+		String path = projectPath + File.separator + "resources" + File.separator;
 		String p = Paths.get("").toAbsolutePath().normalize().toString();
 		System.out.println(p);
 		String abiPath = path + parseName(fileName, ".abi");
 		String binPath = path + parseName(fileName, ".bin");
 
 		String[] args2 = {"-a", abiPath, "-b", binPath, "-o", "src", "-p",
-				projectPath + "/resources/", };
+				projectPath + File.separator + "resources" + File.separator, };
 
 		SolidityFunctionWrapperGenerator.main(args2);
 		System.out.println("Java contract done");
