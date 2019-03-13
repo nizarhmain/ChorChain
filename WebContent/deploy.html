@@ -172,6 +172,8 @@ $scope.launch =  async function(task, $index, refresh){
 	}
 	
 	$scope.getTask = function(name){
+		$scope.sendParams.par = null;
+
 		for(var i in $scope.contracts){
 			if($scope.contracts[i].name == name){
 				$scope.actualContract =  $scope.contracts[i];
@@ -183,9 +185,11 @@ $scope.launch =  async function(task, $index, refresh){
 		$scope.abi = JSON.parse($scope.actualContract.abi);
 		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
 		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
-			$scope.msgs = receipt[0];
-			$scope.memory = receipt[1];
-			$scope.setRoleActive();
+			$scope.$apply(function(recepit){
+				$scope.msgs = receipt[0];
+				$scope.memory = receipt[1];
+				$scope.setRoleActive();
+			});
 		});
 		console.log($scope.user);
 		console.log($scope.actualContract);
