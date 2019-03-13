@@ -76,7 +76,7 @@ public class ContractFunctions {
 	private static final String VirtualProsAccount = "0x0D49A19F4732184E03549a4A190684a316c725F7";
 	
 	//public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
-	public static String projectPath = System.getenv("projectPath"); 
+	public static String projectPath = System.getenv("ChorChain"); 
 	
 	Web3j web3j = Web3j.build(new HttpService("http://193.205.92.133:8545"));
 	Admin adm = Admin.build(new HttpService("http://193.205.92.133:8545"));
