@@ -71,6 +71,26 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 </body>
 <script>
+
+window.addEventListener("load", function() {
+    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+    if (typeof web3 !== "undefined") {
+      // Use Mist/MetaMask's provider
+      window.web3 = new Web3(web3.currentProvider);
+      //console.log(web3);
+      //web3.eth.getAccounts().then(console.log);
+    } else {
+      console.log("No web3? You should consider trying MetaMask!");
+      // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+      window.web3 = new Web3(
+        new Web3.providers.HttpProvider("https://193.205.92.133:8545")
+      );
+    }
+
+    // APP >
+  //  web3.eth.getAccounts();
+  });
+
 var app = angular.module('monitor', ['ngCookies']);
 
 app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
@@ -79,7 +99,7 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
 	$scope.sendParams = {};
 	$scope.contracts = {};
 	$scope.tasks = {};
-	var web3 = new Web3("http://193.205.92.133:8545");
+	//var web3 = new Web3("http://193.205.92.133:8545");
     var web777 = new Web3("ws://193.205.92.133:8546");
     $scope.actualContract = {};
     $scope.myContract = {};
@@ -131,7 +151,7 @@ $scope.launch =  async function(task, $index, refresh){
 		var replaced = complete.replace(/-/g,'_');
 		for(var method in $scope.myContract.methods){
 			if(method == replaced){
-			await unlock();
+			//await unlock();
 			var parArray = [];
 			if($scope.sendParams.par.includes(',')){
 				var a = $scope.sendParams.par;
