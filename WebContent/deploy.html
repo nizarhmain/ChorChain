@@ -72,29 +72,18 @@
 </body>
 <script>
 
-window.addEventListener("load", function() {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-    if (typeof web3 !== "undefined") {
-      // Use Mist/MetaMask's provider
-      window.web3 = new Web3(web3.currentProvider);
-      //console.log(web3);
-      //web3.eth.getAccounts().then(console.log);
-    } else {
-      console.log("No web3? You should consider trying MetaMask!");
-      // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-      window.web3 = new Web3(
-        new Web3.providers.HttpProvider("https://193.205.92.133:8545")
-      );
-    }
 
-    // APP >
-  //  web3.eth.getAccounts();
-  });
 
 var app = angular.module('monitor', ['ngCookies']);
 
 app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
-	console.log($cookies);
+	
+	
+	
+	
+	
+	
+	
 	$scope.user = {};
 	$scope.sendParams = {};
 	$scope.contracts = {};
@@ -120,7 +109,11 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
 	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
 
 
+	
+	
 $scope.launch =  async function(task, $index, refresh){
+	
+	
 		var params = $scope.sendParams.par;
 		var name = $scope.actualContract.tasks[$index];
 		console.log($scope.actualContract.tasks[$index]);
@@ -192,8 +185,10 @@ $scope.launch =  async function(task, $index, refresh){
 	}
 	
 	$scope.getTask = function(name){
+		$scope.msgs = null;
+		$scope.memory = null;
 		$scope.sendParams.par = null;
-
+		console.log($scope.msgs);
 		for(var i in $scope.contracts){
 			if($scope.contracts[i].name == name){
 				$scope.actualContract =  $scope.contracts[i];
@@ -204,17 +199,20 @@ $scope.launch =  async function(task, $index, refresh){
 		}
 		$scope.abi = JSON.parse($scope.actualContract.abi);
 		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
+		
+		console.log($scope.myContract);
 		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
 			$scope.$apply(function(recepit){
 				$scope.msgs = receipt[0];
 				$scope.memory = receipt[1];
 				$scope.setRoleActive();
+				sub(name);
 			});
+
+			
 		});
-		console.log($scope.user);
-		console.log($scope.actualContract);
-		console.log("nome contratto" + name);
-		sub(name);
+		
+		
 		
 		
 	}
@@ -240,7 +238,7 @@ $scope.launch =  async function(task, $index, refresh){
 					.then(console.log('Account unlocked'));
 	}
 	
-		function sub(refresh){
+		function sub1(refresh){
 			console.log("i'm the sub starting");
 		for(var type in $scope.abi){
 			if($scope.abi[type].name=="stateChanged"){
@@ -263,8 +261,8 @@ $scope.launch =  async function(task, $index, refresh){
 			        $scope.actualContract =  null;
 					$scope.tasks = null;
 					$scope.valueNames = null;
-			        $scope.getTask(refresh);
-			        $scope.getTask(refresh);
+			     //   $scope.getTask(refresh);
+			      //  $scope.getTask(refresh);
 			       
 			      }
 			 else
@@ -294,8 +292,7 @@ $scope.launch =  async function(task, $index, refresh){
 				activeSid = $scope.msgs[i].ID;
 				$scope.msgs[i].status = "Enabled";
 				$scope.currentRole = $scope.actualContract.taskRoles[i];
-				console.log($scope.currentRole);
-				console.log($scope.user.userRoles[0]);
+				
 			}
 			else if($scope.msgs[i].status == 0){
 				$scope.msgs[i].status = "Disabled";
@@ -321,6 +318,42 @@ $scope.launch =  async function(task, $index, refresh){
 	
 	}
 	
+	$scope.addMeta = function(){
+		$window.addEventListener("load", function() {
+		    if (typeof web3 !== "undefined") {
+		     web3 = new Web3(web3.currentProvider);
+		     console.log(web3);
+		      //web3.eth.getAccounts().then(console.log);
+		    } else {
+		      console.log("No web3? You should consider trying MetaMask!");
+		    }
+
+		  });
+	}
+	
+	function sub(refresh){
+		for(var type in $scope.abi){
+			if($scope.abi[type].name=="stateChanged"){
+				$scope.inputs = $scope.abi[type].inputs;
+			}
+		}
+		console.log("dentro il sub");
+		$scope.myContract.events.stateChanged((error, result) => {
+			const eventObj = web3.eth.abi.decodeLog(
+		            $scope.inputs,
+		            result.data,
+		            result.topics
+		          )
+		        $scope.actualContract =  null;
+				$scope.tasks = null;
+				$scope.valueNames = null;
+		        $scope.getTask(refresh);	
+		});
+		
+			}
+	
+	
+	$scope.addMeta();
 	$scope.getUserContracts();
 	$scope.setUser();
 	
