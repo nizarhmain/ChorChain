@@ -16,8 +16,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			$scope.contracts = {};
 			$location.path();
 			$scope.cookieId = null;
-			$scope.user.address = "0x0D49A19F4732184E03549a4A190684a316c725F7";
-			$scope.user.privateKey = "andrea";
+			$scope.user.address = "";
+			$scope.user.privateKey = "";
 		
 			
 			
