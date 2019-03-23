@@ -1,106 +1,113 @@
 package com.unicam.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.bson.Document;
+
 @XmlRootElement
 public class Instance {
-	
+
+	private int ID;
 	private String name;
-	private int maxNumber;
 	private int actualNumber;
-	private List<String> participants;
-	private List<String> roles;
+	private Map<String, Document> participants;
 	private List<String> freeRoles;
-	private List<String> subbedRoles;
 	private String createdBy;
-	private int Id;
 	private boolean done;
-	
-	
-	public int getId() {
-		return Id;
+	private List<Document> visibleAt;
+	private Document deployedContract;
+
+	public int getID() {
+		return ID;
 	}
-	public void setId(int id) {
-		Id = id;
+
+	public void setID(int iD) {
+		ID = iD;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	public int getMaxNumber() {
-		return maxNumber;
-	}
-	public void setMaxNumber(int maxNumber) {
-		this.maxNumber = maxNumber;
-	}
+
 	public int getActualNumber() {
 		return actualNumber;
 	}
+
 	public void setActualNumber(int actualNumber) {
 		this.actualNumber = actualNumber;
 	}
-	public List<String> getParticipants() {
+
+	public Map<String, Document> getParticipants() {
 		return participants;
 	}
-	public void setParticipants(List<String> participants) {
+
+	public void setParticipants(Map<String, Document> participants) {
 		this.participants = participants;
 	}
-	public String getCreatedBy() {
-		return createdBy;
-	}
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
-	public List<String> getRoles() {
-		return roles;
-	}
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	}
+
 	public List<String> getFreeRoles() {
 		return freeRoles;
 	}
+
 	public void setFreeRoles(List<String> freeRoles) {
 		this.freeRoles = freeRoles;
 	}
-	
-	public List<String> getSubbedRoles() {
-		return subbedRoles;
+
+	public String getCreatedBy() {
+		return createdBy;
 	}
-	public void setSubbedRoles(List<String> subbedRoles) {
-		this.subbedRoles = subbedRoles;
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
+
 	public boolean isDone() {
 		return done;
 	}
+
 	public void setDone(boolean done) {
 		this.done = done;
 	}
-	
-	
-	
-	
-	public Instance(String name, int maxNumber, int actualNumber, List<String> participants, List<String> roles,
-			List<String> freeRoles, List<String> subbedRoles, String createdBy, int id, boolean done) {
+
+	public List<Document> getVisibleAt() {
+		return visibleAt;
+	}
+
+	public void setVisibleAt(List<Document> visibleAt) {
+		this.visibleAt = visibleAt;
+	}
+
+	public Document getDeployedContract() {
+		return deployedContract;
+	}
+
+	public void setDeployedContract(Document deployedContract) {
+		this.deployedContract = deployedContract;
+	}
+
+	public Instance(int iD, String name, int actualNumber, Map<String, Document> participants, List<String> freeRoles,
+			String createdBy, boolean done, List<Document> visibleAt, Document deployedContract) {
 		super();
+		ID = iD;
 		this.name = name;
-		this.maxNumber = maxNumber;
 		this.actualNumber = actualNumber;
 		this.participants = participants;
-		this.roles = roles;
 		this.freeRoles = freeRoles;
-		this.subbedRoles = subbedRoles;
 		this.createdBy = createdBy;
-		Id = id;
 		this.done = done;
+		this.visibleAt = visibleAt;
+		this.deployedContract = deployedContract;
 	}
+
 	public Instance() {
 		super();
 	}
-	
-	
+
 }

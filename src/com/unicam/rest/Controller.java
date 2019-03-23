@@ -50,51 +50,43 @@ import com.unicam.translator.Choreography;
 
 @Path("/")
 public class Controller {
-	
-	
-	
+
 	private User loggedUser;
-	//rendere persistente
-	private static Map<Integer, User> hashUsers = new HashMap<>();
 	HttpSession session;
 	MongoClient mongo = new MongoClient("localhost", 27017);
 	MongoDatabase db = mongo.getDatabase("EthUsers");
+
+	public int getLastId(String collection) {
+		MongoCollection<Document> d = db.getCollection(collection);
+
+		FindIterable<Document> allElements = d.find();
+		int finalId = 0;
+		if (allElements != null) {
+			for (Document docUser : allElements) {
+				finalId = docUser.getInteger("ID");
+			}
+		}
+
+		return finalId;
+
+	}
 
 	@POST
 	@Path("reg/")
 	public String sub(User user) {
 
-		System.out.println(user.getAddress());
-		System.out.println(user.getPrivateKey());
-		// System.out.println(privateKey);
 		MongoCollection<Document> d = db.getCollection("account");
-		
-		FindIterable<Document> allUsers = d.find();
-		int actualUserId = 0;
-		if(allUsers!=null) {
-			for(Document docUser : allUsers){
-				System.out.println("Utente nel db: " + docUser);
-				actualUserId = docUser.getInteger("ID");
-			}
-		}
-		
-		Document person = new Document();
-		person.append("Address", user.getAddress());
-		person.append("Private key", user.getPrivateKey());
-		person.append("Password", user.getPassword());
-		person.append("Contracts", new ArrayList<String>());
-		person.append("Roles", new ArrayList<String>());
-		person.append("ContractsAddresses", new ArrayList<String>());
-		person.append("ID", actualUserId+1);
-		d.insertOne(person);
-		System.out.println("User in the registration phase: ");
-		System.out.println(person);
-		
-		hashUsers.put(actualUserId+1, new User(user.getAddress(),  user.getPrivateKey(), user.getPassword(),
-				new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), actualUserId+1));
-		
-		return "registered";
 
+		int actualUserId = getLastId("account");
+
+		Document person = new Document();
+		person.append("ID", actualUserId + 1);
+		person.append("Address", user.getAddress());
+		person.append("Instances", new ArrayList<Document>());
+
+		d.insertOne(person);
+
+		return "registered";
 	}
 
 	@GET
@@ -115,35 +107,34 @@ public class Controller {
 		}
 	}
 
+	public User retrieveUser(int id) {
+		MongoCollection<Document> d = db.getCollection("account");
+		Document person = new Document();
+		person.append("ID", id);
+
+		Document er = d.find(person).first();
+		if (er != null)
+			return new User(er.getInteger("ID"), er.getString("Address"), (List<Document>) er.get("Instances"));
+		else
+			return null;
+
+	}
+
 	@POST
 	@Path("/login/")
 	public int login(User user) {
 		MongoCollection<Document> d = db.getCollection("account");
 		Document person = new Document();
 		person.append("Address", user.getAddress());
-		person.append("Private key", user.getPrivateKey());
-		person.append("Password", user.getPassword());
-		// person.append("contracts", new ArrayList<ContractObject>());
-		System.out.println("USER PASSED FORM FRONTEND AT THE LOGIN");
-		System.out.println(person);
+
 		Document er = d.find(person).first();
-		System.out.println("USER founded in the DB ");
-		System.out.println(er);
-		if (er != null) {
-			loggedUser = hashUsers.get(er.getInteger("ID"));
-			System.out.println(hashUsers.size());
-			System.out.println(hashUsers.get(er.getInteger("ID")));
-			
-			
-		/*	List<String> actualRoles = (List<String>) er.get("roles");
-			List<String> actualContracts = (List<String>) er.get("contracts");
-			List<String> actualAddresses = (List<String>) er.get("contractsAddresses");
-			loggedUser = new User(user.getAddress(), user.getPrivateKey(), user.getPassword(), actualContracts,
-					actualRoles, actualAddresses, er.getInteger("ID"));
-			System.out.println(er);
-			System.out.println(loggedUser.getAddress());
-			System.out.println("logged");*/
-			System.out.println("ID DELL'UTENTE LOGGATO:" +  loggedUser.getID());
+		if (er != null)
+			loggedUser = new User(er.getInteger("ID"), er.getString("Address"), (List<Document>) er.get("Instances"));
+		else
+			loggedUser = null;
+
+		if (loggedUser != null) {
+
 			return loggedUser.getID();
 		} else {
 			System.out.println("wrong values");
@@ -153,15 +144,13 @@ public class Controller {
 
 	@POST
 	@Path("/upload")
-	public String upload(@FormDataParam("cookieId") int cookieId, @FormDataParam("fileName") InputStream uploadedInputStream,
-			@FormDataParam("fileName") FormDataContentDisposition fileDetail)
-			throws IOException {
-		System.out.println(cookieId);
-		
-		loggedUser = hashUsers.get(cookieId);
-		String filepath = ContractFunctions.projectPath + "/bpmn/"
-				+ fileDetail.getFileName();
-		
+	public String upload(@FormDataParam("cookieId") int cookieId,
+			@FormDataParam("fileName") InputStream uploadedInputStream,
+			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws IOException {
+
+		loggedUser = retrieveUser(cookieId);
+		String filepath = ContractFunctions.projectPath + "/bpmn/" + fileDetail.getFileName();
+
 		OutputStream outputStream = null;
 		int read = 0;
 		try {
@@ -180,32 +169,18 @@ public class Controller {
 		}
 		MongoCollection<Document> d = db.getCollection("Models");
 		Document model = new Document();
+
+		model.append("Id", getLastId("Models"));
 		model.append("File_name", fileDetail.getFileName());
-		
-		model.append("Uploaded_by", loggedUser.getAddress());
-		// model.append("Participants", "address");
-		model.append("Roles", null);
-		// model.append("Free_roles", null);
-		List<String> rolesToAdd = new ArrayList<String>();
 		Choreography getRoles = new Choreography();
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		// List<Integer> numberToAdd = new ArrayList<Integer>();
-
-		/*
-		 * String[] role = roles.split(","); String[] maxR = maxRoles.split(",");
-		 * System.out.println(role); System.out.println(maxR); for(String r : role) {
-		 * rolesToAdd.add(r); System.out.println(r); } for(String r : maxR) {
-		 * System.out.println(r); numberToAdd.add(Integer.parseInt(r)); }
-		 */
-
-		model.append("Roles", roles);
 		model.append("Max_number", roles.size());
-		// model.append("Free_roles", roles);
-		// model.append("max_per_role", numberToAdd);
-		// aggiungere immagine
-		System.out.println(model);
+		model.append("Uploaded_by", loggedUser.getAddress());
+		model.append("MandatoryRoles", roles);
+		model.append("OptionalRoles", new ArrayList<String>());
+		model.append("Instances", new ArrayList<Instance>());
 		d.insertOne(model);
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
@@ -217,22 +192,19 @@ public class Controller {
 		MongoCollection<Document> d = db.getCollection("Models");
 
 		FindIterable<Document> c = d.find();
-
-		// List<String> names = new ArrayList<String>();
-		// Integer[] numb = new Integer[3];
-
 		List<Model> allModels = new ArrayList<Model>();
-		// Model[] allModels = new Model[3];
 
-		int i = 0;
 		for (Document document : c) {
-
-			Model model = new Model(document.getString("File_name"), document.getInteger("Max_number"),
-					document.getString("Uploaded_by"), (List<String>) document.get("Roles"));
-			allModels.add(model);
-
+			if(document != null) {
+				System.out.println(document);
+				Model model = new Model(document.getInteger("Id"), document.getString("File_name"),
+						document.getInteger("Max_number"), document.getString("Uploaded_by"),
+						(List<String>) document.get("MandatoryRoles"), (List<String>) document.get("OptionalRoles"),
+						(List<Document>) document.get("Instances"));
+				allModels.add(model);
+			}
+			
 		}
-
 		return allModels;
 	}
 
@@ -240,188 +212,257 @@ public class Controller {
 	@Path("/createInstance/{cookieId}")
 	public void createInstance(Model m, @PathParam("cookieId") int cookieId) {
 		// Find the model we want to instantiate
-		loggedUser = hashUsers.get(cookieId);
+		loggedUser = retrieveUser(cookieId);
 		MongoCollection<Document> d = db.getCollection("Models");
-		// FindIterable<Document> c = d.find();
+
 		Document toFind = new Document();
-		toFind.append("File_name", m.getName());
+		toFind.append("Id", m.getID());
 		FindIterable<Document> er = d.find(toFind);
 		Document model = er.first();
+		List<Document> allModelInstances = (List<Document>) model.get("Instances");
+		int lastId = 0;
+		for (Document in : allModelInstances) {
+			lastId = in.getInteger("Id");
+		}
+		/*Instance modelInstance = new Instance(lastId, m.getName(), 0, null, m.getMandatoryRoles(),
+				loggedUser.getAddress(), false, null, null);*/
+		Document modelInstance = new Document();
+		modelInstance.append("Id", lastId+1);
+		modelInstance.append("Name", m.getName());
+		modelInstance.append("Actual_number", 0);
+		modelInstance.append("Participants", null);
+		modelInstance.append("Free_roles", m.getMandatoryRoles());
+		modelInstance.append("Created_by", loggedUser.getAddress());
+		modelInstance.append("Done", false);
+		modelInstance.append("Visible_at", null);
+		modelInstance.append("Deployed_contract", null);
+		
+		d.deleteOne(model);
+		allModelInstances.add(modelInstance);
+		model.append("Instances", allModelInstances);
+		System.out.println(model);
+		d.insertOne(model);
 		// Insert instance on the DB
-		// List<String> participants = new ArrayList<String>();
-		// participants.add(address);
-		MongoCollection<Document> collection = db.getCollection("Instances");
+
+		// MongoCollection<Document> collection = db.getCollection("Instances");
 		// get last id of the instance
-		Document lastId = new Document();
-		lastId.append("Instance_name", m.getName());
-		FindIterable<Document> docs = collection.find(lastId);
-		int id = 0;
-		for (Document inst : docs) {
-			if (inst.getInteger("Id") > id) {
-				id = inst.getInteger("Id");
-			}
-		}
+		// Document lastId = new Document();
+
+		/*
+		 * lastId.append("Instance_name", m.getName()); FindIterable<Document> docs =
+		 * collection.find(lastId); int id = 0; for (Document inst : docs) { if
+		 * (inst.getInteger("Id") > id) { id = inst.getInteger("Id"); } }
+		 */
 		//
-		Document instance = new Document();
-		instance.append("Instance_name", m.getName());
-		instance.append("Max_number", m.getMaxNumber());
-		instance.append("Actual_number", 0);
-		instance.append("Participants", new ArrayList<String>());
-		instance.append("Roles", m.getRoles());
-		instance.append("Free_roles", m.getRoles());
-		instance.append("Subbed_roles", new ArrayList<String>());
-		instance.append("Created_by", loggedUser.getAddress());
-		instance.append("Id", id + 1);
-		instance.append("Done", false);
-		collection.insertOne(instance);
-		System.out.println("istanza alla creazione: " + instance);
+		/*
+		 * Document instance = new Document(); instance.append("Instance_name",
+		 * m.getName()); instance.append("Max_number", m.getMaxNumber());
+		 * instance.append("Actual_number", 0); instance.append("Participants", new
+		 * ArrayList<String>()); instance.append("Roles", m.getRoles());
+		 * instance.append("Free_roles", m.getRoles()); instance.append("Subbed_roles",
+		 * new ArrayList<String>()); instance.append("Created_by",
+		 * loggedUser.getAddress()); instance.append("Id", id + 1);
+		 * instance.append("Done", false); collection.insertOne(instance);
+		 * System.out.println("istanza alla creazione: " + instance);
+		 */
 	}
 
 	@POST
-	@Path("/getInstances/{name}")
-	public List<Instance> getAllInstances(@PathParam("name") String name) {
-		MongoCollection<Document> d = db.getCollection("Instances");
+	@Path("/getInstances/")
+	public List<Instance> getAllInstances(Model m) {
+		MongoCollection<Document> d = db.getCollection("Models");
+
 		Document toFind = new Document();
-		toFind.append("Instance_name", name);
-		FindIterable<Document> docs = d.find(toFind);
+		toFind.append("Id", m.getID());
+		Document docs = d.find(toFind).first();
 
-		List<Instance> allModels = new ArrayList<Instance>();
-
-		for (Document document : docs) {
-			List<String> participants = (List<String>) document.get("Participants");
-
-			Instance model = new Instance(document.getString("Instance_name"), document.getInteger("Max_number"),
-					document.getInteger("Actual_number"), participants, (List<String>) document.get("Roles"),
-					(List<String>) document.get("Free_roles"),  (List<String>) document.get("Subbed_roles"), document.getString("Created_by"),
-					document.getInteger("Id"), document.getBoolean("Done"));
-			allModels.add(model);
-
+		List<Instance> allInstances = new ArrayList<Instance>();
+		
+		for(Document docuInstance : (List<Document>) docs.get("Instances")) {
+			Instance addInstance = new Instance(docuInstance.getInteger("Id"), docuInstance.getString("Name"), 
+					docuInstance.getInteger("Actual_number"), (Map<String, 	Document>)docuInstance.get("Participants"), 
+					(List<String>)docuInstance.get("Free_roles"), docuInstance.getString("Created_by"), docuInstance.getBoolean("Done"),
+					(List<Document>)docuInstance.get("Visible_at"), (Document)docuInstance.get("Deployed_contract"));
+			
+			allInstances.add(addInstance);
 		}
+		
+		/*
+		 * for (Document document : docs) { List<String> participants = (List<String>)
+		 * document.get("Participants");
+		 * 
+		 * Instance model = new Instance(document.getString("Instance_name"),
+		 * document.getInteger("Max_number"), document.getInteger("Actual_number"),
+		 * participants, (List<String>) document.get("Roles"), (List<String>)
+		 * document.get("Free_roles"), (List<String>) document.get("Subbed_roles"),
+		 * document.getString("Created_by"), document.getInteger("Id"),
+		 * document.getBoolean("Done")); allModels.add(model);
+		 * 
+		 * }
+		 */
 
-		return allModels;
+		return allInstances;
 
 	}
 
 	@POST
-	@Path("/subscribe/{role}/{cookieId}")
-	public String subscribe(@PathParam("role") String role,  @PathParam("cookieId") int cookieId, Instance instance) {
-		loggedUser = hashUsers.get(cookieId);
-		MongoCollection<Document> d = db.getCollection("Instances");
+	@Path("/subscribe/{role}/{cookieId}/{instanceID}")
+	public String subscribe(@PathParam("role") String role, @PathParam("cookieId") int cookieId,
+			@PathParam("instanceID") int instanceId, Model modelInstance) {
+
+		loggedUser = retrieveUser(cookieId);
+
+		MongoCollection<Document> d = db.getCollection("Models");
 
 		Document toFind = new Document();
 
-		toFind.append("Instance_name", instance.getName());
-		// toFind.append("Max_number", instance.getMaxNumber());
-		// toFind.append("Actual_number", instance.getActualNumber());
-		toFind.append("Id", instance.getId());
+		toFind.append("Id", modelInstance.getID());
 
-		FindIterable<Document> er = d.find(toFind);
+		Document er = d.find(toFind).first();
 
-		Document toSub = er.first();
+		List<Document> allModelInstances = (List<Document>) er.get("Instances");
 
-		int max = toSub.getInteger("Max_number");
-		int actual = toSub.getInteger("Actual_number");
-		if (max >= actual + 1) {
-			// update roles arrays
-			List<String> oldRoles = (List<String>) toSub.get("Free_roles");
-			for (String oldRole : oldRoles) {
-				if (oldRole.equals(role)) {
-					d.deleteOne(toFind);
-					// update actual number of subbed users
-					toSub.append("Actual_number", actual + 1);
-					List<String> addUser = (List<String>) toSub.get("Participants");
-					addUser.add(loggedUser.getAddress());
-					toSub.append("Participants", addUser);
-					oldRoles.remove(oldRole);
-					System.out.println("ruolo rimosso: "+oldRole);
-					toSub.append("Free_roles", oldRoles);
-					//get and update the subbed roles array
-					List<String> subbed = (List<String>) toSub.get("Subbed_roles");
-					System.out.println("Sto aggiungendo " + role);
-					subbed.add(role);
-					System.out.println(Arrays.toString(subbed.toArray()));
-					toSub.append("Subbed_roles", subbed);
-					d.insertOne(toSub);
-					//Find the logged user on the DB
+		for(Document docInst : allModelInstances) {
+			if(docInst.getInteger("Id") == instanceId) {
+				int max = modelInstance.getMaxNumber();
+				int actual = docInst.getInteger("Actual_number");
+				if (max >= actual + 1) {
+					docInst.append("Actual_number", actual+1);
+					// set participants
+					List<String> freeRoles = (List<String>) docInst.get("Free_roles");
+					freeRoles.remove(role);
+					
+					
+					
 					MongoCollection<Document> accounts = db.getCollection("account");
 					Document person = new Document();
-					person.append("Address", loggedUser.getAddress());
-					person.append("Private key", loggedUser.getPrivateKey());
-					//person.append("Password", loggedUser.getPassword());
+					person.append("ID", loggedUser.getID());
 					Document us = accounts.find(person).first();
-					System.out.println("USER IN DEPLOYYY: ");
-					System.out.println(us);
-					//Get the roles of the user and add the new one
-					List<String> actualRoles = (List<String>) us.get("Roles");
-					System.out.println(role);
-						actualRoles.add(role);
-					//Get the contracts of the user and add the new one
-					List<String> actualContracts = (List<String>) us.get("Contracts");
-					actualContracts.add(instance.getName());
-					
-					//Update the user on the DB and on the server
+
+					// Get the instances of the user and add the new one
+					List<Document> actualInstances = (List<Document>) us.get("Instances");
+					// System.out.println(role);
+					actualInstances.add(docInst);
+					// Get the contracts of the user and add the new one
+
+					// Update the user on the DB and on the server
 					accounts.deleteOne(person);
-					person.append("Roles", actualRoles);
-					person.append("Contracts", actualContracts);
-					person.append("ContractsAddresses", us.get("ContractsAddresses"));
-					person.append("ID", us.getInteger("ID"));
+					person.append("Address", loggedUser.getAddress());
+					person.append("Instances", actualInstances);
 					accounts.insertOne(person);
-					loggedUser.setUserRoles(actualRoles);
-					loggedUser.setContracts(actualContracts);
-
+					loggedUser.setInstances(actualInstances);
+					System.out.println("utente dopo sub: ");
 					System.out.println(person);
-					
-					System.out.println(loggedUser);
-
-					break;
+					d.deleteOne(toFind);
+					toFind.append("Instances", allModelInstances);
+					d.insertOne(toFind);
+					System.out.println("model dopo sub: ");
+					System.out.println(toFind);
+					return "Subscribe completed";
 				}
-
 			}
-			
-			//List<String> actualContracts = (List<String>) us.get("contracts");
-			
-			return "Subscribe completed!";
-		} else {
-			return "Max number of participants reached";
 		}
+	
+		
+		
+		
+		/*for (Instance inst : allModelInstances) {	
+			if (inst.getID() == instanceId) {
+				int max = modelInstance.getMaxNumber();
+				int actual = inst.getActualNumber();
+				if (max >= actual + 1) {
+				    inst.setActualNumber(actual + 1);
+					// set participants
+					List<String> freeRoles = inst.getFreeRoles();
+					freeRoles.remove(role);
+					MongoCollection<Document> accounts = db.getCollection("account");
+					Document person = new Document();
+					person.append("ID", loggedUser.getID());
+					Document us = accounts.find(person).first();
+
+					// Get the instances of the user and add the new one
+					List<Instance> actualInstances = (List<Instance>) us.get("Instances");
+					// System.out.println(role);
+					actualInstances.add(inst);
+					// Get the contracts of the user and add the new one
+
+					// Update the user on the DB and on the server
+					accounts.deleteOne(person);
+					person.append("Instances", actualInstances);
+					accounts.insertOne(person);
+					loggedUser.setInstances(actualInstances);
+					
+					return "Subscribe completed";
+				}
+			}
+		}*/
+
+		// addUser.add(loggedUser.getAddress());
+
+		
+
+		System.out.println(loggedUser);
+		return "Subscribe went wrong";
 
 	}
 
+	
+
 	@POST
-	@Path("/deploy/{cookieId}")
-	public ContractObject deploy(Instance instance, @PathParam("cookieId") int cookieId)
+	@Path("/deploy/{cookieId}/{instanceID}")
+	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") int cookieId, @PathParam("instanceID") int instanceId)
 			throws Exception {
 		
-		loggedUser = hashUsers.get(cookieId);
-		MongoCollection<Document> mongoInstances = db.getCollection("Instances");
+		loggedUser = retrieveUser(cookieId);
+		MongoCollection<Document> mongoInstances = db.getCollection("Models");
 		Document toFind = new Document();
-		toFind.append("Id", instance.getId());
-		Document InstanceForDeploy = mongoInstances.find(toFind).first();
-		mongoInstances.deleteOne(InstanceForDeploy);
-		InstanceForDeploy.append("Done", true);
+		toFind.append("Id", modelInstance.getID());
+		Document modelForDeploy = mongoInstances.find(toFind).first();
+		
+		List<Instance> allModelInstance = (List<Instance>) modelForDeploy.get("Instances");
+		Instance instanceForDeploy = null;
+		int index = 0;
+		for(Instance inst : allModelInstance) {
+			if(inst.getID() == instanceId) {
+				instanceForDeploy = inst;
+				break;
+			}
+			index++;
+		}
+		mongoInstances.deleteOne(modelForDeploy);
+		//UNA VOLTA MODIFICATA INSTANZA VA RIAGGIUNTA AL DB DEL MODEL
+		
+		
+		
 		
 		String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
 		
 		ContractFunctions contract = new ContractFunctions();
-		System.out.println(Arrays.toString(instance.getSubbedRoles().toArray()));
-		System.out.println(Arrays.toString(((List<String>) InstanceForDeploy.get("Subbed_roles")).toArray()));
-		ContractObject contractReturn = contract.createSolidity(instance.getName(), (List<String>) InstanceForDeploy.get("Subbed_roles"), instance.getParticipants());
+		
+		ContractObject contractReturn = contract.createSolidity(instanceForDeploy.getName(), null);//settare partecipanti
 		
 		System.out.println("Starting to compile...");
 		//Thread.sleep(5000);
-		contract.compile(instance.getName());
+		contract.compile(instanceForDeploy.getName());
 		System.out.println("Compiled");
 		//Thread.sleep(10000);
-		String cAddress = contract.deploy(instance.getName());
+		String cAddress = contract.deploy(instanceForDeploy.getName());
 		
 		
 		contractReturn.setAddress(cAddress);
 
-		contractReturn.setAbi(contract.readLineByLineJava8(path + contract.parseName(instance.getName(), ".abi"), false));
-		contractReturn.setBin("0x"+contract.readLineByLineJava8(path + contract.parseName(instance.getName(), ".bin"), true));
+		contractReturn.setAbi(contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
+		contractReturn.setBin("0x"+contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
+		//instanceForDeploy.setDeployedContract(contractReturn);
+		instanceForDeploy.setDeployedContract(null);
+		instanceForDeploy.setDone(true);
+		
+		allModelInstance.set(index, instanceForDeploy);
+		modelForDeploy.append("Instances", allModelInstance);
+		mongoInstances.insertOne(modelForDeploy);
 		//get all the users in the db subscribed to the model
 		//and insert the deployed contract address
-		MongoCollection<Document> accounts = db.getCollection("account");
+		/*MongoCollection<Document> accounts = db.getCollection("account");
 		for(String participant : instance.getParticipants()) {
 			Document person = new Document();
 			person.append("Address", participant);
@@ -434,14 +475,15 @@ public class Controller {
 			//DA RIVEDERE perche ID probabilmente nullo o sbagliato
 			//hashUsers.get(us.getInteger("ID")).setContractAddresses(addresses);
 			for (User user : hashUsers.values()) {
-				if(user.getAddress().equals(participant))
-					user.setContractAddresses(addresses);
+				if(user.getAddress().equals(participant)) {
+					
+				}
+					
 			}
-					}
+					}*/
 
 		// adding the contract deployed on the DB
-		MongoCollection<Document> contractColl = db.getCollection("contracts");
-		Document deployedCont = new Document();
+		/*
 		deployedCont.append("name", contractReturn.getName());
 		deployedCont.append("address", contractReturn.getAddress());
 		List<String> t = contractReturn.getTasks();
@@ -453,8 +495,8 @@ public class Controller {
 		deployedCont.append("bin", contractReturn.getBin());
 		deployedCont.append("varNames", contractReturn.getVarNames());
 		contractColl.insertOne(deployedCont);
-
-		System.out.println(deployedCont);
+*/
+	
 		
 		
 		
@@ -464,13 +506,22 @@ public class Controller {
 	}
 
 	@POST
-	@Path("/getCont/{cookieId}")
-	public List<ContractObject> getUserContracts(@PathParam("cookieId") int cookieId) {
+	@Path("/getCont/{cookieId}/{contractId}")
+	public List<ContractObject> getUserContracts(@PathParam("cookieId") int cookieId, @PathParam("contractId") String contractId) {
 		System.out.println(cookieId);
-		loggedUser = hashUsers.get(cookieId);
-		List<String> userCaddress = loggedUser.getContractAddresses();
+		loggedUser = retrieveUser(cookieId);
+		
 		List<ContractObject> cList = new ArrayList<>();
-		for (String add : userCaddress) {
+		//List<Instance> userInstances = loggedUser.getInstances();
+		List<Instance> userInstances = null;
+		
+		for(Instance inst : userInstances) {
+			if(inst.getDeployedContract()!=null)
+				cList.add(null);
+				//cList.add(inst.getDeployedContract());
+				
+		}
+		/*for (String add : userCaddress) {
 			if (add != "") {
 				Document getDoc = new Document();
 				getDoc.append("address", add);
@@ -484,7 +535,7 @@ public class Controller {
 				//ContractObject userContract = new ContractObject(contr.getString("name"), null, null, null, null);
 				cList.add(userContract);
 			}
-		}
+		}*/
 		return cList;
 
 	}
@@ -499,31 +550,26 @@ public class Controller {
 		Document old = contractColl.find(contractExec).first();
 		List<TaskObject> tasks = new ArrayList<TaskObject>();
 		tasks = (List<TaskObject>) old.get("tasks");
-		/*for (TaskObject t : tasks) {
-			if (t.isActive() == true && !t.getName().equals(next)) {
-				t.setActive(false);
-			}
-			if (t.getName().equals(next) && t.isActive() == false) {
-				t.setActive(true);
-			}
-		}*/
+		/*
+		 * for (TaskObject t : tasks) { if (t.isActive() == true &&
+		 * !t.getName().equals(next)) { t.setActive(false); } if
+		 * (t.getName().equals(next) && t.isActive() == false) { t.setActive(true); } }
+		 */
 		Document newContr = new Document();
 
 	}
-	
-	
+
 	@POST
 	@Path("/getUserInfo/{cookieId}")
 	public User getUserInfo(@PathParam("cookieId") int cookieId) {
-		loggedUser = hashUsers.get(cookieId);
+		loggedUser = retrieveUser(cookieId);
 		System.out.println(loggedUser);
 		return loggedUser;
 	}
-	
+
 	private User getHashUser() {
 		return loggedUser;
-		
+
 	}
-	
 
 }

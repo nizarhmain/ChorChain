@@ -17,7 +17,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			$location.path();
 			$scope.cookieId = null;
 			$scope.user.address = "";
-			$scope.user.privateKey = "";
 		
 			
 			
@@ -48,16 +47,19 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			}
 			
 			$scope.getModels = function(){
-				$scope.cookieId = $cookies.get('UserId');
+			    $scope.cookieId = $cookies.get('UserId');
 				service.getModels().then(function(response){
 					$scope.models = response.data;
+					console.log("Models: ");
+					console.log($scope.models);
 				});
 			}
 			
-			$scope.subscribe = function(instance,role){
-				service.subscribe(instance, $scope.user.role, $cookies.get('UserId')).then(function(response){
+			$scope.subscribe = function(model, instanceId,role){
+				service.subscribe(model, instanceId, $scope.user.role, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
-					service.getInstances(instance.name).then(function(response){
+					service.getInstances(model).then(function(response){
+						console.log(response);
 						$scope.instances = response.data;
 						$scope.present = true;
 						
@@ -66,8 +68,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			}
 			
 			
-			$scope.getInstances = function(name){
-				service.getInstances(name).then(function(response){
+			$scope.getInstances = function(model){
+			
+				service.getInstances(model).then(function(response){
 					$scope.instances = response.data;
 					console.log(response.data);
 					$scope.present = true;

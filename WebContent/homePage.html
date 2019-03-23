@@ -53,12 +53,12 @@
 					</div>
 					<div class="col-md-9">
 						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent">
-							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab"  data-ng-init="getInstances(model.name)">
+							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab">
 								<div class="card-body">
 									Uploaded by: {{model.uploadedBy}}<br>
 									Maximum number of participants: {{model.maxNumber}}<br>
-									Model roles: {{model.roles}}<br>
-									<button ng-click="getInstances(model.name)" class="btn btn-primary my-2">See instances</button>
+									Model roles: {{model.mandatoryRoles}}<br>
+									<button ng-click="getInstances(model)" class="btn btn-primary my-2">See instances</button>
 									<button ng-click="createInstance(model) " class="btn btn-success">Create a new instance</button>
 									 <div class="btn-group">
 									 
@@ -66,7 +66,7 @@
 									       Search for role
 									    </button>
 									    <div class="dropdown-menu">
-									      <a class="dropdown-item" ng-repeat="role in model.roles track by $index"  href="#">{{role}}</a>
+									      <a class="dropdown-item" ng-repeat="role in model.mandatoryRoles track by $index"  href="#">{{role}}</a>
 									    </div>
 									  </div>
 
@@ -90,12 +90,12 @@
 														</div>
 													</div>
 		
-	  												<div class="input-group col-6" ng-if="instance.actualNumber < instance.maxNumber">
+	  												<div class="input-group col-6" ng-if="instance.actualNumber < model.maxNumber">
 													  <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
 													    <option ng-repeat="role in instance.freeRoles track by $index" value="{{role}}" >{{role}}</option>
 													  </select>
 													  <div class="input-group-append">
-													    <button class="btn btn-outline-secondary" ng-click="subscribe(instance)" type="button">Subscribe</button>
+													    <button class="btn btn-outline-secondary" ng-click="subscribe(model, instance.id)" type="button">Subscribe</button>
 													  </div>
 													</div>
 												<!-- <form class="collapse" ng-if="instance.actualNumber < instance.maxNumber" id="collapseExample">

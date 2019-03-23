@@ -29,13 +29,13 @@ angular.module('homePage.services', []).factory('service',
 				return $http.post("rest/getModels");
 			}
 			
-			service.subscribe = function(instance, role, cookieId){
+			service.subscribe = function(model, instanceId, role, cookieId){
 				
-				return $http.post("rest/subscribe/" + role + "/" + cookieId, instance);
+				return $http.post("rest/subscribe/" + role + "/" + cookieId + "/" + instanceId, model);
 			}
 			
-			service.getInstances = function(name){
-				return $http.post("rest/getInstances/" + name);
+			service.getInstances = function(model){
+				return $http.post("rest/getInstances/", model);
 			}
 			
 			service.createInstance = function(model, cookieId){

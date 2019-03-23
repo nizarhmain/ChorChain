@@ -52,6 +52,7 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import com.unicam.model.ContractObject;
+import com.unicam.model.User;
 //import com.unicam.resources.Choreography.InfoNextEventResponse;
 import com.unicam.translator.Choreography;
 
@@ -76,19 +77,19 @@ public class ContractFunctions {
 	private static final String VirtualProsAccount = "0x0D49A19F4732184E03549a4A190684a316c725F7";
 	
 	//public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
-	public static String projectPath = System.getenv("ChorChain"); 
+	public static String projectPath = System.getenv("projectPath"); 
 	
 	Web3j web3j = Web3j.build(new HttpService("http://193.205.92.133:8545"));
 	Admin adm = Admin.build(new HttpService("http://193.205.92.133:8545"));
 
 
 
-	public ContractObject createSolidity(String fileName, List<String> roles, List<String> addresses) {
+	public ContractObject createSolidity(String fileName, Map<String, User> participants) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
 			System.out.println(f.getAbsolutePath());
-			cho.start(f, roles, addresses);
+			cho.start(f, null, null);
 			//allFunctions = cho.allFunctions;
 
 			//Thread.sleep(15000);
