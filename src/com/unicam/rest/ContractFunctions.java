@@ -56,7 +56,7 @@ import com.unicam.model.User;
 //import com.unicam.resources.Choreography.InfoNextEventResponse;
 import com.unicam.translator.Choreography;
 
-
+import org.bson.Document;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
 import org.web3j.tuples.*;
 import org.web3j.tuples.generated.*;
@@ -84,12 +84,12 @@ public class ContractFunctions {
 
 
 
-	public ContractObject createSolidity(String fileName, Map<String, User> participants) {
+	public ContractObject createSolidity(String fileName, Map<String, Document> participants) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
 			System.out.println(f.getAbsolutePath());
-			cho.start(f, null, null);
+			cho.start(f, participants);
 			//allFunctions = cho.allFunctions;
 
 			//Thread.sleep(15000);

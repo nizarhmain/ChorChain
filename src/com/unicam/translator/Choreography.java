@@ -12,10 +12,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.bson.Document;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.instance.EndEventImpl;
@@ -71,13 +73,13 @@ public class Choreography {
 	private static List<String> roleFortask;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
-	public boolean start(File bpmnFile, List<String> subbedRoles, List<String> addresses) throws Exception {
+	public boolean start(File bpmnFile, Map<String, Document> participants) throws Exception {
 		try{
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
 			choreography.getParticipants();
 			choreography.FlowNodeSearch();
-			choreographyFile = choreography.initial(bpmnFile.getName(), subbedRoles, addresses) + choreographyFile;
+			choreographyFile = choreography.initial(bpmnFile.getName(), participants) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
 			finalContract = new ContractObject(bpmnFile.getName(), null,elementsID ,tasks,roleFortask , null, null, gatewayGuards);
 			choreography.fileAll(bpmnFile.getName());
@@ -131,7 +133,7 @@ public class Choreography {
 
 	
 
-	private static String initial(String filename, List<String> subbedRoles, List<String> addresses) {
+	private static String initial(String filename, Map<String, Document> participants) {
 		String intro = "pragma solidity ^0.5.3; \n"
 				+ "	pragma experimental ABIEncoderV2;\n"
 				+ "	contract " + ContractFunctions.parseName(filename, "") +"{\n"
@@ -178,10 +180,9 @@ public class Choreography {
 				"         //roles definition\r\n" + 
 				"         //mettere address utenti in base ai ruoli\r\n" ;
 				int i = 0;
-				for(String role: subbedRoles) {
-					System.out.println("rolee: " + role);
-					System.out.println("Address: "+addresses.get(i));
-					constr+="	roles[\"" + role + "\"] = " + addresses.get(i) + ";\n";
+				for(Map.Entry<String, Document> sub : participants.entrySet()) {
+				
+					constr+="	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getString("Address") + ";\n";
 					i++;
 				}
 		

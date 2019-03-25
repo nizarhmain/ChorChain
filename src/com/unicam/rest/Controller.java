@@ -148,6 +148,7 @@ public class Controller {
 			@FormDataParam("fileName") InputStream uploadedInputStream,
 			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws IOException {
 
+		
 		loggedUser = retrieveUser(cookieId);
 		String filepath = ContractFunctions.projectPath + "/bpmn/" + fileDetail.getFileName();
 
@@ -170,7 +171,7 @@ public class Controller {
 		MongoCollection<Document> d = db.getCollection("Models");
 		Document model = new Document();
 
-		model.append("Id", getLastId("Models"));
+		model.append("ID", getLastId("Models"));
 		model.append("File_name", fileDetail.getFileName());
 		Choreography getRoles = new Choreography();
 		getRoles.readFile(new File(filepath));
@@ -196,8 +197,14 @@ public class Controller {
 
 		for (Document document : c) {
 			if(document != null) {
-				System.out.println(document);
-				Model model = new Model(document.getInteger("Id"), document.getString("File_name"),
+				System.out.println(document.getInteger("ID"));
+				System.out.println(document.getString("File_name"));
+				System.out.println(document.getInteger("Max_number"));
+				System.out.println(document.getString("Uploaded_by"));
+				System.out.println(document.get("MandatoryRoles"));
+				System.out.println(document.get("OptionalRoles"));
+				System.out.println(document.get("Instances"));
+				Model model = new Model(document.getInteger("ID"), document.getString("File_name"),
 						document.getInteger("Max_number"), document.getString("Uploaded_by"),
 						(List<String>) document.get("MandatoryRoles"), (List<String>) document.get("OptionalRoles"),
 						(List<Document>) document.get("Instances"));
@@ -216,26 +223,26 @@ public class Controller {
 		MongoCollection<Document> d = db.getCollection("Models");
 
 		Document toFind = new Document();
-		toFind.append("Id", m.getID());
+		toFind.append("ID", m.getID());
 		FindIterable<Document> er = d.find(toFind);
 		Document model = er.first();
 		List<Document> allModelInstances = (List<Document>) model.get("Instances");
 		int lastId = 0;
 		for (Document in : allModelInstances) {
-			lastId = in.getInteger("Id");
+			lastId = in.getInteger("ID");
 		}
 		/*Instance modelInstance = new Instance(lastId, m.getName(), 0, null, m.getMandatoryRoles(),
 				loggedUser.getAddress(), false, null, null);*/
 		Document modelInstance = new Document();
-		modelInstance.append("Id", lastId+1);
+		modelInstance.append("ID", lastId+1);
 		modelInstance.append("Name", m.getName());
 		modelInstance.append("Actual_number", 0);
-		modelInstance.append("Participants", null);
+		modelInstance.append("Participants", new HashMap<String, Document>());
 		modelInstance.append("Free_roles", m.getMandatoryRoles());
 		modelInstance.append("Created_by", loggedUser.getAddress());
 		modelInstance.append("Done", false);
-		modelInstance.append("Visible_at", null);
-		modelInstance.append("Deployed_contract", null);
+		modelInstance.append("Visible_at", new ArrayList<Document>());
+		modelInstance.append("Deployed_contract", new Document());
 		
 		d.deleteOne(model);
 		allModelInstances.add(modelInstance);
@@ -273,13 +280,13 @@ public class Controller {
 		MongoCollection<Document> d = db.getCollection("Models");
 
 		Document toFind = new Document();
-		toFind.append("Id", m.getID());
+		toFind.append("ID", m.getID());
 		Document docs = d.find(toFind).first();
 
 		List<Instance> allInstances = new ArrayList<Instance>();
 		
 		for(Document docuInstance : (List<Document>) docs.get("Instances")) {
-			Instance addInstance = new Instance(docuInstance.getInteger("Id"), docuInstance.getString("Name"), 
+			Instance addInstance = new Instance(docuInstance.getInteger("ID"), docuInstance.getString("Name"), 
 					docuInstance.getInteger("Actual_number"), (Map<String, 	Document>)docuInstance.get("Participants"), 
 					(List<String>)docuInstance.get("Free_roles"), docuInstance.getString("Created_by"), docuInstance.getBoolean("Done"),
 					(List<Document>)docuInstance.get("Visible_at"), (Document)docuInstance.get("Deployed_contract"));
@@ -316,22 +323,31 @@ public class Controller {
 
 		Document toFind = new Document();
 
-		toFind.append("Id", modelInstance.getID());
+		toFind.append("ID", modelInstance.getID());
 
 		Document er = d.find(toFind).first();
 
 		List<Document> allModelInstances = (List<Document>) er.get("Instances");
 
 		for(Document docInst : allModelInstances) {
-			if(docInst.getInteger("Id") == instanceId) {
+			if(docInst.getInteger("ID") == instanceId) {
+				//get the max and the actual number of participants
 				int max = modelInstance.getMaxNumber();
 				int actual = docInst.getInteger("Actual_number");
+				//check if a new subscriber can be added
 				if (max >= actual + 1) {
+					//increment the actual number of participants
 					docInst.append("Actual_number", actual+1);
-					// set participants
+					//remove the role subscribed from the free roles
 					List<String> freeRoles = (List<String>) docInst.get("Free_roles");
 					freeRoles.remove(role);
-					
+					//update the hashmap of the users subscribed
+					Map<String, Document> subscribers = (Map<String, Document>) docInst.get("Participants");
+					Document subscriber = new Document();
+					subscriber.append("ID", loggedUser.getID());
+					subscriber.append("Address", loggedUser.getAddress());
+					subscriber.append("Instances", loggedUser.getInstances());
+					subscribers.put(role, subscriber);
 					
 					
 					MongoCollection<Document> accounts = db.getCollection("account");
@@ -343,7 +359,7 @@ public class Controller {
 					List<Document> actualInstances = (List<Document>) us.get("Instances");
 					// System.out.println(role);
 					actualInstances.add(docInst);
-					// Get the contracts of the user and add the new one
+					
 
 					// Update the user on the DB and on the server
 					accounts.deleteOne(person);
@@ -416,7 +432,7 @@ public class Controller {
 		loggedUser = retrieveUser(cookieId);
 		MongoCollection<Document> mongoInstances = db.getCollection("Models");
 		Document toFind = new Document();
-		toFind.append("Id", modelInstance.getID());
+		toFind.append("ID", modelInstance.getID());
 		Document modelForDeploy = mongoInstances.find(toFind).first();
 		
 		List<Instance> allModelInstance = (List<Instance>) modelForDeploy.get("Instances");
@@ -439,7 +455,7 @@ public class Controller {
 		
 		ContractFunctions contract = new ContractFunctions();
 		
-		ContractObject contractReturn = contract.createSolidity(instanceForDeploy.getName(), null);//settare partecipanti
+		ContractObject contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());//settare partecipanti
 		
 		System.out.println("Starting to compile...");
 		//Thread.sleep(5000);
