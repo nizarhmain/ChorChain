@@ -172,16 +172,16 @@ public class Controller {
 		Document model = new Document();
 
 		model.append("ID", getLastId("Models"));
-		model.append("File_name", fileDetail.getFileName());
+		model.append("name", fileDetail.getFileName());
 		Choreography getRoles = new Choreography();
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		model.append("Max_number", roles.size());
-		model.append("Uploaded_by", loggedUser.getAddress());
-		model.append("MandatoryRoles", roles);
-		model.append("OptionalRoles", new ArrayList<String>());
-		model.append("Instances", new ArrayList<Instance>());
+		model.append("maxNumber", roles.size());
+		model.append("uploadedBy", loggedUser.getAddress());
+		model.append("mandatoryRoles", roles);
+		model.append("optionalRoles", new ArrayList<String>());
+		model.append("instances", new ArrayList<Instance>());
 		d.insertOne(model);
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
@@ -198,16 +198,18 @@ public class Controller {
 		for (Document document : c) {
 			if(document != null) {
 				System.out.println(document.getInteger("ID"));
-				System.out.println(document.getString("File_name"));
-				System.out.println(document.getInteger("Max_number"));
-				System.out.println(document.getString("Uploaded_by"));
-				System.out.println(document.get("MandatoryRoles"));
-				System.out.println(document.get("OptionalRoles"));
-				System.out.println(document.get("Instances"));
-				Model model = new Model(document.getInteger("ID"), document.getString("File_name"),
-						document.getInteger("Max_number"), document.getString("Uploaded_by"),
-						(List<String>) document.get("MandatoryRoles"), (List<String>) document.get("OptionalRoles"),
-						(List<Document>) document.get("Instances"));
+				System.out.println(document.getString("name"));
+				System.out.println(document.getInteger("maxNumber"));
+				System.out.println(document.getString("uploadedBy"));
+				System.out.println(document.get("mandatoryRoles"));
+				System.out.println(document.get("optionalRoles"));
+				System.out.println(document.get("instances"));
+				Model model = new Model(document.getInteger("ID"), 
+					document.getString("name"),
+					document.getInteger("maxNumber"), 
+					document.getString("uploadedBy"),
+					(List<String>) document.get("mandatoryRoles"), (List<String>) document.get("optionalRoles"),
+					(List<Document>) document.get("instances"));
 				allModels.add(model);
 			}
 			
