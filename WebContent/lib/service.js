@@ -42,8 +42,8 @@ angular.module('homePage.services', []).factory('service',
 				return $http.post("rest/createInstance/" + cookieId, model);
 			}
 			
-			service.deploy = function(instance, cookieId){
-				return $http.post("rest/deploy/" + cookieId , instance);
+			service.deploy = function(model, instanceId, cookieId){
+				return $http.post("rest/deploy/" + cookieId + "/" + instanceId, model);
 			}
 			service.getContracts = function(cookieId){
 				return $http.post("rest/getCont/" + cookieId);

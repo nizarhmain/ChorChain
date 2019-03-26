@@ -84,7 +84,7 @@
 													Deploy {{instance.name}}
 												</button>--->
 												
-													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(instance)">
+													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
 														<div class="spinner-border text-success" role="status">
 														  <span class="">deploying...</span>
 														</div>

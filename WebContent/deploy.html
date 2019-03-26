@@ -172,6 +172,7 @@ $scope.launch =  async function(task, $index, refresh){
 		
 		$http.post("rest/getCont/" + $cookies.get('UserId')).then(function(response){
 			$scope.contracts = response.data;
+			console.log($scope.contracts);
 		});
 	}
 	

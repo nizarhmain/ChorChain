@@ -5,7 +5,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 public class ContractObject {
-	private String name;
+	private String ID;
 	private String address;
 	private List<String> tasksID;
 	private List<String> tasks;
@@ -20,11 +20,11 @@ public class ContractObject {
 	public void setTaskRoles(List<String> taskRoles) {
 		this.taskRoles = taskRoles;
 	}
-	public String getName() {
-		return name;
+	public String getID() {
+		return ID;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setID(String ID) {
+		this.ID = ID;
 	}
 	public String getAddress() {
 		return address;
@@ -63,10 +63,10 @@ public class ContractObject {
 	public void setVarNames(List<String> varNames) {
 		this.varNames = varNames;
 	}
-	public ContractObject(String name, String address, List<String> tasksID, List<String> tasks, List<String> taskRoles,
+	public ContractObject(String ID, String address, List<String> tasksID, List<String> tasks, List<String> taskRoles,
 			String abi, String bin, List<String> varNames) {
 		super();
-		this.name = name;
+		this.ID = ID;
 		this.address = address;
 		this.tasksID = tasksID;
 		this.tasks = tasks;
