@@ -3,22 +3,37 @@ package com.unicam.model;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
 
 @XmlRootElement
+@Entity
 public class Instance {
-
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int ID;
 	private String name;
 	private int actualNumber;
-	private Map<String, Document> participants;
+	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
+	private Map<String, User> participants;
+	@ElementCollection
 	private List<String> freeRoles;
 	private String createdBy;
 	private boolean done;
-	private List<Document> visibleAt;
-	private Document deployedContract;
+	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
+	private List<User> visibleAt;
+	@OneToOne(targetEntity=ContractObject.class, fetch = FetchType.EAGER)
+	private ContractObject deployedContract;
 
 	public int getID() {
 		return ID;
@@ -44,11 +59,11 @@ public class Instance {
 		this.actualNumber = actualNumber;
 	}
 
-	public Map<String, Document> getParticipants() {
+	public Map<String, User> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(Map<String, Document> participants) {
+	public void setParticipants(Map<String, User> participants) {
 		this.participants = participants;
 	}
 
@@ -76,24 +91,24 @@ public class Instance {
 		this.done = done;
 	}
 
-	public List<Document> getVisibleAt() {
+	public List<User> getVisibleAt() {
 		return visibleAt;
 	}
 
-	public void setVisibleAt(List<Document> visibleAt) {
+	public void setVisibleAt(List<User> visibleAt) {
 		this.visibleAt = visibleAt;
 	}
 
-	public Document getDeployedContract() {
+	public ContractObject getDeployedContract() {
 		return deployedContract;
 	}
 
-	public void setDeployedContract(Document deployedContract) {
+	public void setDeployedContract(ContractObject deployedContract) {
 		this.deployedContract = deployedContract;
 	}
 
-	public Instance(int iD, String name, int actualNumber, Map<String, Document> participants, List<String> freeRoles,
-			String createdBy, boolean done, List<Document> visibleAt, Document deployedContract) {
+	public Instance(int iD, String name, int actualNumber, Map<String, User> participants, List<String> freeRoles,
+			String createdBy, boolean done, List<User> visibleAt, ContractObject deployedContract) {
 		super();
 		ID = iD;
 		this.name = name;

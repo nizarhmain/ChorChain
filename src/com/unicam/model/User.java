@@ -2,15 +2,33 @@ package com.unicam.model;
 
 import java.util.List;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.hibernate.ogm.datastore.document.options.AssociationStorage;
+import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
 
 @XmlRootElement
+@Entity
+@AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
+@AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 public class User {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int ID;
 	private String address;
-	private List<Document> instances;
+//	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
+	@OneToMany
+	private List<Instance> instances;
 
 	public int getID() {
 		return ID;
@@ -28,15 +46,15 @@ public class User {
 		this.address = address;
 	}
 
-	public List<Document> getInstances() {
+	public List<Instance> getInstances() {
 		return instances;
 	}
 
-	public void setInstances(List<Document> instances) {
+	public void setInstances(List<Instance> instances) {
 		this.instances = instances;
 	}
 
-	public User(int iD, String address, List<Document> instances) {
+	public User(int iD, String address, List<Instance> instances) {
 		super();
 		ID = iD;
 		this.address = address;
@@ -48,3 +66,5 @@ public class User {
 	}
 
 }
+
+

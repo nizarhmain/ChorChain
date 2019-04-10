@@ -2,16 +2,26 @@ package com.unicam.model;
 
 import java.util.List;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import org.json.JSONObject;
 
+@Entity
 public class ContractObject {
+	@Id
 	private String ID;
 	private String address;
+	@ElementCollection
 	private List<String> tasksID;
+	@ElementCollection
 	private List<String> tasks;
+	@ElementCollection
 	private List<String> taskRoles;
 	private String abi;
 	private String bin;
+	@ElementCollection
 	private List<String> varNames;
 	
 	public List<String> getTaskRoles() {

@@ -38,6 +38,17 @@
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
 	</build>
+	<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate.ogm</groupId>
+            <artifactId>hibernate-ogm-bom</artifactId>
+            <version>5.4.1.Final</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
@@ -126,7 +137,34 @@
 			<version>2.4.0-b180725.0427</version>
 		</dependency>
 
-
+<dependency>
+		    <groupId>org.hibernate.ogm</groupId>
+		    <artifactId>hibernate-ogm-infinispan</artifactId>
+		    <version>5.4.1.Final</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.hibernate.javax.persistence</groupId>
+		    <artifactId>hibernate-jpa-2.1-api</artifactId>
+		    <version>1.0.2.Final</version>
+		</dependency>
+		    <dependency>
+		        <groupId>org.jboss.spec.javax.transaction</groupId>
+		        <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+		    </dependency>
+		      <dependency>
+		        <groupId>org.jboss.narayana.jta</groupId>
+		        <artifactId>narayana-jta</artifactId>
+		    </dependency>
+		    <dependency>
+		    <groupId>org.jboss</groupId>
+		    <artifactId>jboss-transaction-spi</artifactId>
+		    <version>7.6.0.Final</version>
+		</dependency>
+		    <dependency>
+		    <groupId>org.hibernate.ogm</groupId>
+		    <artifactId>hibernate-ogm-mongodb</artifactId>
+		    <version>5.4.1.Final</version>
+		</dependency>
 
 	</dependencies>
 </project>

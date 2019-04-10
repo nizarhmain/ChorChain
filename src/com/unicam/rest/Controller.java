@@ -11,8 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.transaction.TransactionManager;
 import javax.ws.rs.Consumes;
 
 import javax.ws.rs.FormParam;
@@ -56,9 +60,13 @@ public class Controller {
 
 	private User loggedUser;
 	HttpSession session;
-	MongoClient mongo = new MongoClient("localhost", 27017);
-	MongoDatabase db = mongo.getDatabase("EthUsers");
+	
+	//accessing JBoss's Transaction can be done differently but this one works nicely
+	TransactionManager tm = com.arjuna.ats.jta.TransactionManager.transactionManager();
 
+	//build the EntityManagerFactory as you would build in in Hibernate ORM
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("OGMPU");
+		
 	public int getLastId(String collection) {
 		MongoCollection<Document> d = db.getCollection(collection);
 
@@ -76,8 +84,26 @@ public class Controller {
 
 	@POST
 	@Path("reg/")
-	public String sub(User user) {
+	public String sub(User user) throws Exception {
+		//the constructor is in the form: address, instances
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		User userc = new User();
+		userc.setAddress("thisismyaddress");
+		Instance ist = new Instance();
+		ist.setCreatedBy("createdby field");
+		ist.setName("this is the name of the instance");
+		em.persist(ist);
 
+		ArrayList lista = new ArrayList<Instance>();
+		lista.add(ist);
+		userc.setInstances(lista);
+		em.persist(userc);
+		em.flush();
+		em.close();
+		tm.commit();
+				
+		/*
 		MongoCollection<Document> d = db.getCollection("account");
 
 		int actualUserId = getLastId("account");
@@ -88,8 +114,11 @@ public class Controller {
 		person.append("Instances", new ArrayList<Document>());
 
 		d.insertOne(person);
-
+*/
+		
 		return "registered";
+		
+		
 	}
 
 	@GET
