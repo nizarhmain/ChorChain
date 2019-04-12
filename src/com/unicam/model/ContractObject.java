@@ -85,6 +85,11 @@ public class ContractObject {
 		this.bin = bin;
 		this.varNames = varNames;
 	}
+	public ContractObject() {
+		super();
+	}
+	
+	
 	
 	
 	

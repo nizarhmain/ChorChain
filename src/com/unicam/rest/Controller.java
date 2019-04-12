@@ -16,6 +16,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.ws.rs.Consumes;
 
@@ -90,42 +92,35 @@ public class Controller {
 		EntityManager em = emf.createEntityManager();
 		User userc = new User();
 		userc.setAddress("thisismyaddress");
-		Instance ist = new Instance();
+		/*Instance ist = new Instance();
 		ist.setCreatedBy("createdby field");
 		ist.setName("this is the name of the instance");
 		em.persist(ist);
-
+		*/
 		ArrayList lista = new ArrayList<Instance>();
-		lista.add(ist);
+		//lista.add(ist);
 		userc.setInstances(lista);
 		em.persist(userc);
 		em.flush();
 		em.close();
 		tm.commit();
-				
-		/*
-		MongoCollection<Document> d = db.getCollection("account");
+		emf.close();
 
-		int actualUserId = getLastId("account");
-
-		Document person = new Document();
-		person.append("ID", actualUserId + 1);
-		person.append("Address", user.getAddress());
-		person.append("Instances", new ArrayList<Document>());
-
-		d.insertOne(person);
-*/
-		
 		return "registered";
-		
-		
 	}
 
 	@GET
 	@Path("/sel/")
 	@Produces(MediaType.TEXT_PLAIN)
-	public void ret() {
-		MongoCollection<Document> d = db.getCollection("files");
+	public void ret() throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+
+		em.flush();
+		em.close();
+		tm.commit();
+		emf.close();
+	/*	MongoCollection<Document> d = db.getCollection("files");
 		MongoCollection<Document> Q = db.getCollection("Instances");
 		MongoCollection<Document> W = db.getCollection("Models");
 		MongoCollection<Document> zzz = db.getCollection("account");
@@ -136,27 +131,38 @@ public class Controller {
 		FindIterable<Document> c = d.find();
 		for (Document document : c) {
 			System.out.println(document);
-		}
+		}*/
 	}
 
-	public User retrieveUser(int id) {
-		MongoCollection<Document> d = db.getCollection("account");
-		Document person = new Document();
-		person.append("ID", id);
-
-		Document er = d.find(person).first();
-		System.out.println(er);
-		if (er != null)
-			return new User(er.getInteger("ID"), er.getString("Address"), (List<Document>) er.get("Instances"));
-		else
-			return null;
-
+	public User retrieveUser(int id) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		User user = em.find(User.class, id);
+		em.flush();
+		em.close();
+		tm.commit();
+		emf.close();
+		return user;
 	}
 
 	@POST
 	@Path("/login/")
-	public int login(User user) {
-		MongoCollection<Document> d = db.getCollection("account");
+	public int login(User user) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		
+		User loggedUser = em.find(User.class, 1);
+		em.flush();
+		em.close();
+		tm.commit();
+		emf.close();
+		
+		if(loggedUser != null)
+			return loggedUser.getID();
+		else
+			return -1;
+		
+	/*	MongoCollection<Document> d = db.getCollection("account");
 		Document person = new Document();
 		person.append("Address", user.getAddress());
 
@@ -172,7 +178,7 @@ public class Controller {
 		} else {
 			System.out.println("wrong values");
 			return -1;
-		}
+		}*/
 	}
 
 	@POST
