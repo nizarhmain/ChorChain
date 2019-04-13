@@ -13,7 +13,9 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.NotSupportedException;
@@ -90,8 +92,8 @@ public class Controller {
 		//the constructor is in the form: address, instances
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		User userc = new User();
-		userc.setAddress("thisismyaddress");
+		//User userc = new User();
+		//userc.setAddress("thisismyaddress");
 		/*Instance ist = new Instance();
 		ist.setCreatedBy("createdby field");
 		ist.setName("this is the name of the instance");
@@ -99,8 +101,8 @@ public class Controller {
 		*/
 		ArrayList lista = new ArrayList<Instance>();
 		//lista.add(ist);
-		userc.setInstances(lista);
-		em.persist(userc);
+	//	userc.setInstances(lista);
+		em.persist(user);
 		em.flush();
 		em.close();
 		tm.commit();
@@ -150,35 +152,21 @@ public class Controller {
 	public int login(User user) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
-		User loggedUser = em.find(User.class, 1);
-		em.flush();
-		em.close();
-		tm.commit();
-		emf.close();
-		
-		if(loggedUser != null)
-			return loggedUser.getID();
-		else
-			return -1;
-		
-	/*	MongoCollection<Document> d = db.getCollection("account");
-		Document person = new Document();
-		person.append("Address", user.getAddress());
-
-		Document er = d.find(person).first();
-		if (er != null)
-			loggedUser = new User(er.getInteger("ID"), er.getString("Address"), (List<Document>) er.get("Instances"));
-		else
-			loggedUser = null;
-
-		if (loggedUser != null) {
-
-			return loggedUser.getID();
-		} else {
-			System.out.println("wrong values");
-			return -1;
-		}*/
+		  Query query1 = em.createQuery("select u from User u where address = '"+ user.getAddress()+"'");
+		  try {
+		      User loggedUser = (User) query1.getSingleResult(); 
+		      System.out.println(loggedUser);
+		      em.flush();
+				em.close();
+				emf.close();
+		      return loggedUser.getID();    
+		  } catch (NoResultException nre) {
+			  System.out.println(nre);
+			  em.flush();
+				em.close();
+				emf.close();
+			  return -1;
+		  }
 	}
 
 	@POST

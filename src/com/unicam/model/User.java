@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.hibernate.annotations.NamedQuery;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
@@ -21,21 +22,22 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 @Entity
 @AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
+@NamedQuery(name = "User.findAll", query = "SELECT t FROM User t")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int ID;
+	private int _id;
 	private String address;
 //	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	@OneToMany
 	private List<Instance> instances;
 
 	public int getID() {
-		return ID;
+		return _id;
 	}
 
 	public void setID(int iD) {
-		ID = iD;
+		_id = iD;
 	}
 
 	public String getAddress() {
@@ -54,9 +56,8 @@ public class User {
 		this.instances = instances;
 	}
 
-	public User(int iD, String address, List<Instance> instances) {
+	public User(String address, List<Instance> instances) {
 		super();
-		ID = iD;
 		this.address = address;
 		this.instances = instances;
 	}
