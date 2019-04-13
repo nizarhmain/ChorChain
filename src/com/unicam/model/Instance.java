@@ -14,14 +14,20 @@ import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.hibernate.ogm.datastore.document.options.AssociationStorage;
+import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
 
 @XmlRootElement
 @Entity
+@AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
+@AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 public class Instance {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int ID;
+	private int _id;
 	private String name;
 	private int actualNumber;
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
@@ -36,11 +42,11 @@ public class Instance {
 	private ContractObject deployedContract;
 
 	public int getID() {
-		return ID;
+		return _id;
 	}
 
 	public void setID(int iD) {
-		ID = iD;
+		_id = iD;
 	}
 
 	public String getName() {
@@ -107,10 +113,10 @@ public class Instance {
 		this.deployedContract = deployedContract;
 	}
 
-	public Instance(int iD, String name, int actualNumber, Map<String, User> participants, List<String> freeRoles,
+	public Instance(String name, int actualNumber, Map<String, User> participants, List<String> freeRoles,
 			String createdBy, boolean done, List<User> visibleAt, ContractObject deployedContract) {
 		super();
-		ID = iD;
+		//_id = _id;
 		this.name = name;
 		this.actualNumber = actualNumber;
 		this.participants = participants;

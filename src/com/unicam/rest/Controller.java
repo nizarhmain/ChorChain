@@ -16,6 +16,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.NotSupportedException;
@@ -71,7 +72,8 @@ public class Controller {
 	//build the EntityManagerFactory as you would build in in Hibernate ORM
 	EntityManagerFactory emf = Persistence.createEntityManagerFactory("OGMPU");
 		
-	public int getLastId(String collection) {
+	//now id is autoincremental, useless function.
+/*	public int getLastId(String collection) {
 		MongoCollection<Document> d = db.getCollection(collection);
 
 		FindIterable<Document> allElements = d.find();
@@ -84,7 +86,7 @@ public class Controller {
 
 		return finalId;
 
-	}
+	}*/
 
 	@POST
 	@Path("reg/")
@@ -99,14 +101,14 @@ public class Controller {
 		ist.setName("this is the name of the instance");
 		em.persist(ist);
 		*/
-		ArrayList lista = new ArrayList<Instance>();
+		//ArrayList lista = new ArrayList<Instance>();
 		//lista.add(ist);
 	//	userc.setInstances(lista);
 		em.persist(user);
 		em.flush();
 		em.close();
 		tm.commit();
-		emf.close();
+		//emf.close();
 
 		return "registered";
 	}
@@ -143,7 +145,7 @@ public class Controller {
 		em.flush();
 		em.close();
 		tm.commit();
-		emf.close();
+		//emf.close();
 		return user;
 	}
 
@@ -152,19 +154,23 @@ public class Controller {
 	public int login(User user) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		  Query query1 = em.createQuery("select u from User u where address = '"+ user.getAddress()+"'");
-		  try {
-		      User loggedUser = (User) query1.getSingleResult(); 
+		TypedQuery<User> query = em.createNamedQuery("User.findByAddress", User.class);
+		try {
+		query.setParameter("address", user.getAddress());
+		//Query query1 = em.createQuery("select u from User u where address = '"+ user.getAddress()+"'");
+		User loggedUser = query.getSingleResult();
+		
+		    //  User loggedUser = (User) query1.getSingleResult(); 
 		      System.out.println(loggedUser);
 		      em.flush();
 				em.close();
-				emf.close();
+				//emf.close();
 		      return loggedUser.getID();    
-		  } catch (NoResultException nre) {
+		  } catch (Exception nre) {
 			  System.out.println(nre);
 			  em.flush();
 				em.close();
-				emf.close();
+				//emf.close();
 			  return -1;
 		  }
 	}
@@ -173,10 +179,14 @@ public class Controller {
 	@Path("/upload")
 	public String upload(@FormDataParam("cookieId") int cookieId,
 			@FormDataParam("fileName") InputStream uploadedInputStream,
-			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws IOException {
+			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws Exception {
 
 		
-		loggedUser = retrieveUser(cookieId);
+		try {
+			loggedUser = retrieveUser(cookieId);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		String filepath = ContractFunctions.projectPath + "/bpmn/" + fileDetail.getFileName();
 
 		OutputStream outputStream = null;
@@ -195,31 +205,47 @@ public class Controller {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		MongoCollection<Document> d = db.getCollection("Models");
-		Document model = new Document();
-
-		model.append("ID", getLastId("Models"));
-		model.append("name", fileDetail.getFileName());
 		Choreography getRoles = new Choreography();
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		model.append("maxNumber", roles.size());
+		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(),
+				loggedUser.getAddress(), roles, new ArrayList<String>(), new ArrayList<Instance>());
+		
+		tm.begin();
+		
+		EntityManager em = emf.createEntityManager();
+		em.persist(modelUploaded);
+		em.flush();
+		em.close();
+		tm.commit();
+		
+
+		/*MongoCollection<Document> d = db.getCollection("Models");
+		
 		model.append("uploadedBy", loggedUser.getAddress());
 		model.append("mandatoryRoles", roles);
 		model.append("optionalRoles", new ArrayList<String>());
 		model.append("instances", new ArrayList<Instance>());
 		d.insertOne(model);
 		System.out.println("MODELLO DOPO L'UPLOAD");
-		System.out.println(model);
+		System.out.println(model);*/
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
 
 	@POST
 	@Path("/getModels")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Model> getAll() {
-		MongoCollection<Document> d = db.getCollection("Models");
+	public List<Model> getAll() throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		TypedQuery<Model> query = em.createNamedQuery("Model.findAll", Model.class);
+		List<Model> allModels = query.getResultList();
+		em.flush();
+		em.close();
+		tm.commit();
+		
+		/*MongoCollection<Document> d = db.getCollection("Models");
 
 		FindIterable<Document> c = d.find();
 		List<Model> allModels = new ArrayList<Model>();
@@ -242,7 +268,7 @@ public class Controller {
 				allModels.add(model);
 			}
 			
-		}
+		}*/
 		return allModels;
 	}
 

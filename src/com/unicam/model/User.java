@@ -23,6 +23,7 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 @AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 @NamedQuery(name = "User.findAll", query = "SELECT t FROM User t")
+@NamedQuery(name="User.findByAddress", query="SELECT u FROM User u WHERE u.address = :address")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -2,20 +2,40 @@ package com.unicam.model;
 
 import java.util.List;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.hibernate.annotations.NamedQuery;
+import org.hibernate.ogm.datastore.document.options.AssociationStorage;
+import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
 
 @XmlRootElement
+@Entity
+@AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
+@AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
+@NamedQuery(name = "Model.findAll", query = "SELECT m FROM Model m")
 public class Model {
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int ID;
 	private String name;
 	private int maxNumber;
 	private String uploadedBy;
+	@ElementCollection(fetch=FetchType.EAGER)
 	private List<String> mandatoryRoles;
+	@ElementCollection(fetch=FetchType.EAGER)
 	private List<String> optionalRoles;
-	private List<Document> instances;
+	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
+	private List<Instance> instances;
 
 	public int getID() {
 		return ID;
@@ -65,18 +85,18 @@ public class Model {
 		this.optionalRoles = optionalRoles;
 	}
 
-	public List<Document> getInstances() {
+	public List<Instance> getInstances() {
 		return instances;
 	}
 
-	public void setInstances(List<Document> instances) {
+	public void setInstances(List<Instance> instances) {
 		this.instances = instances;
 	}
 
-	public Model(int iD, String name, int maxNumber, String uploadedBy, List<String> mandatoryRoles,
-			List<String> optionalRoles, List<Document> instances) {
+	public Model(String name, int maxNumber, String uploadedBy, List<String> mandatoryRoles,
+			List<String> optionalRoles, List<Instance> instances) {
 		super();
-		ID = iD;
+		//_id = iD;
 		this.name = name;
 		this.maxNumber = maxNumber;
 		this.uploadedBy = uploadedBy;
