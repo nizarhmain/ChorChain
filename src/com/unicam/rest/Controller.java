@@ -219,17 +219,7 @@ public class Controller {
 		em.flush();
 		em.close();
 		tm.commit();
-		
 
-		/*MongoCollection<Document> d = db.getCollection("Models");
-		
-		model.append("uploadedBy", loggedUser.getAddress());
-		model.append("mandatoryRoles", roles);
-		model.append("optionalRoles", new ArrayList<String>());
-		model.append("instances", new ArrayList<Instance>());
-		d.insertOne(model);
-		System.out.println("MODELLO DOPO L'UPLOAD");
-		System.out.println(model);*/
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
 
@@ -245,96 +235,45 @@ public class Controller {
 		em.close();
 		tm.commit();
 		
-		/*MongoCollection<Document> d = db.getCollection("Models");
-
-		FindIterable<Document> c = d.find();
-		List<Model> allModels = new ArrayList<Model>();
-
-		for (Document document : c) {
-			if(document != null) {
-				System.out.println(document.getInteger("ID"));
-				System.out.println(document.getString("name"));
-				System.out.println(document.getInteger("maxNumber"));
-				System.out.println(document.getString("uploadedBy"));
-				System.out.println(document.get("mandatoryRoles"));
-				System.out.println(document.get("optionalRoles"));
-				System.out.println(document.get("instances"));
-				Model model = new Model(document.getInteger("ID"), 
-					document.getString("name"),
-					document.getInteger("maxNumber"), 
-					document.getString("uploadedBy"),
-					(List<String>) document.get("mandatoryRoles"), (List<String>) document.get("optionalRoles"),
-					(List<Document>) document.get("instances"));
-				allModels.add(model);
-			}
-			
-		}*/
 		return allModels;
 	}
 
 	@POST
 	@Path("/createInstance/{cookieId}")
-	public void createInstance(Model m, @PathParam("cookieId") int cookieId) {
+	public void createInstance(Model m, @PathParam("cookieId") int cookieId) throws Exception {
 		// Find the model we want to instantiate
 		loggedUser = retrieveUser(cookieId);
-		MongoCollection<Document> d = db.getCollection("Models");
-
-		Document toFind = new Document();
-		toFind.append("ID", m.getID());
-		FindIterable<Document> er = d.find(toFind);
-		Document model = er.first();
-		List<Document> allModelInstances = (List<Document>) model.get("instances");
-		int lastId = 0;
-		for (Document in : allModelInstances) {
-			lastId = in.getInteger("ID");
-		}
-		/*Instance modelInstance = new Instance(lastId, m.getName(), 0, null, m.getMandatoryRoles(),
-				loggedUser.getAddress(), false, null, null);*/
-		Document modelInstance = new Document();
-		modelInstance.append("ID", lastId+1);
-		modelInstance.append("Name", m.getName());
-		modelInstance.append("Actual_number", 0);
-		modelInstance.append("Participants", new HashMap<String, Document>());
-		modelInstance.append("Free_roles", m.getMandatoryRoles());
-		modelInstance.append("Created_by", loggedUser.getAddress());
-		modelInstance.append("Done", false);
-		modelInstance.append("Visible_at", new ArrayList<Document>());
-		modelInstance.append("Deployed_contract", new Document());
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		Model model = em.find(Model.class, m.getID());
+		List<Instance> modelInstances = model.getInstances();
 		
-		d.deleteOne(model);
-		allModelInstances.add(modelInstance);
-		model.append("Instances", allModelInstances);
-		System.out.println(model);
-		d.insertOne(model);
-		// Insert instance on the DB
-
-		// MongoCollection<Document> collection = db.getCollection("Instances");
-		// get last id of the instance
-		// Document lastId = new Document();
-
-		/*
-		 * lastId.append("Instance_name", m.getName()); FindIterable<Document> docs =
-		 * collection.find(lastId); int id = 0; for (Document inst : docs) { if
-		 * (inst.getInteger("Id") > id) { id = inst.getInteger("Id"); } }
-		 */
-		//
-		/*
-		 * Document instance = new Document(); instance.append("Instance_name",
-		 * m.getName()); instance.append("Max_number", m.getMaxNumber());
-		 * instance.append("Actual_number", 0); instance.append("Participants", new
-		 * ArrayList<String>()); instance.append("Roles", m.getRoles());
-		 * instance.append("Free_roles", m.getRoles()); instance.append("Subbed_roles",
-		 * new ArrayList<String>()); instance.append("Created_by",
-		 * loggedUser.getAddress()); instance.append("Id", id + 1);
-		 * instance.append("Done", false); collection.insertOne(instance);
-		 * System.out.println("istanza alla creazione: " + instance);
-		 */
+		Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
+				loggedUser.getAddress(), false, new ArrayList<User>(), new ContractObject());
+		
+		modelInstances.add(modelInstance);
+		em.persist(modelInstance);
+		em.merge(model);
+		em.refresh(model);
+		em.flush();
+		em.close();
+		tm.commit();
+		
 	}
 
 	@POST
 	@Path("/getInstances/")
-	public List<Instance> getAllInstances(Model m) {
-		MongoCollection<Document> d = db.getCollection("Models");
+	public List<Instance> getAllInstances(Model m) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		Model model = em.find(Model.class, m.getID());
+		List<Instance> allInstances = model.getInstances();
+		em.flush();
+		em.close();
+		tm.commit();
+		
+		
+		/*MongoCollection<Document> d = db.getCollection("Models");
 
 		Document toFind = new Document();
 		toFind.append("ID", m.getID());
@@ -351,7 +290,7 @@ public class Controller {
 			allInstances.add(addInstance);
 		}
 		
-		/*
+		
 		 * for (Document document : docs) { List<String> participants = (List<String>)
 		 * document.get("Participants");
 		 * 
