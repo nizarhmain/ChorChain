@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.json.JSONObject;
@@ -11,17 +14,18 @@ import org.json.JSONObject;
 @Entity
 public class ContractObject {
 	@Id
-	private String ID;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int ID;
 	private String address;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> tasksID;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> tasks;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> taskRoles;
 	private String abi;
 	private String bin;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> varNames;
 	
 	public List<String> getTaskRoles() {
@@ -30,10 +34,10 @@ public class ContractObject {
 	public void setTaskRoles(List<String> taskRoles) {
 		this.taskRoles = taskRoles;
 	}
-	public String getID() {
+	public int getID() {
 		return ID;
 	}
-	public void setID(String ID) {
+	public void setID(int ID) {
 		this.ID = ID;
 	}
 	public String getAddress() {
@@ -73,10 +77,10 @@ public class ContractObject {
 	public void setVarNames(List<String> varNames) {
 		this.varNames = varNames;
 	}
-	public ContractObject(String ID, String address, List<String> tasksID, List<String> tasks, List<String> taskRoles,
+	public ContractObject(String address, List<String> tasksID, List<String> tasks, List<String> taskRoles,
 			String abi, String bin, List<String> varNames) {
 		super();
-		this.ID = ID;
+		//this.ID = ID;
 		this.address = address;
 		this.tasksID = tasksID;
 		this.tasks = tasks;

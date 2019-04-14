@@ -32,13 +32,13 @@ public class Instance {
 	private int actualNumber;
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
 	private Map<String, User> participants;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> freeRoles;
 	private String createdBy;
 	private boolean done;
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
 	private List<User> visibleAt;
-	@OneToOne(targetEntity=ContractObject.class, fetch = FetchType.EAGER)
+	@OneToOne
 	private ContractObject deployedContract;
 
 	public int getID() {

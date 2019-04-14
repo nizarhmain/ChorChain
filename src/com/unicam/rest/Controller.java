@@ -242,19 +242,27 @@ public class Controller {
 	@Path("/createInstance/{cookieId}")
 	public void createInstance(Model m, @PathParam("cookieId") int cookieId) throws Exception {
 		// Find the model we want to instantiate
-		loggedUser = retrieveUser(cookieId);
+		//loggedUser = retrieveUser(cookieId);
 		tm.begin();
+		
 		EntityManager em = emf.createEntityManager();
+		loggedUser = em.find(User.class, cookieId);
 		Model model = em.find(Model.class, m.getID());
 		List<Instance> modelInstances = model.getInstances();
-		
+		ContractObject deployedContract = new ContractObject();
 		Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
-				loggedUser.getAddress(), false, new ArrayList<User>(), new ContractObject());
+				loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
 		
+		List<Instance> userInstances = loggedUser.getInstances();
+		userInstances.add(modelInstance);
+		loggedUser.setInstances(userInstances);
 		modelInstances.add(modelInstance);
+		model.setInstances(modelInstances);
 		em.persist(modelInstance);
-		em.merge(model);
-		em.refresh(model);
+		em.persist(deployedContract);
+		em.getTransaction().commit();
+	//	em.merge(model);
+		//em.refresh(model);
 		em.flush();
 		em.close();
 		tm.commit();
@@ -273,36 +281,6 @@ public class Controller {
 		tm.commit();
 		
 		
-		/*MongoCollection<Document> d = db.getCollection("Models");
-
-		Document toFind = new Document();
-		toFind.append("ID", m.getID());
-		Document docs = d.find(toFind).first();
-
-		List<Instance> allInstances = new ArrayList<Instance>();
-		
-		for(Document docuInstance : (List<Document>) docs.get("Instances")) {
-			Instance addInstance = new Instance(docuInstance.getInteger("ID"), docuInstance.getString("Name"), 
-					docuInstance.getInteger("Actual_number"), (Map<String, 	Document>)docuInstance.get("Participants"), 
-					(List<String>)docuInstance.get("Free_roles"), docuInstance.getString("Created_by"), docuInstance.getBoolean("Done"),
-					(List<Document>)docuInstance.get("Visible_at"), (Document)docuInstance.get("Deployed_contract"));
-			
-			allInstances.add(addInstance);
-		}
-		
-		
-		 * for (Document document : docs) { List<String> participants = (List<String>)
-		 * document.get("Participants");
-		 * 
-		 * Instance model = new Instance(document.getString("Instance_name"),
-		 * document.getInteger("Max_number"), document.getInteger("Actual_number"),
-		 * participants, (List<String>) document.get("Roles"), (List<String>)
-		 * document.get("Free_roles"), (List<String>) document.get("Subbed_roles"),
-		 * document.getString("Created_by"), document.getInteger("Id"),
-		 * document.getBoolean("Done")); allModels.add(model);
-		 * 
-		 * }
-		 */
 
 		return allInstances;
 

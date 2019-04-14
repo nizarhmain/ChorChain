@@ -30,7 +30,7 @@ public class User {
 	private int _id;
 	private String address;
 //	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
-	@OneToMany
+	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	private List<Instance> instances;
 
 	public int getID() {
