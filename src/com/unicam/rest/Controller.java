@@ -279,51 +279,59 @@ public class Controller {
 		em.flush();
 		em.close();
 		tm.commit();
-		
-		
-
 		return allInstances;
-
 	}
 
 	@POST
 	@Path("/subscribe/{role}/{cookieId}/{instanceID}")
 	public String subscribe(@PathParam("role") String role, @PathParam("cookieId") int cookieId,
-			@PathParam("instanceID") int instanceId, Model modelInstance) {
+			@PathParam("instanceID") int instanceId, Model modelInstance) throws Exception {
 
-		loggedUser = retrieveUser(cookieId);
+		//TO MODIFY : model has to be retrieved from the DB, not from the frontend.
+		//delete modelInstance from params and pass only the model id.
+		
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		
+		loggedUser = em.find(User.class, cookieId);
+		
+		Model modelToSub = em.find(Model.class, modelInstance.getID());
+		
+		List<Instance> allModelInstances = modelToSub.getInstances();
+		
+		int ind = 0;
+		for(Instance instance : allModelInstances) {
+			if(instance.getID() == instanceId) {
+				int max = modelToSub.getMaxNumber();
+				int actual = instance.getActualNumber();
+				if(max >= actual+1) {
+					instance.setActualNumber(actual+1);
+					
+					List<String> freeRoles = instance.getFreeRoles();
+					freeRoles.remove(role);
+					
+					Map<String, User> subscribers = instance.getParticipants();
+					subscribers.put(role, loggedUser);
+					
+					List<Instance> userInstances = loggedUser.getInstances();
+					userInstances.set(ind, instance);
+				}
+			}
+			ind++;
+		}
+		
 
-		MongoCollection<Document> d = db.getCollection("Models");
+		em.flush();
+		em.close();
+		tm.commit();
+		/*
 
-		Document toFind = new Document();
-
-		toFind.append("ID", modelInstance.getID());
-
-		Document er = d.find(toFind).first();
-
-		List<Document> allModelInstances = (List<Document>) er.get("Instances");
-
-		for(Document docInst : allModelInstances) {
 			if(docInst.getInteger("ID") == instanceId) {
-				//get the max and the actual number of participants
-				int max = modelInstance.getMaxNumber();
-				int actual = docInst.getInteger("Actual_number");
+				
 				//check if a new subscriber can be added
 				if (max >= actual + 1) {
 					//increment the actual number of participants
-					docInst.append("Actual_number", actual+1);
-					//remove the role subscribed from the free roles
-					List<String> freeRoles = (List<String>) docInst.get("Free_roles");
-					freeRoles.remove(role);
-					//update the hashmap of the users subscribed
-					Map<String, Document> subscribers = (Map<String, Document>) docInst.get("Participants");
-					Document subscriber = new Document();
-					subscriber.append("ID", loggedUser.getID());
-					subscriber.append("Address", loggedUser.getAddress());
-					subscriber.append("Instances", loggedUser.getInstances());
-					subscribers.put(role, subscriber);
-					
-					
+
 					MongoCollection<Document> accounts = db.getCollection("account");
 					Document person = new Document();
 					person.append("ID", loggedUser.getID());
@@ -353,7 +361,7 @@ public class Controller {
 					return "Subscribe completed";
 				}
 			}
-		}
+		}*/
 	
 		
 		
@@ -580,7 +588,7 @@ public class Controller {
 
 	@POST
 	@Path("/getUserInfo/{cookieId}")
-	public User getUserInfo(@PathParam("cookieId") int cookieId) {
+	public User getUserInfo(@PathParam("cookieId") int cookieId) throws Exception {
 		loggedUser = retrieveUser(cookieId);
 		System.out.println(loggedUser);
 		return loggedUser;
