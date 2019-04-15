@@ -299,12 +299,15 @@ public class Controller {
 		
 		List<Instance> allModelInstances = modelToSub.getInstances();
 		
-		int ind = 0;
+		
 		for(Instance instance : allModelInstances) {
+			
 			if(instance.getID() == instanceId) {
+				
 				int max = modelToSub.getMaxNumber();
 				int actual = instance.getActualNumber();
 				if(max >= actual+1) {
+					
 					instance.setActualNumber(actual+1);
 					
 					List<String> freeRoles = instance.getFreeRoles();
@@ -314,13 +317,17 @@ public class Controller {
 					subscribers.put(role, loggedUser);
 					
 					List<Instance> userInstances = loggedUser.getInstances();
-					userInstances.set(ind, instance);
+					for(int i = 0; i < userInstances.size(); i++) {
+						if(userInstances.get(i).getID() == instance.getID())
+							userInstances.set(i, instance);
+					}
+					
 				}
 			}
-			ind++;
+		
 		}
 		
-
+		em.getTransaction().commit();
 		em.flush();
 		em.close();
 		tm.commit();
