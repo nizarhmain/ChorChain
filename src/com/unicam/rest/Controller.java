@@ -39,6 +39,7 @@ import org.bson.BsonDocument;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONObject;
@@ -48,6 +49,7 @@ import org.web3j.protocol.http.HttpService;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -91,26 +93,22 @@ public class Controller {
 	@POST
 	@Path("reg/")
 	public String sub(User user) throws Exception {
-		//the constructor is in the form: address, instances
-		tm.begin();
+		String result;
 		EntityManager em = emf.createEntityManager();
-		//User userc = new User();
-		//userc.setAddress("thisismyaddress");
-		/*Instance ist = new Instance();
-		ist.setCreatedBy("createdby field");
-		ist.setName("this is the name of the instance");
-		em.persist(ist);
-		*/
-		//ArrayList lista = new ArrayList<Instance>();
-		//lista.add(ist);
-	//	userc.setInstances(lista);
-		em.persist(user);
-		em.flush();
-		em.close();
-		tm.commit();
-		//emf.close();
-
-		return "registered";
+		try {
+			tm.begin();
+			em.persist(user);
+			em.flush();
+			em.close();
+			tm.commit();			  
+			return "Registered";
+		} catch (MongoWriteException e) {
+			em.close();
+			if (e.getCode() == 11000) {	
+				return "Address already registered";
+			}
+			else return "Some error occurred";
+		}
 	}
 
 	@GET
@@ -138,49 +136,42 @@ public class Controller {
 		}*/
 	}
 
-	public User retrieveUser(int id) throws Exception {
+	public User retrieveUser(String id) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		User user = em.find(User.class, id);
 		em.flush();
 		em.close();
 		tm.commit();
-		//emf.close();
 		return user;
 	}
 
 	@POST
 	@Path("/login/")
-	public int login(User user) throws Exception {
+	public String login(User user) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		TypedQuery<User> query = em.createNamedQuery("User.findByAddress", User.class);
 		try {
 		query.setParameter("address", user.getAddress());
-		//Query query1 = em.createQuery("select u from User u where address = '"+ user.getAddress()+"'");
 		User loggedUser = query.getSingleResult();
-		
-		    //  User loggedUser = (User) query1.getSingleResult(); 
-		      System.out.println(loggedUser);
+		      System.out.println(loggedUser.getID());
 		      em.flush();
-				em.close();
-				//emf.close();
+			  em.close();
+			  tm.commit();
 		      return loggedUser.getID();    
 		  } catch (Exception nre) {
-			  System.out.println(nre);
-			  em.flush();
-				em.close();
-				//emf.close();
-			  return -1;
+			  em.close();
+			  tm.commit();			  
+			  return null;
 		  }
 	}
 
 	@POST
 	@Path("/upload")
-	public String upload(@FormDataParam("cookieId") int cookieId,
+	public String upload(@FormDataParam("cookieId") String cookieId,
 			@FormDataParam("fileName") InputStream uploadedInputStream,
 			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws Exception {
-
 		
 		try {
 			loggedUser = retrieveUser(cookieId);
@@ -240,13 +231,15 @@ public class Controller {
 
 	@POST
 	@Path("/createInstance/{cookieId}")
-	public void createInstance(Model m, @PathParam("cookieId") int cookieId) throws Exception {
+	public void createInstance(Model m, @PathParam("cookieId") String cookieId) throws Exception {
 		// Find the model we want to instantiate
 		//loggedUser = retrieveUser(cookieId);
 		tm.begin();
 		
 		EntityManager em = emf.createEntityManager();
+		try {
 		loggedUser = em.find(User.class, cookieId);
+				
 		Model model = em.find(Model.class, m.getID());
 		List<Instance> modelInstances = model.getInstances();
 		ContractObject deployedContract = new ContractObject();
@@ -254,6 +247,7 @@ public class Controller {
 				loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
 		
 		List<Instance> userInstances = loggedUser.getInstances();
+		
 		userInstances.add(modelInstance);
 		loggedUser.setInstances(userInstances);
 		modelInstances.add(modelInstance);
@@ -264,6 +258,9 @@ public class Controller {
 	//	em.merge(model);
 		//em.refresh(model);
 		em.flush();
+
+		} catch(Exception e) {}
+
 		em.close();
 		tm.commit();
 		
@@ -272,10 +269,15 @@ public class Controller {
 	@POST
 	@Path("/getInstances/")
 	public List<Instance> getAllInstances(Model m) throws Exception {
+		List<Instance> allInstances = null;
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		Model model = em.find(Model.class, m.getID());
-		List<Instance> allInstances = model.getInstances();
+		try {
+			Model model = em.find(Model.class, m.getID());
+			allInstances = model.getInstances();
+		} catch(Exception e) {
+			System.out.println(e.toString());
+		}
 		em.flush();
 		em.close();
 		tm.commit();

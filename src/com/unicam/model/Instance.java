@@ -14,6 +14,8 @@ import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
@@ -26,8 +28,9 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 public class Instance {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int _id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Type(type = "objectid")
+	private String id;
 	private String name;
 	private int actualNumber;
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
@@ -41,12 +44,12 @@ public class Instance {
 	@OneToOne
 	private ContractObject deployedContract;
 
-	public int getID() {
-		return _id;
+	public String getID() {
+		return id;
 	}
 
-	public void setID(int iD) {
-		_id = iD;
+	public void setID(String iD) {
+		id = iD;
 	}
 
 	public String getName() {

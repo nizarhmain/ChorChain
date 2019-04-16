@@ -22,25 +22,22 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			
 			
 			$scope.registerUser = function(){
-				
 				service.registerUser($scope.regUser).then(function(response){	
 					alert(response.data);
-					
 				});		
 			}
 			
 			$scope.loginUser = function(){
 				service.loginUser($scope.user).then(function(response){
-					console.log("logged");
-					if(response.data != -1){
-						console.log(response.data);
+					if(!response.data){
+						console.log("Negative response");
+					}
+					else{
+						console.log("logged");
 						$cookies.put('UserId', response.data);
 						$scope.cookieId = response.data;
 						console.log($scope.cookieId);
 						window.location.href = 'http://193.205.92.133:8080/ChorChain/homePage.html';
-					}
-					else{
-						console.log("Negatvie response");
 					}
 					
 				});		

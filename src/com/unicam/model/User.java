@@ -2,6 +2,7 @@ package com.unicam.model;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +13,9 @@ import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.hibernate.annotations.NamedQuery;
+import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
@@ -26,19 +29,21 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 @NamedQuery(name="User.findByAddress", query="SELECT u FROM User u WHERE u.address = :address")
 public class User {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int _id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Type(type = "objectid")
+    private String id;
+    @Column(unique = true)
 	private String address;
 //	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	private List<Instance> instances;
 
-	public int getID() {
-		return _id;
+	public String getID() {
+		return id;
 	}
 
-	public void setID(int iD) {
-		_id = iD;
+	public void setID(String iD) {
+		id = iD;
 	}
 
 	public String getAddress() {

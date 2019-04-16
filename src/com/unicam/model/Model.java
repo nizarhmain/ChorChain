@@ -12,7 +12,9 @@ import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.hibernate.annotations.NamedQuery;
+import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
@@ -24,9 +26,10 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 @NamedQuery(name = "Model.findAll", query = "SELECT m FROM Model m")
 public class Model {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int ID;
+	 @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Type(type = "objectid")
+    private String id;
 	private String name;
 	private int maxNumber;
 	private String uploadedBy;
@@ -37,12 +40,12 @@ public class Model {
 	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	private List<Instance> instances;
 
-	public int getID() {
-		return ID;
+	public String getID() {
+		return id;
 	}
 
-	public void setID(int iD) {
-		ID = iD;
+	public void setID(String iD) {
+		id = iD;
 	}
 
 	public String getName() {

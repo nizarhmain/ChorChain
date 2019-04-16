@@ -9,13 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.bson.types.ObjectId;
+import org.hibernate.annotations.Type;
 import org.json.JSONObject;
 
 @Entity
 public class ContractObject {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int ID;
+	 @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Type(type = "objectid")
+    private String id;
 	private String address;
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> tasksID;
@@ -34,11 +37,11 @@ public class ContractObject {
 	public void setTaskRoles(List<String> taskRoles) {
 		this.taskRoles = taskRoles;
 	}
-	public int getID() {
-		return ID;
+	public String getID() {
+		return id;
 	}
-	public void setID(int ID) {
-		this.ID = ID;
+	public void setID(String ID) {
+		this.id = ID;
 	}
 	public String getAddress() {
 		return address;
@@ -80,7 +83,6 @@ public class ContractObject {
 	public ContractObject(String address, List<String> tasksID, List<String> tasks, List<String> taskRoles,
 			String abi, String bin, List<String> varNames) {
 		super();
-		//this.ID = ID;
 		this.address = address;
 		this.tasksID = tasksID;
 		this.tasks = tasks;
