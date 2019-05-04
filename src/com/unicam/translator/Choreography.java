@@ -38,6 +38,7 @@ import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 
 import com.unicam.model.ContractObject;
 import com.unicam.model.TaskObject;
+import com.unicam.model.User;
 import com.unicam.rest.ContractFunctions;
 
 import org.camunda.bpm.model.bpmn.instance.EndEvent;
@@ -73,7 +74,7 @@ public class Choreography {
 	private static List<String> roleFortask;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
-	public boolean start(File bpmnFile, Map<String, Document> participants) throws Exception {
+	public boolean start(File bpmnFile, Map<String, User> participants) throws Exception {
 		try{
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
@@ -81,7 +82,7 @@ public class Choreography {
 			choreography.FlowNodeSearch();
 			choreographyFile = choreography.initial(bpmnFile.getName(), participants) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
-			finalContract = new ContractObject(bpmnFile.getName(), null,elementsID ,tasks,roleFortask , null, null, gatewayGuards);
+			finalContract = new ContractObject(null,elementsID ,tasks,roleFortask , null, null, gatewayGuards);
 			choreography.fileAll(bpmnFile.getName());
 			System.out.println("Contract creation done");
 			System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
@@ -133,7 +134,7 @@ public class Choreography {
 
 	
 
-	private static String initial(String filename, Map<String, Document> participants) {
+	private static String initial(String filename, Map<String, User> participants) {
 		String intro = "pragma solidity ^0.5.3; \n"
 				+ "	pragma experimental ABIEncoderV2;\n"
 				+ "	contract " + ContractFunctions.parseName(filename, "") +"{\n"
@@ -180,9 +181,9 @@ public class Choreography {
 				"         //roles definition\r\n" + 
 				"         //mettere address utenti in base ai ruoli\r\n" ;
 				int i = 0;
-				for(Map.Entry<String, Document> sub : participants.entrySet()) {
+				for(Map.Entry<String, User> sub : participants.entrySet()) {
 				
-					constr+="	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getString("Address") + ";\n";
+					constr+="	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getAddress() + ";\n";
 					i++;
 				}
 		

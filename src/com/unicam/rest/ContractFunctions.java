@@ -84,7 +84,7 @@ public class ContractFunctions {
 
 
 
-	public ContractObject createSolidity(String fileName, Map<String, Document> participants) {
+	public ContractObject createSolidity(String fileName, Map<String, User> participants) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {

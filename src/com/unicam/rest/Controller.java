@@ -67,28 +67,27 @@ public class Controller {
 
 	private User loggedUser;
 	HttpSession session;
-	
-	//accessing JBoss's Transaction can be done differently but this one works nicely
+
+	// accessing JBoss's Transaction can be done differently but this one works
+	// nicely
 	TransactionManager tm = com.arjuna.ats.jta.TransactionManager.transactionManager();
 
-	//build the EntityManagerFactory as you would build in in Hibernate ORM
+	// build the EntityManagerFactory as you would build in in Hibernate ORM
 	EntityManagerFactory emf = Persistence.createEntityManagerFactory("OGMPU");
-		
-	//now id is autoincremental, useless function.
-/*	public int getLastId(String collection) {
-		MongoCollection<Document> d = db.getCollection(collection);
 
-		FindIterable<Document> allElements = d.find();
-		int finalId = 0;
-		if (allElements != null) {
-			for (Document docUser : allElements) {
-				finalId = docUser.getInteger("ID");
-			}
-		}
-
-		return finalId;
-
-	}*/
+	// now id is autoincremental, useless function.
+	/*
+	 * public int getLastId(String collection) { MongoCollection<Document> d =
+	 * db.getCollection(collection);
+	 * 
+	 * FindIterable<Document> allElements = d.find(); int finalId = 0; if
+	 * (allElements != null) { for (Document docUser : allElements) { finalId =
+	 * docUser.getInteger("ID"); } }
+	 * 
+	 * return finalId;
+	 * 
+	 * }
+	 */
 
 	@POST
 	@Path("reg/")
@@ -100,14 +99,14 @@ public class Controller {
 			em.persist(user);
 			em.flush();
 			em.close();
-			tm.commit();			  
+			tm.commit();
 			return "Registered";
 		} catch (MongoWriteException e) {
 			em.close();
-			if (e.getCode() == 11000) {	
+			if (e.getCode() == 11000) {
 				return "Address already registered";
-			}
-			else return "Some error occurred";
+			} else
+				return "Some error occurred";
 		}
 	}
 
@@ -122,18 +121,16 @@ public class Controller {
 		em.close();
 		tm.commit();
 		emf.close();
-	/*	MongoCollection<Document> d = db.getCollection("files");
-		MongoCollection<Document> Q = db.getCollection("Instances");
-		MongoCollection<Document> W = db.getCollection("Models");
-		MongoCollection<Document> zzz = db.getCollection("account");
-		zzz.deleteMany(new Document());
-		d.deleteMany(new Document());
-		W.deleteMany(new Document());
-		Q.deleteMany(new Document());
-		FindIterable<Document> c = d.find();
-		for (Document document : c) {
-			System.out.println(document);
-		}*/
+		/*
+		 * MongoCollection<Document> d = db.getCollection("files");
+		 * MongoCollection<Document> Q = db.getCollection("Instances");
+		 * MongoCollection<Document> W = db.getCollection("Models");
+		 * MongoCollection<Document> zzz = db.getCollection("account");
+		 * zzz.deleteMany(new Document()); d.deleteMany(new Document());
+		 * W.deleteMany(new Document()); Q.deleteMany(new Document());
+		 * FindIterable<Document> c = d.find(); for (Document document : c) {
+		 * System.out.println(document); }
+		 */
 	}
 
 	public User retrieveUser(String id) throws Exception {
@@ -153,18 +150,18 @@ public class Controller {
 		EntityManager em = emf.createEntityManager();
 		TypedQuery<User> query = em.createNamedQuery("User.findByAddress", User.class);
 		try {
-		query.setParameter("address", user.getAddress());
-		User loggedUser = query.getSingleResult();
-		      System.out.println(loggedUser.getID());
-		      em.flush();
-			  em.close();
-			  tm.commit();
-		      return loggedUser.getID();    
-		  } catch (Exception nre) {
-			  em.close();
-			  tm.commit();			  
-			  return null;
-		  }
+			query.setParameter("address", user.getAddress());
+			User loggedUser = query.getSingleResult();
+			System.out.println(loggedUser.getID());
+			em.flush();
+			em.close();
+			tm.commit();
+			return loggedUser.getID();
+		} catch (Exception nre) {
+			em.close();
+			tm.commit();
+			return null;
+		}
 	}
 
 	@POST
@@ -172,7 +169,7 @@ public class Controller {
 	public String upload(@FormDataParam("cookieId") String cookieId,
 			@FormDataParam("fileName") InputStream uploadedInputStream,
 			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws Exception {
-		
+
 		try {
 			loggedUser = retrieveUser(cookieId);
 		} catch (Exception e1) {
@@ -200,11 +197,11 @@ public class Controller {
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(),
-				loggedUser.getAddress(), roles, new ArrayList<String>(), new ArrayList<Instance>());
-		
+		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(), loggedUser.getAddress(), roles,
+				new ArrayList<String>(), new ArrayList<Instance>());
+
 		tm.begin();
-		
+
 		EntityManager em = emf.createEntityManager();
 		em.persist(modelUploaded);
 		em.flush();
@@ -225,7 +222,7 @@ public class Controller {
 		em.flush();
 		em.close();
 		tm.commit();
-		
+
 		return allModels;
 	}
 
@@ -233,37 +230,38 @@ public class Controller {
 	@Path("/createInstance/{cookieId}")
 	public void createInstance(Model m, @PathParam("cookieId") String cookieId) throws Exception {
 		// Find the model we want to instantiate
-		//loggedUser = retrieveUser(cookieId);
+		// loggedUser = retrieveUser(cookieId);
 		tm.begin();
-		
+
 		EntityManager em = emf.createEntityManager();
 		try {
-		loggedUser = em.find(User.class, cookieId);
-				
-		Model model = em.find(Model.class, m.getID());
-		List<Instance> modelInstances = model.getInstances();
-		ContractObject deployedContract = new ContractObject();
-		Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
-				loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
-		
-		List<Instance> userInstances = loggedUser.getInstances();
-		
-		userInstances.add(modelInstance);
-		loggedUser.setInstances(userInstances);
-		modelInstances.add(modelInstance);
-		model.setInstances(modelInstances);
-		em.persist(modelInstance);
-		em.persist(deployedContract);
-		em.getTransaction().commit();
-	//	em.merge(model);
-		//em.refresh(model);
-		em.flush();
+			loggedUser = em.find(User.class, cookieId);
 
-		} catch(Exception e) {}
+			Model model = em.find(Model.class, m.getID());
+			List<Instance> modelInstances = model.getInstances();
+			ContractObject deployedContract = new ContractObject();
+			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
+					loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
+
+			List<Instance> userInstances = loggedUser.getInstances();
+
+			userInstances.add(modelInstance);
+			loggedUser.setInstances(userInstances);
+			modelInstances.add(modelInstance);
+			model.setInstances(modelInstances);
+			em.persist(modelInstance);
+			em.persist(deployedContract);
+			em.getTransaction().commit();
+			// em.merge(model);
+			// em.refresh(model);
+			em.flush();
+
+		} catch (Exception e) {
+		}
 
 		em.close();
 		tm.commit();
-		
+
 	}
 
 	@POST
@@ -275,7 +273,7 @@ public class Controller {
 		try {
 			Model model = em.find(Model.class, m.getID());
 			allInstances = model.getInstances();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
 		em.flush();
@@ -287,270 +285,162 @@ public class Controller {
 	@POST
 	@Path("/subscribe/{role}/{cookieId}/{instanceID}")
 	public String subscribe(@PathParam("role") String role, @PathParam("cookieId") int cookieId,
-			@PathParam("instanceID") int instanceId, Model modelInstance) throws Exception {
+			@PathParam("instanceID") String instanceId, Model modelInstance) throws Exception {
 
-		//TO MODIFY : model has to be retrieved from the DB, not from the frontend.
-		//delete modelInstance from params and pass only the model id.
-		
+		// TO MODIFY : model has to be retrieved from the DB, not from the frontend.
+		// delete modelInstance from params and pass only the model id.
+
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+
 		loggedUser = em.find(User.class, cookieId);
-		
-		Model modelToSub = em.find(Model.class, modelInstance.getID());
-		
-		List<Instance> allModelInstances = modelToSub.getInstances();
-		
-		
-		for(Instance instance : allModelInstances) {
-			
-			if(instance.getID() == instanceId) {
-				
-				int max = modelToSub.getMaxNumber();
-				int actual = instance.getActualNumber();
-				if(max >= actual+1) {
-					
-					instance.setActualNumber(actual+1);
-					
-					List<String> freeRoles = instance.getFreeRoles();
-					freeRoles.remove(role);
-					
-					Map<String, User> subscribers = instance.getParticipants();
-					subscribers.put(role, loggedUser);
-					
-					List<Instance> userInstances = loggedUser.getInstances();
-					for(int i = 0; i < userInstances.size(); i++) {
-						if(userInstances.get(i).getID() == instance.getID())
-							userInstances.set(i, instance);
-					}
-					
-				}
-			}
-		
+
+		// Model modelToSub = em.find(Model.class, modelInstance.getID());
+		Instance instanceToSub = em.find(Instance.class, instanceId);
+		/*
+		 * List<Instance> allModelInstances = modelToSub.getInstances();
+		 * 
+		 * 
+		 * for(Instance instance : allModelInstances) {
+		 * 
+		 * if(instance.getID() == instanceId) {
+		 */
+
+		int max = modelInstance.getMaxNumber();
+		int actual = instanceToSub.getActualNumber();
+		if (max >= actual + 1) {
+
+			instanceToSub.setActualNumber(actual + 1);
+
+			List<String> freeRoles = instanceToSub.getFreeRoles();
+			freeRoles.remove(role);
+
+			Map<String, User> subscribers = instanceToSub.getParticipants();
+			subscribers.put(role, loggedUser);
+
+			/*
+			 * List<Instance> userInstances = loggedUser.getInstances(); for(int i = 0; i <
+			 * userInstances.size(); i++) { if(userInstances.get(i).getID() ==
+			 * instance.getID()) userInstances.set(i, instance); }
+			 */
+
 		}
-		
+		// }
+
+		// }
+
 		em.getTransaction().commit();
 		em.flush();
 		em.close();
 		tm.commit();
-		/*
-
-			if(docInst.getInteger("ID") == instanceId) {
-				
-				//check if a new subscriber can be added
-				if (max >= actual + 1) {
-					//increment the actual number of participants
-
-					MongoCollection<Document> accounts = db.getCollection("account");
-					Document person = new Document();
-					person.append("ID", loggedUser.getID());
-					Document us = accounts.find(person).first();
-
-					// Get the instances of the user and add the new one
-					List<Document> actualInstances = (List<Document>) us.get("Instances");
-					// System.out.println(role);
-					actualInstances.add(docInst);
-					
-
-					// Update the user on the DB and on the server
-					accounts.deleteOne(person);
-					person.append("Address", loggedUser.getAddress());
-					person.append("Instances", actualInstances);
-					accounts.insertOne(person);
-					loggedUser.setInstances(actualInstances);
-					System.out.println("utente dopo sub: ");
-					System.out.println(person);
-					
-					toFind.append("Instances", allModelInstances);
-				
-					d.updateOne(Filters.eq("ID", toFind.getInteger("ID")), new Document("$set", new Document("Instances", allModelInstances)));
-
-					System.out.println("model dopo sub: ");
-					System.out.println(toFind);
-					return "Subscribe completed";
-				}
-			}
-		}*/
-	
-		
-		
-		
-		/*for (Instance inst : allModelInstances) {	
-			if (inst.getID() == instanceId) {
-				int max = modelInstance.getMaxNumber();
-				int actual = inst.getActualNumber();
-				if (max >= actual + 1) {
-				    inst.setActualNumber(actual + 1);
-					// set participants
-					List<String> freeRoles = inst.getFreeRoles();
-					freeRoles.remove(role);
-					MongoCollection<Document> accounts = db.getCollection("account");
-					Document person = new Document();
-					person.append("ID", loggedUser.getID());
-					Document us = accounts.find(person).first();
-
-					// Get the instances of the user and add the new one
-					List<Instance> actualInstances = (List<Instance>) us.get("Instances");
-					// System.out.println(role);
-					actualInstances.add(inst);
-					// Get the contracts of the user and add the new one
-
-					// Update the user on the DB and on the server
-					accounts.deleteOne(person);
-					person.append("Instances", actualInstances);
-					accounts.insertOne(person);
-					loggedUser.setInstances(actualInstances);
-					
-					return "Subscribe completed";
-				}
-			}
-		}*/
-
-		// addUser.add(loggedUser.getAddress());
-
-		
 
 		System.out.println(loggedUser);
 		return "Subscribe went wrong";
 
 	}
 
-	
-
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
-	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") int cookieId, @PathParam("instanceID") int instanceId)
-			throws Exception {
-		
-		loggedUser = retrieveUser(cookieId);
-		MongoCollection<Document> mongoInstances = db.getCollection("Models");
-		Document toFind = new Document();
-		toFind.append("ID", modelInstance.getID());
-		Document modelForDeploy = mongoInstances.find(toFind).first();
-		
-		List<Document> allModelInstance = (List<Document>) modelForDeploy.get("Instances");
-		Instance instanceForDeploy = new Instance();
-		int index = 0;
-		for(Document inst : allModelInstance) {
-			if(inst.getInteger("ID") == instanceId) {
-				instanceForDeploy =  new Instance(inst.getInteger("ID"), inst.getString("Name"), 
-						inst.getInteger("Actual_number"), (Map<String, 	Document>)inst.get("Participants"), 
-						(List<String>)inst.get("Free_roles"), inst.getString("Created_by"), inst.getBoolean("Done"),
-						(List<Document>)inst.get("Visible_at"), (Document)inst.get("Deployed_contract"));
-				break;
-			}
-			index++;
-		}
-		
-		
-		
+	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") int cookieId,
+			@PathParam("instanceID") String instanceId) throws Exception {
+
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+
+		loggedUser = em.find(User.class, cookieId);
+
+		Instance instanceForDeploy = em.find(Instance.class, instanceId);
+
+		/*
+		 * MongoCollection<Document> mongoInstances = db.getCollection("Models");
+		 * Document toFind = new Document(); toFind.append("ID", modelInstance.getID());
+		 * Document modelForDeploy = mongoInstances.find(toFind).first();
+		 */
+
+		// List<Document> allModelInstance = (List<Document>)
+		// modelForDeploy.get("Instances");
+		/*
+		 * int index = 0; for(Document inst : allModelInstance) {
+		 * if(inst.getInteger("ID") == instanceId) { instanceForDeploy = new
+		 * Instance(inst.getInteger("ID"), inst.getString("Name"),
+		 * inst.getInteger("Actual_number"), (Map<String,
+		 * Document>)inst.get("Participants"), (List<String>)inst.get("Free_roles"),
+		 * inst.getString("Created_by"), inst.getBoolean("Done"),
+		 * (List<Document>)inst.get("Visible_at"),
+		 * (Document)inst.get("Deployed_contract")); break; } index++; }
+		 */
+
 		String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
-		
+
 		ContractFunctions contract = new ContractFunctions();
-		
-		ContractObject contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());//settare partecipanti
-		
+
+		ContractObject contractReturn = instanceForDeploy.getDeployedContract();
+
+		contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());// settare
+																													// partecipanti
+
 		System.out.println("Starting to compile...");
-		//Thread.sleep(5000);
+		// Thread.sleep(5000);
 		contract.compile(instanceForDeploy.getName());
 		System.out.println("Compiled");
-		//Thread.sleep(10000);
+		// Thread.sleep(10000);
 		String cAddress = contract.deploy(instanceForDeploy.getName());
-		
-		
+
 		contractReturn.setAddress(cAddress);
 
-		contractReturn.setAbi(contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
-		contractReturn.setBin("0x"+contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
-		//instanceForDeploy.setDeployedContract(contractReturn);
-		instanceForDeploy.setDeployedContract(null);
+		contractReturn.setAbi(
+				contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
+		contractReturn.setBin("0x"
+				+ contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
+		// instanceForDeploy.setDeployedContract(contractReturn);
+		instanceForDeploy.setDeployedContract(contractReturn);
 		instanceForDeploy.setDone(true);
-		
-		Document instToAdd = new Document();
-		instToAdd.append("ID", instanceForDeploy.getID());
-		instToAdd.append("Name", instanceForDeploy.getName());
-		instToAdd.append("Actual_number", instanceForDeploy.getActualNumber());
-		instToAdd.append("Participants", instanceForDeploy.getParticipants());
-		instToAdd.append("Free_roles", instanceForDeploy.getFreeRoles());
-		instToAdd.append("Created_by", loggedUser.getAddress());
-		instToAdd.append("Done", true);
-		instToAdd.append("Visible_at", instanceForDeploy.getVisibleAt());
-		Document docuContract = new Document();
-		docuContract.append("ID", instanceForDeploy.getID());
-		docuContract.append("Address", contractReturn.getAddress());
-		docuContract.append("TasksID", contractReturn.getTasksID());
-		docuContract.append("Tasks", contractReturn.getTasks());
-		docuContract.append("TaskRoles", contractReturn.getTaskRoles());
-		docuContract.append("Abi", contractReturn.getAbi());
-		docuContract.append("Bin", contractReturn.getBin());
-		docuContract.append("VarNames", contractReturn.getVarNames());
-		
-		instToAdd.append("Deployed_contract", docuContract);
-		
-		
-	
-		allModelInstance.set(index, instToAdd);
-		modelForDeploy.append("Instances", allModelInstance);
 
-		
-		mongoInstances.updateOne(Filters.eq("ID", instanceForDeploy.getID()), new Document("$set", modelForDeploy));
-		
-		MongoCollection<Document> accounts = db.getCollection("account");
-		Document person = new Document();
-		person.append("ID", loggedUser.getID());
-		Document us = accounts.find(person).first();
-		
-		for(Document inst : (List<Document>) us.get("Instances")) {
-			if(inst.getInteger("ID") == instanceId) {
-				inst =  instToAdd;
-				break;
-			}
-		}
-		
-		mongoInstances.updateOne(Filters.eq("ID", loggedUser.getID()), new Document("$set", us));
-		
-
-		//get all the users in the db subscribed to the model
-		//and insert the deployed contract address
-		/*MongoCollection<Document> accounts = db.getCollection("account");
-		for(String participant : instance.getParticipants()) {
-			Document person = new Document();
-			person.append("Address", participant);
-			Document us = accounts.find(person).first();
-			List<String> addresses = (List<String>) us.get("ContractsAddresses");
-			accounts.deleteOne(us);
-			addresses.add(cAddress);
-			us.append("ContractAddresses", addresses);
-			accounts.insertOne(us);
-			//DA RIVEDERE perche ID probabilmente nullo o sbagliato
-			//hashUsers.get(us.getInteger("ID")).setContractAddresses(addresses);
-			for (User user : hashUsers.values()) {
-				if(user.getAddress().equals(participant)) {
-					
-				}
-					
-			}
-					}*/
-
-		// adding the contract deployed on the DB
 		/*
-		deployedCont.append("name", contractReturn.getName());
-		deployedCont.append("address", contractReturn.getAddress());
-		List<String> t = contractReturn.getTasks();
+		 * Document instToAdd = new Document(); instToAdd.append("ID",
+		 * instanceForDeploy.getID()); instToAdd.append("Name",
+		 * instanceForDeploy.getName()); instToAdd.append("Actual_number",
+		 * instanceForDeploy.getActualNumber()); instToAdd.append("Participants",
+		 * instanceForDeploy.getParticipants()); instToAdd.append("Free_roles",
+		 * instanceForDeploy.getFreeRoles()); instToAdd.append("Created_by",
+		 * loggedUser.getAddress()); instToAdd.append("Done", true);
+		 * instToAdd.append("Visible_at", instanceForDeploy.getVisibleAt()); Document
+		 * docuContract = new Document(); docuContract.append("ID",
+		 * instanceForDeploy.getID()); docuContract.append("Address",
+		 * contractReturn.getAddress()); docuContract.append("TasksID",
+		 * contractReturn.getTasksID()); docuContract.append("Tasks",
+		 * contractReturn.getTasks()); docuContract.append("TaskRoles",
+		 * contractReturn.getTaskRoles()); docuContract.append("Abi",
+		 * contractReturn.getAbi()); docuContract.append("Bin",
+		 * contractReturn.getBin()); docuContract.append("VarNames",
+		 * contractReturn.getVarNames());
+		 * 
+		 * instToAdd.append("Deployed_contract", docuContract);
+		 */
 
-		deployedCont.append("tasksID", contractReturn.getTasksID());
-		deployedCont.append("tasks", contractReturn.getTasks());
-		deployedCont.append("taskRoles", contractReturn.getTaskRoles());
-		deployedCont.append("abi", contractReturn.getAbi());
-		deployedCont.append("bin", contractReturn.getBin());
-		deployedCont.append("varNames", contractReturn.getVarNames());
-		contractColl.insertOne(deployedCont);
-*/
-	
-		
-		
-		
+		// allModelInstance.set(index, instToAdd);
+		// modelForDeploy.append("Instances", allModelInstance);
 
+		/*
+		 * mongoInstances.updateOne(Filters.eq("ID", instanceForDeploy.getID()), new
+		 * Document("$set", modelForDeploy));
+		 * 
+		 * MongoCollection<Document> accounts = db.getCollection("account"); Document
+		 * person = new Document(); person.append("ID", loggedUser.getID()); Document us
+		 * = accounts.find(person).first();
+		 * 
+		 * for(Document inst : (List<Document>) us.get("Instances")) {
+		 * if(inst.getInteger("ID") == instanceId) { inst = instToAdd; break; } }
+		 * 
+		 * mongoInstances.updateOne(Filters.eq("ID", loggedUser.getID()), new
+		 * Document("$set", us));
+		 */
+		
+		em.getTransaction().commit();
+		em.flush();
+		em.close();
+		tm.commit();
+		
 		return contractReturn;
 
 	}
@@ -558,33 +448,31 @@ public class Controller {
 	@POST
 	@Path("/getCont/{cookieId}/")
 	public List<Document> getUserContracts(@PathParam("cookieId") int cookieId) {
-		
+
 		loggedUser = retrieveUser(cookieId);
-		
+
 		List<Document> cList = new ArrayList<>();
-		//List<Instance> userInstances = loggedUser.getInstances();
+		// List<Instance> userInstances = loggedUser.getInstances();
 		List<Document> userInstances = loggedUser.getInstances();
-		
-		for(Document inst : userInstances) {
-			if(inst.get("DeployedContract")!=null)
+
+		for (Document inst : userInstances) {
+			if (inst.get("DeployedContract") != null)
 				cList.add((Document) inst.get("DeployedContract"));
-				//cList.add(inst.getDeployedContract());
+			// cList.add(inst.getDeployedContract());
 		}
-		/*for (String add : userCaddress) {
-			if (add != "") {
-				Document getDoc = new Document();
-				getDoc.append("address", add);
-				MongoCollection<Document> collection = db.getCollection("contracts");
-				Document contr = collection.find(getDoc).first();
-				System.out.println("contract at get: "+ contr);
-				ContractObject userContract = new ContractObject(contr.getString("name"), contr.getString("address"),
-						(List<String>)contr.get("tasksID"),(List<String>) contr.get("tasks"), 
-						(List<String>) contr.get("taskRoles"),contr.getString("abi"),
-						contr.getString("bin"), (List<String>) contr.get("varNames"));
-				//ContractObject userContract = new ContractObject(contr.getString("name"), null, null, null, null);
-				cList.add(userContract);
-			}
-		}*/
+		/*
+		 * for (String add : userCaddress) { if (add != "") { Document getDoc = new
+		 * Document(); getDoc.append("address", add); MongoCollection<Document>
+		 * collection = db.getCollection("contracts"); Document contr =
+		 * collection.find(getDoc).first(); System.out.println("contract at get: "+
+		 * contr); ContractObject userContract = new
+		 * ContractObject(contr.getString("name"), contr.getString("address"),
+		 * (List<String>)contr.get("tasksID"),(List<String>) contr.get("tasks"),
+		 * (List<String>) contr.get("taskRoles"),contr.getString("abi"),
+		 * contr.getString("bin"), (List<String>) contr.get("varNames"));
+		 * //ContractObject userContract = new ContractObject(contr.getString("name"),
+		 * null, null, null, null); cList.add(userContract); } }
+		 */
 		return cList;
 
 	}
