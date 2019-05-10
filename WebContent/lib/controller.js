@@ -55,13 +55,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			$scope.subscribe = function(model, instanceId,role){
 				service.subscribe(model, instanceId, $scope.user.role, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
-					service.getInstances(model).then(function(response){
+					/*service.getInstances(model).then(function(response){
 						console.log(response);
 						$scope.instances = response.data;
 						$scope.present = true;
 						
-					});
-				})
+					});*/
+				});
 			}
 			
 			
