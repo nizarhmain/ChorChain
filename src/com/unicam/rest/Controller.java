@@ -95,31 +95,27 @@ public class Controller {
 	@Path("reg/")
 	public String sub(User user) throws Exception {
 		String result;
-		
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
+		
 		try {
-			//tm.begin();
-			tx = em.getTransaction();
-			tx.begin();
-			
 			em.persist(user);
-			tx.commit();
-			//em.flush();
-			//em.close();
-			//tm.commit();
+			
 			return "Registered";
 		} catch (MongoWriteException e) {
-			//tm.rollback();
-			if ( tx != null && tx.isActive() ) tx.rollback();
+			tm.rollback();
 			if (e.getCode() == 11000) {
 				return "Address already registered";
 			} else
 				return "Some error occurred";
 		}
 		finally {
+			System.out.println("finito reg");
+			tm.commit();
+			em.clear();
 			em.close();
 		}
+		
 	}
 
 	@GET
@@ -146,35 +142,34 @@ public class Controller {
 	}
 
 	public User retrieveUser(String id) throws Exception {
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
-		tx = em.getTransaction();
-	    tx.begin();
 		User user = em.find(User.class, id);
-		tx.commit();
+		tm.commit();
+		em.clear();
 		em.close();
+		
 		return user;
 	}
 
 	@POST
 	@Path("/login/")
 	public String login(User user) throws Exception {
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
+		
 		TypedQuery<User> query = em.createNamedQuery("User.findByAddress", User.class);
 		try {
-			tx = em.getTransaction();
-			tx.begin();
 			query.setParameter("address", user.getAddress());
 			User loggedUser = query.getSingleResult();
-			System.out.println(loggedUser.getID());
-			tx.commit();
-			em.close();
+			tm.commit();
 			return loggedUser.getID();
 		} catch (Exception nre) {
-			if ( tx != null && tx.isActive() ) tx.rollback();
-			em.close();
+			tm.rollback();
 			return null;
+		}finally {
+			em.clear();
+			em.close();
 		}
 	}
 
@@ -214,18 +209,15 @@ public class Controller {
 		List<String> roles = Choreography.participantsWithoutDuplicates;
 		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(), loggedUser.getAddress(), roles,
 				new ArrayList<String>(), new ArrayList<Instance>());
-
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
-		tx = em.getTransaction();
-		tx.begin();
+		
 		em.persist(modelUploaded);
-		//em.flush();
-		tx.commit();
+		tm.commit();
+		
 		em.close();
-		//tm.commit();
-		System.out.println("trnsaction after upload" + tm.getTransaction());
-
+		//em.flush();
+		
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
 
@@ -233,17 +225,22 @@ public class Controller {
 	@Path("/getModels")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Model> getAll() throws Exception {
+		List<Model> allModels = new ArrayList<Model>();
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
-		tx = em.getTransaction();
-	    tx.begin();
-		TypedQuery<Model> query = em.createNamedQuery("Model.findAll", Model.class);
-		List<Model> allModels = query.getResultList();
-		tx.commit();
-		em.close();
-		System.out.println("trnsaction after getmodels" + tm.getTransaction());
-
+		try {
+			
+			TypedQuery<Model> query = em.createNamedQuery("Model.findAll", Model.class);
+			allModels = query.getResultList();
+			tm.commit();
+		}catch(Exception e) {
+			tm.rollback();
+		}finally {
+			
+			em.close();
+		}
 		return allModels;
+		
 	}
 
 	@POST
@@ -251,39 +248,46 @@ public class Controller {
 	public void createInstance(Model m, @PathParam("cookieId") String cookieId) throws Exception {
 		// Find the model we want to instantiate
 		// loggedUser = retrieveUser(cookieId);
-	//	tm.begin();
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
+		
 		try {
-			tx = em.getTransaction();
-			tx.begin();
+			
 			loggedUser = em.find(User.class, cookieId);
-
+			tm.commit();
+			em.clear();
+			tm.begin();
 			Model model = em.find(Model.class, m.getID());
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
 			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
 					loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
 
+			
+			modelInstances.add(modelInstance);
+			model.setInstances(modelInstances);
+			em.persist(deployedContract);
+			em.persist(modelInstance);
+			tm.commit();
+			em.clear();
+			tm.begin();
 			List<Instance> userInstances = loggedUser.getInstances();
 
 			userInstances.add(modelInstance);
 			loggedUser.setInstances(userInstances);
-			modelInstances.add(modelInstance);
-			model.setInstances(modelInstances);
-			em.persist(modelInstance);
-			em.persist(deployedContract);
-			//em.getTransaction().commit();
-			// em.merge(model);
-			// em.refresh(model);
-			tx.commit();
-			em.close();
+			tm.commit();
+			em.clear();
+			
+			
 
 		} catch (Exception e) {
-			  if ( tx != null && tx.isActive() ) tx.rollback();
+			  tm.rollback();
+			  e.printStackTrace();
 		}
 		finally {
+			em.clear();
 			em.close();
+			
 		}
 		
 
@@ -294,26 +298,25 @@ public class Controller {
 
 	@POST
 	@Path("/getInstances/")
-	public List<Instance> getAllInstances(Model m) {
+	public List<Instance> getAllInstances(Model m) throws Exception {
 		List<Instance> allInstances = null;
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
+		
 		try {
-			tx = em.getTransaction();
-			tx.begin();
-			System.out.println(m.getID());
+			
+		
 			Model model = em.find(Model.class, m.getID());
-			System.out.println("271-" + model);
+			tm.commit();
 			allInstances = model.getInstances();
-			System.out.println("271-" + allInstances); 
-			tx.commit();
+			
 		} catch (Exception e) {
-			if ( tx != null && tx.isActive() ) tx.rollback();
+			tm.rollback();
 			e.printStackTrace();
-			System.out.println(e.toString());
+			
 		} finally {
+			em.clear();
 			em.close();
-			System.out.println("entity manager after getinstances is open" + em.isOpen());
 		}
 		return allInstances;
 	}
@@ -326,18 +329,19 @@ public class Controller {
 		// TO MODIFY : model has to be retrieved from the DB, not from the frontend.
 		// delete modelInstance from params and pass only the model id.
 
-		//tm.begin();
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = null;
+		
 		try {
-			tx = em.getTransaction();
-			tx.begin();
+			
 			loggedUser = em.find(User.class, cookieId);
+			tm.commit();
+			em.clear();
+			tm.begin();
 			Instance instanceToSub = em.find(Instance.class, instanceId);
+			
 			int max = modelInstance.getMaxNumber();
 			int actual = instanceToSub.getActualNumber();
-			System.out.println("max" + max);
-			System.out.println("actual" + actual);
 			
 			if (max >= actual + 1) {
 				instanceToSub.setActualNumber(actual + 1);
@@ -346,18 +350,18 @@ public class Controller {
 				Map<String, User> subscribers = instanceToSub.getParticipants();
 				subscribers.put(role, loggedUser);
 				System.out.println("fine dell if");
-				tx.commit();
+				em.merge(instanceToSub);
+				
 			}
-
+			
 		} catch (Exception e) {
-			 if ( tx != null && tx.isActive() ) tx.rollback();
+			 tm.rollback();
 			e.printStackTrace();
 		} finally {
-			 em.close();
-
-			System.out.println("transaction after subscribe" + em.getTransaction());
-			System.out.println("is close em ?" + em.isOpen()+ "-----" + em.getTransaction().isActive());
-
+			tm.commit();
+			em.clear();
+			em.close();
+			
 		}
 
 		//tm.commit();
