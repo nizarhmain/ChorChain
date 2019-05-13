@@ -24,9 +24,13 @@
 						<form class="text-center p-3" style="background-color:#eee">
 							<div class="form-group">
 								<label for="searchModel"><h6>Search a model </h6></label>
-						    	<input type="text" class="form-control" id="searchModel" name="role" style="width:100%;">
+						    	<input type="text" class="form-control" ng-model="searchText" id="searchModel" name="role" style="width:100%;">
 							  </div>
-							  <input type="submit" value="Search" class="btn btn-primary" style="width:100%;" >
+						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+							  <span ng-show='searchText'>
+							    <a ng-repeat="model in models | filter:searchText " class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
+						      </span>
+						</div>
 						</form>
 						<hr>
 						<form action="rest/upload" method="POST" enctype="multipart/form-data" class="text-center p-3" style="background-color:#eee">

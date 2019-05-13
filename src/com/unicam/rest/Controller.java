@@ -347,8 +347,8 @@ public class Controller {
 				instanceToSub.setActualNumber(actual + 1);
 				List<String> freeRoles = instanceToSub.getFreeRoles();
 				freeRoles.remove(role);
-				Map<String, User> subscribers = instanceToSub.getParticipants();
-				subscribers.put(role, loggedUser);
+				// Map<String, User> subscribers = instanceToSub.getParticipants();
+				// subscribers.put(role, loggedUser);
 				System.out.println("fine dell if");
 				em.merge(instanceToSub);
 				

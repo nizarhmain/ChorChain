@@ -140,20 +140,12 @@ top:60px;
 
 	});
 	
-	web3.eth.getBlock(48, function(error, result){
-		   if(!error)
-		       console.log(JSON.stringify(result));
-		   else
-		       console.error(error);
-		})
-	
 	</script>
 	
 <script> 
 // If the MetaMask extension is present,you are asked to log in to your account the permissions to access the wallet
 ethereum.enable();
-account = web3.eth.accounts[0].toUpperCase();
-$("#labeladdress").text(account);
+$("#labeladdress").text(web3.eth.accounts[0]);
 
 var account = web3.eth.accounts[0];
 var accountInterval = setInterval(function() {
