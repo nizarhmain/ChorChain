@@ -314,7 +314,7 @@ public class ContractFunctions {
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
 		  BigInteger GAS_PRICE = BigInteger.valueOf(2_000_000_000L);
-		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_500_000L);
+		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
 		  

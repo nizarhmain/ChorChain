@@ -397,7 +397,9 @@ public class Choreography {
 									"enable(\"" + getNextId(nextElement, false) + "\"); \n ";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
 							descr += parseSid(getNextId(nextElement, false)) + "();} \n";
+							
 					}
+						descr += "}\n";
 					}
 					else {
 						descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";

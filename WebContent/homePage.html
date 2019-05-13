@@ -6,17 +6,19 @@
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link href="website.css" rel="stylesheet" type="text/css"> 
-	
+	<link href="website.css" rel="stylesheet" type="text/css"> 	
 </head>
 <body  ng-app="homePage" ng-controller="controller">
 <div class="container-fluid">
 		<div class="containerHomePage">
 			<h3 class="text-center mt-2">Home Page</h3>
-			<hr><hr>
-			<div data-ng-init="getModels()">
+			<hr><hr>	
+			<div data-ng-init="getModels()">		
 				<div class="row">
 					<div class="col-md-3">
+					<form action="http://localhost:8080/ChorChain/modeler.html">
+						<input type="submit" value="Modeler" class="btn btn-primary" style="width:100%;">
+					</form>
 					<hr>
 						<div class="p-3" style="background-color:#eee">
 							<a href="http://193.205.92.133:8080/ChorChain/deploy.html">Personal page</a>
