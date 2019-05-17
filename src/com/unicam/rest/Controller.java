@@ -254,40 +254,30 @@ public class Controller {
 		try {
 			
 			loggedUser = em.find(User.class, cookieId);
-			tm.commit();
-			em.clear();
-			tm.begin();
+			
 			Model model = em.find(Model.class, m.getID());
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
+			List<String> visibleAt = new ArrayList<String>();
 			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
-					loggedUser.getAddress(), false, new ArrayList<User>(), deployedContract);
+					loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
 			
 			modelInstances.add(modelInstance);
 			model.setInstances(modelInstances);
 			em.persist(deployedContract);
 			em.persist(modelInstance);
-			tm.commit();
-			em.clear();
-			tm.begin();
+			
 			List<Instance> userInstances = loggedUser.getInstances();
 
 			userInstances.add(modelInstance);
 			loggedUser.setInstances(userInstances);
+			em.close();
 			tm.commit();
-			em.clear();
-			
-			
 
 		} catch (Exception e) {
 			  tm.rollback();
 			  e.printStackTrace();
-		}
-		finally {
-			em.clear();
-			em.close();
-			
 		}
 		
 
@@ -300,24 +290,18 @@ public class Controller {
 	@Path("/getInstances/")
 	public List<Instance> getAllInstances(Model m) throws Exception {
 		List<Instance> allInstances = null;
-		tm.begin();
-		EntityManager em = emf.createEntityManager();
-		
 		try {
 			
-		
+			EntityManager em = emf.createEntityManager();
 			Model model = em.find(Model.class, m.getID());
-			tm.commit();
+			System.out.println(model.toString());
 			allInstances = model.getInstances();
 			
-		} catch (Exception e) {
-			tm.rollback();
-			e.printStackTrace();
-			
-		} finally {
-			em.clear();
+			System.out.println(allInstances);
 			em.close();
-		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 		return allInstances;
 	}
 
@@ -335,9 +319,7 @@ public class Controller {
 		try {
 			
 			loggedUser = em.find(User.class, cookieId);
-			tm.commit();
-			em.clear();
-			tm.begin();
+	
 			Instance instanceToSub = em.find(Instance.class, instanceId);
 			
 			int max = modelInstance.getMaxNumber();
@@ -347,19 +329,17 @@ public class Controller {
 				instanceToSub.setActualNumber(actual + 1);
 				List<String> freeRoles = instanceToSub.getFreeRoles();
 				freeRoles.remove(role);
-				// Map<String, User> subscribers = instanceToSub.getParticipants();
-				// subscribers.put(role, loggedUser);
-				System.out.println("fine dell if");
+				Map<String, User> subscribers = instanceToSub.getParticipants();
+				subscribers.put(role, loggedUser);
 				em.merge(instanceToSub);
-				
+				tm.commit();
+				System.out.println(instanceToSub.toStringInstance());
 			}
 			
 		} catch (Exception e) {
 			 tm.rollback();
 			e.printStackTrace();
 		} finally {
-			tm.commit();
-			em.clear();
 			em.close();
 			
 		}

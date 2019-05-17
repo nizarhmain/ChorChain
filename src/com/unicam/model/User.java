@@ -34,7 +34,6 @@ public class User {
     private String id;
     @Column(unique = true)
 	private String address;
-//	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	private List<Instance> instances;
 

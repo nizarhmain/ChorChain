@@ -1,5 +1,6 @@
 package com.unicam.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,6 +22,8 @@ import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @XmlRootElement
 @Entity
@@ -33,14 +37,17 @@ public class Instance {
 	private String id;
 	private String name;
 	private int actualNumber;
+	@JsonIgnore
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
-	private Map<String, User> participants;
+	@MapKeyColumn(name="role")
+	private Map<String, User> participants = new HashMap<String, User>();
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> freeRoles;
 	private String createdBy;
 	private boolean done;
-	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
-	private List<User> visibleAt;
+	//@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
+	@ElementCollection(fetch=FetchType.EAGER)
+	private List<String> visibleAt;
 	@OneToOne
 	private ContractObject deployedContract;
 
@@ -100,13 +107,7 @@ public class Instance {
 		this.done = done;
 	}
 
-	public List<User> getVisibleAt() {
-		return visibleAt;
-	}
-
-	public void setVisibleAt(List<User> visibleAt) {
-		this.visibleAt = visibleAt;
-	}
+	
 
 	public ContractObject getDeployedContract() {
 		return deployedContract;
@@ -117,7 +118,7 @@ public class Instance {
 	}
 
 	public Instance(String name, int actualNumber, Map<String, User> participants, List<String> freeRoles,
-			String createdBy, boolean done, List<User> visibleAt, ContractObject deployedContract) {
+			String createdBy, boolean done, List<String> visibleAt, ContractObject deployedContract) {
 		super();
 		//_id = _id;
 		this.name = name;
@@ -132,6 +133,20 @@ public class Instance {
 
 	public Instance() {
 		super();
+	}
+
+	public String toStringInstance() {
+		return "Instance [id=" + id + ", name=" + name + ", actualNumber=" + actualNumber + ", participants="
+				+ participants + ", freeRoles=" + freeRoles + ", createdBy=" + createdBy + ", done=" + done
+				+ ", visibleAt=" + visibleAt + ", deployedContract=" + deployedContract + "]";
+	}
+
+	public List<String> getVisibleAt() {
+		return visibleAt;
+	}
+
+	public void setVisibleAt(List<String> visibleAt) {
+		this.visibleAt = visibleAt;
 	}
 
 }
