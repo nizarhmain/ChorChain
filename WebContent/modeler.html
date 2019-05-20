@@ -14,39 +14,106 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
 	integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" 
 	crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
 	
 	<!-- Modeler import -->
 		<link rel="stylesheet" href="css/diagram-js.css" />
 		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
 		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
 		<link rel="stylesheet" href="css/app.css" />
+		<link rel="stylesheet" href="css/chor-editor.css"/>
 	<!-- Modeler end import -->
+<style>
+.btn-secondary:not(:disabled):not(.disabled).active{
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.vertical-divider {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    height: 50%;
+    line-height: 0;
+    text-align: center;
+    text-transform: uppercase;
+    transform: translateX(-50%);
+}
+</style>
 </head>
 <body ng-app="monitor" ng-controller="monitorCtrl">
-				<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:72%;">
+				<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:78%;">
 
-								    <div id="canvas"></div>		
-									<a href="homePage.html"><button class="col btn btn-secondary">Back </button></a>   
+								    <div id="canvas" data-ng-init="attach()"></div>		
+								<a href="homePage.html"><button type="button" class="btn btn-default" style="width:75px;height:45px;" >Back</button></a>   
 				</div>
 
-				<div class="w-50">
-  					<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Create a new Choreograpy Model">Create Model <a class="fas fa-plus-circle"></a></button>
-  				</div>
-  				<div class="w-50">
-  				<input type="file" id="myFileInput" style="display:none;" accept=".bpmn"/>				
-  					<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Import a Choreograpy Model" onclick="document.getElementById('myFileInput').click()"> Import Model <a class="fas fa-upload"></a> </button> 
-  				</div>
-  				
-  				<div class="w-50">
-  					<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Export a Choreograpy Model">Export Model <a class="fas fa-download"></a></button>
-				</div>
-				</div>
+	<div class="row">
+    	<div class="col">
+    	
+		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" onclick="newModel()" title="Create a new Choreograpy Model">Create Model <a class="fas fa-plus-circle"></a></button>
+					
+		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Import a Choreograpy Model" onclick="document.getElementById('myFileInput').click()"> Import Model <a class="fas fa-upload"></a> </button> 
+		   <input type="file" id="myFileInput" style="display:none;" accept=".bpmn"/>	
+   		</div>
+    </div>
+    <div class="row">
+        <div class="col">
+    <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
+    			
+  	<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Download Model" data-toggle="modal" data-target="#modalDownload">Export Model <a class="fas fa-download"></a></button>				
+        </div>   
+    </div>
+
+
 				
 				
+				
+				
+
+<!-- Modal download -->
+<div id="modalDownload" class="modal fade" role="dialog">
+  <div class="modal-dialog centered">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Model {{model.name}} Download </h4>
+      </div>
+
+        <div class="modal-body">
+			<div class="row">
+        		<div class="col ">     		
+      
+   				    <a id="js-download-diagram" class="col btn btn-secondary" style="height:40px;width:200px;margin-left:23px;font-weight:400;text-align:center;" title="Download BPMN file">Download BPMN file <i class="far fa-file"></i></a>
+
+   				    <a id="js-download-svg" class="col btn btn-secondary"  style="height:40px;width:200px;margin-left:23px;font-weight:400;text-align:center;" title="Download as SVG image">Download as SVG image <i class="far fa-file-image"></i></a>
+ 		
+		 		</div>   
+		    </div>		
+	   </div>
+       
+       <div class="modal-footer">
+
+        <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>   
+      </div>
+	</div>
+   </div>
+  </div>
+
+<!-- end modal download -->
+
+
 				
 	<script src="lib/appmodeler.js"></script>
 	
-	<script src="lib/app.js"></script>
+	<script src="lib/chor-js/app2.js"></script>
+	
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -54,6 +121,47 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 </body>
+
+<script>
+function saveModel() {
+	Swal.fire({
+		  type: 'success',
+		  title: 'Your model has been saved',
+		  showConfirmButton: false,
+		  timer: 1700,
+		  backdrop: false
+		})
+}
+</script>
+
+<script>
+function newModel() {
+	let timerInterval
+	Swal.fire({
+	  title: 'Creating new model...',
+	  backdrop: false,
+	  timer: 1700,
+	  onBeforeOpen: () => {
+	    Swal.showLoading()
+	    timerInterval = setInterval(() => {
+	      Swal.getContent().querySelector('strong')
+	        .textContent = Swal.getTimerLeft()
+	    }, 100)
+	  },
+	  onClose: () => {
+	    clearInterval(timerInterval)
+	  }
+	}).then((result) => {
+	  if (
+	    // Read more about handling dismissals
+	    result.dismiss === Swal.DismissReason.timer
+	  ) {
+	    console.log('I was closed by the timer')
+	  }
+	})
+}
+</script>
+
 <script>
 
 var app = angular.module('monitor', ['ngCookies']);
