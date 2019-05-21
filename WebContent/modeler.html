@@ -50,32 +50,26 @@
 <body ng-app="monitor" ng-controller="monitorCtrl">
 				<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:78%;">
 
-								    <div id="canvas" data-ng-init="attach()"></div>		
-								<a href="homePage.html"><button type="button" class="btn btn-default" style="width:75px;height:45px;" >Back</button></a>   
+				<div id="canvas" data-ng-init="attach()"></div>		
+				<a href="homePage.html"><button type="button" class="btn btn-default" style="width:75px;height:45px;">Back</button></a>   
 				</div>
 
 	<div class="row">
     	<div class="col">
     	
-		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" onclick="newModel()" title="Create a new Choreograpy Model">Create Model <a class="fas fa-plus-circle"></a></button>
+		   <button class="col btn btn-secondary" id="js-new-diagram" style="height:40px;width:150px;margin-left:23px;" onclick="newModel()" title="Create a new Choreograpy Model">Create Model <a class="fas fa-plus-circle"></a></button>
 					
-		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Import a Choreograpy Model" onclick="document.getElementById('myFileInput').click()"> Import Model <a class="fas fa-upload"></a> </button> 
-		   <input type="file" id="myFileInput" style="display:none;" accept=".bpmn"/>	
+		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Import a Choreograpy Model" onclick="document.getElementById('input').click()"> Import Model <a class="fas fa-upload"></a> </button> 
+		   <input type="file" id="input" style="display:none;" accept=".bpmn, .xml" onchange="importModel()"/>	
    		</div>
     </div>
     <div class="row">
         <div class="col">
-    <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
-    			
+    <button class="col btn btn-secondary" id="save" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
+     <button class="col btn btn-secondary" id="js-preview" style="height:40px;width:150px;margin-left:23px;" title="Save Model">Preview <i class="fa fa-inbox"></i></button>			
   	<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Download Model" data-toggle="modal" data-target="#modalDownload">Export Model <a class="fas fa-download"></a></button>				
         </div>   
     </div>
-
-
-				
-				
-				
-				
 
 <!-- Modal download -->
 <div id="modalDownload" class="modal fade" role="dialog">
@@ -112,8 +106,6 @@
 				
 	<script src="lib/appmodeler.js"></script>
 	
-	<script src="lib/chor-js/app2.js"></script>
-	
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -136,11 +128,41 @@ function saveModel() {
 
 <script>
 function newModel() {
+	swal({
+		  title: 'Insert the new model name',
+		  input: 'text',
+		  backdrop: false,
+		  confirmButtonText: 'Submit',
+		  showLoaderOnConfirm: true,
+		  preConfirm: function (text) {
+		    return new Promise(function (resolve, reject) {
+		      setTimeout(function() {
+		        if (text === 'taken') {
+		          reject('This name is already taken.')
+		        } else {
+		          resolve()
+		        }
+		      }, 2000)
+		    })
+		  },
+		  allowOutsideClick: false
+		}).then(function (text) {
+		  swal({
+		    type: 'success',
+		    title: 'Model created!',
+		    backdrop: false,
+		  })
+		})
+}
+</script>
+
+<script>
+function importModel() {
 	let timerInterval
 	Swal.fire({
-	  title: 'Creating new model...',
+	  title: 'Importing a model...',
 	  backdrop: false,
-	  timer: 1700,
+	  timer: 600,
 	  onBeforeOpen: () => {
 	    Swal.showLoading()
 	    timerInterval = setInterval(() => {

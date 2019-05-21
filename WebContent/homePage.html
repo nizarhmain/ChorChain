@@ -12,9 +12,6 @@
 	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
 	integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="
 	crossorigin="anonymous"></script>
-	
-
-
 
 <!-- Modeler import -->
 		<link rel="stylesheet" href="css/diagram-js-preview.css" />
@@ -100,7 +97,7 @@ display: none;
 									Model roles: {{model.mandatoryRoles}}<br>
 									<button ng-click="getInstances(model)" class="btn btn-primary my-2">See instances</button>
 									<button ng-click="createInstance(model) " class="btn btn-success">Create a new instance</button>
-									<button data-toggle="modal" data-target="#modalPreview" class="btn btn-success" >See model preview</button>
+									<button id="js-preview" data-toggle="modal"  data-target="#modalPreview" class="btn btn-success" >See model preview</button>
 									
 									 <div class="btn-group">
 									 
@@ -126,7 +123,7 @@ display: none;
 													Deploy {{instance.name}}
 												</button>--->
 												
-													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(instance)">
+													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
 														<div class="spinner-border text-success" role="status">
 														  <span class="">deploying...</span>
 														</div>
@@ -183,7 +180,7 @@ display: none;
        </div>
        <div class="modal-footer">
         <button type="button" class="btn btn-default" onclick="modifyPreview()">Modify Preview</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="detach()">Close</button>   
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>   
       </div>
 
     </div>
@@ -191,11 +188,7 @@ display: none;
 </div>
 <!-- end modal preview -->
 
-
-
-
 	<script src="lib/appmodeler.js"></script>
-	
 	<script src="lib/app.js"></script>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -211,12 +204,10 @@ display: none;
 <script>
 
 function modifyPreview() {
-
 	var removeBlock = document.querySelector('.viewport');
 	removeBlock.classList.remove('viewport');
 	}
 </script>
-
 
 <script>
 $("#customFile").change(function(){
