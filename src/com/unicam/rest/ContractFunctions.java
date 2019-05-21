@@ -352,7 +352,7 @@ public class ContractFunctions {
 		  for (int i = 0; i < 222220; i++) {
 			  System.out.println("Wait: " + i);
 	            if (!receiptOptional.isPresent()) {
-	                Thread.sleep(5000);
+	                //Thread.sleep(5000);
 	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
 	      		    receiptOptional = transactionReceipt.getTransactionReceipt();
 	            } else {

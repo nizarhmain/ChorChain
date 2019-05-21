@@ -399,7 +399,7 @@ public class Choreography {
 							descr += parseSid(getNextId(nextElement, false)) + "();} \n";
 							
 					}
-						descr += "}\n";
+					//	descr += "}\n";
 					}
 					else {
 						descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";
