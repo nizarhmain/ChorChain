@@ -351,141 +351,80 @@ public class Controller {
 		return "Subscribe went wrong";
 
 	}
-
+	
+	
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
-	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") int cookieId,
+	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") String cookieId,
 			@PathParam("instanceID") String instanceId) throws Exception {
-
+		ContractObject contractReturn = new ContractObject();
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
+		try {
+			loggedUser = em.find(User.class, cookieId);
 
-		loggedUser = em.find(User.class, cookieId);
+			Instance instanceForDeploy = em.find(Instance.class, instanceId);
 
-		Instance instanceForDeploy = em.find(Instance.class, instanceId);
+			
 
-		/*
-		 * MongoCollection<Document> mongoInstances = db.getCollection("Models");
-		 * Document toFind = new Document(); toFind.append("ID", modelInstance.getID());
-		 * Document modelForDeploy = mongoInstances.find(toFind).first();
-		 */
+			String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
 
-		// List<Document> allModelInstance = (List<Document>)
-		// modelForDeploy.get("Instances");
-		/*
-		 * int index = 0; for(Document inst : allModelInstance) {
-		 * if(inst.getInteger("ID") == instanceId) { instanceForDeploy = new
-		 * Instance(inst.getInteger("ID"), inst.getString("Name"),
-		 * inst.getInteger("Actual_number"), (Map<String,
-		 * Document>)inst.get("Participants"), (List<String>)inst.get("Free_roles"),
-		 * inst.getString("Created_by"), inst.getBoolean("Done"),
-		 * (List<Document>)inst.get("Visible_at"),
-		 * (Document)inst.get("Deployed_contract")); break; } index++; }
-		 */
+			ContractFunctions contract = new ContractFunctions();
 
-		String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
+			contractReturn = instanceForDeploy.getDeployedContract();
 
-		ContractFunctions contract = new ContractFunctions();
+			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());
 
-		ContractObject contractReturn = instanceForDeploy.getDeployedContract();
+			System.out.println("Starting to compile...");
+			// Thread.sleep(5000);
+			contract.compile(instanceForDeploy.getName());
+			System.out.println("Compiled");
+			// Thread.sleep(10000);
+			String cAddress = contract.deploy(instanceForDeploy.getName());
 
-		contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());// settare
-																													// partecipanti
+			contractReturn.setAddress(cAddress);
 
-		System.out.println("Starting to compile...");
-		// Thread.sleep(5000);
-		contract.compile(instanceForDeploy.getName());
-		System.out.println("Compiled");
-		// Thread.sleep(10000);
-		String cAddress = contract.deploy(instanceForDeploy.getName());
-
-		contractReturn.setAddress(cAddress);
-
-		contractReturn.setAbi(
-				contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
-		contractReturn.setBin("0x"
-				+ contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
-		// instanceForDeploy.setDeployedContract(contractReturn);
-		instanceForDeploy.setDeployedContract(contractReturn);
-		instanceForDeploy.setDone(true);
-
-		/*
-		 * Document instToAdd = new Document(); instToAdd.append("ID",
-		 * instanceForDeploy.getID()); instToAdd.append("Name",
-		 * instanceForDeploy.getName()); instToAdd.append("Actual_number",
-		 * instanceForDeploy.getActualNumber()); instToAdd.append("Participants",
-		 * instanceForDeploy.getParticipants()); instToAdd.append("Free_roles",
-		 * instanceForDeploy.getFreeRoles()); instToAdd.append("Created_by",
-		 * loggedUser.getAddress()); instToAdd.append("Done", true);
-		 * instToAdd.append("Visible_at", instanceForDeploy.getVisibleAt()); Document
-		 * docuContract = new Document(); docuContract.append("ID",
-		 * instanceForDeploy.getID()); docuContract.append("Address",
-		 * contractReturn.getAddress()); docuContract.append("TasksID",
-		 * contractReturn.getTasksID()); docuContract.append("Tasks",
-		 * contractReturn.getTasks()); docuContract.append("TaskRoles",
-		 * contractReturn.getTaskRoles()); docuContract.append("Abi",
-		 * contractReturn.getAbi()); docuContract.append("Bin",
-		 * contractReturn.getBin()); docuContract.append("VarNames",
-		 * contractReturn.getVarNames());
-		 * 
-		 * instToAdd.append("Deployed_contract", docuContract);
-		 */
-
-		// allModelInstance.set(index, instToAdd);
-		// modelForDeploy.append("Instances", allModelInstance);
-
-		/*
-		 * mongoInstances.updateOne(Filters.eq("ID", instanceForDeploy.getID()), new
-		 * Document("$set", modelForDeploy));
-		 * 
-		 * MongoCollection<Document> accounts = db.getCollection("account"); Document
-		 * person = new Document(); person.append("ID", loggedUser.getID()); Document us
-		 * = accounts.find(person).first();
-		 * 
-		 * for(Document inst : (List<Document>) us.get("Instances")) {
-		 * if(inst.getInteger("ID") == instanceId) { inst = instToAdd; break; } }
-		 * 
-		 * mongoInstances.updateOne(Filters.eq("ID", loggedUser.getID()), new
-		 * Document("$set", us));
-		 */
+			contractReturn.setAbi(
+					contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
+			contractReturn.setBin("0x"
+					+ contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
+			// instanceForDeploy.setDeployedContract(contractReturn);
+			instanceForDeploy.setDeployedContract(contractReturn);
+			instanceForDeploy.setDone(true);
+			tm.commit();
+			
+		}catch(Exception e){
+			tm.rollback();
+			e.printStackTrace();
+		}finally {
+			em.close();
+			return contractReturn;
+		}
 		
-		em.getTransaction().commit();
-		em.flush();
-		em.close();
-		tm.commit();
+
 		
-		return contractReturn;
+	
+		
+		
 
 	}
 
 	@POST
 	@Path("/getCont/{cookieId}/")
-	public List<Document> getUserContracts(@PathParam("cookieId") int cookieId) {
+	public List<ContractObject> getUserContracts(@PathParam("cookieId") String cookieId) {
 
 		loggedUser = retrieveUser(cookieId);
 
-		List<Document> cList = new ArrayList<>();
-		// List<Instance> userInstances = loggedUser.getInstances();
-		List<Document> userInstances = loggedUser.getInstances();
+		List<ContractObject> cList = new ArrayList<>();
+		List<Instance> userInstances = loggedUser.getInstances();
+		List<ContractObject> userInstances = loggedUser.getInstances();
 
 		for (Document inst : userInstances) {
 			if (inst.get("DeployedContract") != null)
 				cList.add((Document) inst.get("DeployedContract"));
 			// cList.add(inst.getDeployedContract());
 		}
-		/*
-		 * for (String add : userCaddress) { if (add != "") { Document getDoc = new
-		 * Document(); getDoc.append("address", add); MongoCollection<Document>
-		 * collection = db.getCollection("contracts"); Document contr =
-		 * collection.find(getDoc).first(); System.out.println("contract at get: "+
-		 * contr); ContractObject userContract = new
-		 * ContractObject(contr.getString("name"), contr.getString("address"),
-		 * (List<String>)contr.get("tasksID"),(List<String>) contr.get("tasks"),
-		 * (List<String>) contr.get("taskRoles"),contr.getString("abi"),
-		 * contr.getString("bin"), (List<String>) contr.get("varNames"));
-		 * //ContractObject userContract = new ContractObject(contr.getString("name"),
-		 * null, null, null, null); cList.add(userContract); } }
-		 */
+		
 		return cList;
 
 	}

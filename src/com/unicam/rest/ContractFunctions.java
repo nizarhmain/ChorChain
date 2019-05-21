@@ -110,7 +110,7 @@ public class ContractFunctions {
 
 			String solPath = projectPath + File.separator + "resources" + File.separator + fin;
 			System.out.println("Solidity PATTT: " + solPath);
-			String destinationPath = projectPath +  File.separator + "compiled";
+			String destinationPath = projectPath +  File.separator + "resources";//sostituire compiled a resources
 			System.out.println("destination path "+destinationPath);
 			String[] comm = { "solc", solPath, "--bin", "--abi", "--overwrite", "-o", destinationPath };
 			
@@ -300,9 +300,9 @@ public class ContractFunctions {
 		gasEstimation = gasEstimation.split("=/s")[2].replaceAll("/D+","");
 		System.out.println("GAS ESTIMATION: "+ gasEstimation);
 		int result = Integer.parseInt(gasEstimation);*/
-		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/compiled/" + parseName(bin, ".bin"))));
-		//String binar = readLineByLineJava8(projectPath + "/ChorChain/src/com/unicam/bin/" + parseName(bin, ".bin"), true);
-	//	System.out.println(projectPath + "/ChorChain/src/com/unicam/resources/" + parseName(bin, ".bin"));
+		//sostituire resources con compiled
+		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
+		
 		
 		  //Unlocking the account
 		  PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
