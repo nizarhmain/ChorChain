@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -49,6 +50,7 @@ public class Instance {
 	@ElementCollection(fetch=FetchType.EAGER)
 	private List<String> visibleAt;
 	@OneToOne
+    @JoinColumn( name = "deployedContract_id" )
 	private ContractObject deployedContract;
 
 	public String getID() {
