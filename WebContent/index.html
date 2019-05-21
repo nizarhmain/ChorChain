@@ -14,6 +14,8 @@ crossorigin="anonymous">
 <script src="lib/angular.min.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
 </head>
 <body ng-app="homePage" ng-controller="controller">
 
@@ -130,9 +132,33 @@ top:60px;
 		    web3js = new Web3(web3.currentProvider);
 		    // window.ethereum.enable();
 		  } else {
-			  if(!alert('Estensione MetaMask assente! Creare un account MetaMask')){
-				  window.location.href = "https://metamask.io/";
+			  Swal.fire({
+				  backdrop: false,
+				  type: 'error',
+				  title: 'MetaMask Extension not present!',
+				  html: 'You will be redirected to the MetaMask site',
+				  timer: 2500,
+				  onBeforeOpen: () => {
+				    Swal.showLoading()
+				    timerInterval = setInterval(() => {
+				      Swal.getContent().querySelector('strong')
+				        .textContent = Swal.getTimerLeft()
+				    }, 100)
+				  },
+				  onClose: () => {
+				    clearInterval(timerInterval)
 				  }
+				}).then((result) => {
+				  if (
+				    // Read more about handling dismissals
+				    result.dismiss === Swal.DismissReason.timer
+				  ) {
+				    console.log('I was closed by the timer')
+				    window.location.replace('https://metamask.io/');
+			
+				  }
+				})
+				
 		  }
 
 	});
