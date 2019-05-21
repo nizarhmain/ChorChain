@@ -367,7 +367,7 @@ public class Controller {
 
 			
 
-			String path = ContractFunctions.projectPath + File.separator + "compiled" + File.separator;
+			String path = ContractFunctions.projectPath + File.separator + "resources" + File.separator;//modificare compiled con resources
 
 			ContractFunctions contract = new ContractFunctions();
 
@@ -392,20 +392,18 @@ public class Controller {
 			instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDone(true);
 			tm.commit();
+			em.close();
+			
+			
 			
 		}catch(Exception e){
 			tm.rollback();
 			e.printStackTrace();
 		}finally {
-			em.close();
 			return contractReturn;
 		}
-		
+			
 
-		
-	
-		
-		
 
 	}
 
@@ -413,18 +411,20 @@ public class Controller {
 	@Path("/getCont/{cookieId}/")
 	public List<ContractObject> getUserContracts(@PathParam("cookieId") String cookieId) {
 
-		loggedUser = retrieveUser(cookieId);
+		try {
+			loggedUser = retrieveUser(cookieId);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 
 		List<ContractObject> cList = new ArrayList<>();
 		List<Instance> userInstances = loggedUser.getInstances();
-		List<ContractObject> userInstances = loggedUser.getInstances();
-
-		for (Document inst : userInstances) {
-			if (inst.get("DeployedContract") != null)
-				cList.add((Document) inst.get("DeployedContract"));
-			// cList.add(inst.getDeployedContract());
+		for(Instance i : userInstances) {
+			cList.add(i.getDeployedContract());
 		}
 		
+
 		return cList;
 
 	}

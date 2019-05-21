@@ -36,8 +36,8 @@ constructor() public{
          
          //roles definition
          //mettere address utenti in base ai ruoli
-	roles["Buyer"] = 0x0D49A19F4732184E03549a4A190684a316c725F7;
-	roles["Seller"] = 0x0D49A19F4732184E03549a4A190684a316c725F7;
+	roles["Buyer"] = 0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8;
+	roles["Seller"] = 0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8;
          
          //enable the start process
          init();
