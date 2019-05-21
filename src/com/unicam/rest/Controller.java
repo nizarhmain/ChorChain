@@ -391,6 +391,8 @@ public class Controller {
 			// instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDone(true);
+			em.persist(contractReturn);
+			em.merge(instanceForDeploy);
 			tm.commit();
 			em.close();
 			
@@ -402,31 +404,48 @@ public class Controller {
 		}finally {
 			return contractReturn;
 		}
-			
-
-
 	}
 
 	@POST
 	@Path("/getCont/{cookieId}/")
-	public List<ContractObject> getUserContracts(@PathParam("cookieId") String cookieId) {
+	public List<Instance> getUserContracts(@PathParam("cookieId") String cookieId) {
 
 		try {
 			loggedUser = retrieveUser(cookieId);
+			
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 
-		List<ContractObject> cList = new ArrayList<>();
+		List<Instance> cList = new ArrayList<>();
 		List<Instance> userInstances = loggedUser.getInstances();
 		for(Instance i : userInstances) {
-			cList.add(i.getDeployedContract());
+			if(i.isDone() == true) cList.add(i);
 		}
-		
 
 		return cList;
 
+	}
+	
+	@POST
+	@Path("/getPart/{instanceId}/")
+	public Map<String, String> getInstParticipants(@PathParam("instanceId") String instanceId) throws Exception {
+		EntityManager em = emf.createEntityManager();
+		Map<String, String> participants = new HashMap<String, String>();
+
+		try {
+			Instance inst = em.find(Instance.class, instanceId);
+			Map<String,User> map = inst.getParticipants();
+			for(Map.Entry<String, User> sub : map.entrySet()) {
+				participants.put(sub.getKey(), sub.getValue().getID());
+			}
+			em.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		} 
+		return participants;
 	}
 
 	@POST
@@ -437,7 +456,7 @@ public class Controller {
 
 	@POST
 	@Path("/getUserInfo/{cookieId}")
-	public User getUserInfo(@PathParam("cookieId") int cookieId) throws Exception {
+	public User getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
 		loggedUser = retrieveUser(cookieId);
 		System.out.println(loggedUser);
 		return loggedUser;
@@ -447,5 +466,6 @@ public class Controller {
 		return loggedUser;
 
 	}
+	
 
 }

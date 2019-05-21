@@ -12,12 +12,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link href="website.css" rel="stylesheet" type="text/css"> 
 	
-	<!-- Modeler import -->
-		<link rel="stylesheet" href="css/diagram-js.css" />
-		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
-		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
-		<link rel="stylesheet" href="css/app.css" />
-	<!-- Modeler end import -->
+
 </head>
 <body ng-app="monitor" ng-controller="monitorCtrl">
 	<div class="container-fluid">
@@ -30,7 +25,7 @@
 				<div class="col-2">
 					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 							<div ng-repeat="contract in contracts track by $index" >
-								<a ng-click="getTask(contract.name)" class="nav-link" id="{{contract.name}}-tab" data-toggle="pill" href="#{{contract.name}}" role="tab" aria-controls="v-pills-profile" aria-selected="false">{{contract.name}}</a>
+								<a ng-click="getTask(contract.id)" class="nav-link" id="{{contract.id}}-tab" data-toggle="pill" href="#{{contract.id}}" role="tab" aria-controls="v-pills-profile" aria-selected="false">{{contract.id}}</a>
 							</div>
 						
 							
@@ -39,12 +34,10 @@
 				</div>
 				<div class="col-10">
 					<div class="tab-content p-2" id="v-pills-tabContent" style="border: 1px solid rgba(0,0,0,.125); background-color:#eee; height:500px;">
-						<div  ng-repeat="contract in contracts track by $index" class="tab-pane fade" id="{{contract.name}}" role="tabpanel" aria-labelledby="{{contract.name}}-tab" >
+						<div  ng-repeat="contract in contracts track by $index" class="tab-pane fade" id="{{contract.id}}" role="tabpanel" aria-labelledby="{{contract.id}}-tab" >
 							<div class="row">
 								<div class="col-9">
-								<div class="content with-diagram" id="js-drop-zone">
-								    <div id="canvas"></div>
-								</div>
+							
 								<div class="col-8">Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 									<ul class="list-group">
 										<li class="list-group-item my-2" ng-repeat="msg in msgs" >{{actualContract.tasks[$index]}}<div class="float-right"> Status: {{msg.status}}</div>
@@ -52,7 +45,7 @@
 												<div class="form-group">
 													<input type="text" class="form-control" id="inputProva" placeholder="Function input" ng-model="sendParams.par">
 												</div>
-													<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.name)">
+													<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id)">
 											</form>
 										</li>
 									</ul>
@@ -72,7 +65,6 @@
 		</div>
 	</div>
 	
-	<script src="lib/appmodeler.js"></script>
 	
 	<script src="lib/app.js"></script>
 	<script src="lib/controller.js"></script>
@@ -197,13 +189,17 @@ $scope.launch =  async function(task, $index, refresh){
 		//console.log($scope.singleMemory);
 	}
 	
-	$scope.getTask = function(name){
+	$scope.getTask = function(id){
+		$http.post("rest/getPart/" + id).then(function(response){
+			console.log(response);
+		});
+		
 		$scope.msgs = null;
 		$scope.memory = null;
 		$scope.sendParams.par = null;
 		console.log($scope.msgs);
 		for(var i in $scope.contracts){
-			if($scope.contracts[i].name == name){
+			if($scope.contracts[i].id == id){
 				$scope.actualContract =  $scope.contracts[i];
 				$scope.tasks = $scope.contracts[i].tasks;
 				$scope.valueNames = $scope.contracts[i].varNames;
@@ -219,16 +215,15 @@ $scope.launch =  async function(task, $index, refresh){
 				$scope.msgs = receipt[0];
 				$scope.memory = receipt[1];
 				$scope.setRoleActive();
-				sub(name);
+				sub(id);
 			});
 
 			
 		});
 		
 		
-		
-		
 	}
+	
 	
 	$scope.setUser = function(){
 		$http.post("rest/getUserInfo/" + $cookies.get('UserId')).then(function(response){

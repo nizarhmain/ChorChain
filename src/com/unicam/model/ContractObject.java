@@ -11,9 +11,15 @@ import javax.persistence.Id;
 
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.Type;
+import org.hibernate.ogm.datastore.document.options.AssociationStorage;
+import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
+import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
 import org.json.JSONObject;
 
 @Entity
+@AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
+@AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 public class ContractObject {
 	 @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
