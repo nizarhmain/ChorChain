@@ -112,7 +112,7 @@ display: none;
 									<div class="" ng-if="instances!=undefined">
 									
 								
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
+										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name && instance.done==false">
 											<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
 											<div class="card-body">
 												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
