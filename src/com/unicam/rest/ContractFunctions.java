@@ -347,19 +347,20 @@ public class ContractFunctions {
 		  System.out.println(transactionResponse.getError().getMessage());}
 		  String transactionHash = transactionResponse.getTransactionHash();  
 		  System.out.println("Thash: " + transactionHash);
-		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
-		  Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
+		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+		 
+		  //Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
 		  for (int i = 0; i < 222220; i++) {
 			  System.out.println("Wait: " + i);
-	            if (!receiptOptional.isPresent()) {
+	            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
 	                //Thread.sleep(5000);
-	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
-	      		    receiptOptional = transactionReceipt.getTransactionReceipt();
+	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+	      		    
 	            } else {
 	                break;
 	            }
 		  }
-		  TransactionReceipt transactionReceiptFinal = receiptOptional.get();
+		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
 		  System.out.println(transactionReceiptFinal.getContractAddress());
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();
