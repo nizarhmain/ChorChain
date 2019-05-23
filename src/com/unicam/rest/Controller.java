@@ -268,10 +268,9 @@ public class Controller {
 			em.persist(deployedContract);
 			em.persist(modelInstance);
 			
-			List<Instance> userInstances = loggedUser.getInstances();
-
-			userInstances.add(modelInstance);
-			loggedUser.setInstances(userInstances);
+			//List<Instance> userInstances = loggedUser.getInstances();
+			//userInstances.add(modelInstance);
+			//loggedUser.setInstances(userInstances);
 			em.close();
 			tm.commit();
 
@@ -332,6 +331,11 @@ public class Controller {
 				Map<String, User> subscribers = instanceToSub.getParticipants();
 				subscribers.put(role, loggedUser);
 				em.merge(instanceToSub);
+				
+				List<Instance> userInstances = loggedUser.getInstances();
+				userInstances.add(instanceToSub);
+				loggedUser.setInstances(userInstances);
+				
 				tm.commit();
 				System.out.println(instanceToSub.toStringInstance());
 			}
@@ -352,7 +356,6 @@ public class Controller {
 
 	}
 	
-	//sul subscribe o sul deploy mettere che deve creare l instanza per tutti gli utenti
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
 	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") String cookieId,

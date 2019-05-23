@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,7 @@ public class Choreography {
 	public static List<String> elementsID;
 	private static String startEventAdd;
 	private static List<String> roleFortask;
+	private static Map<String, String> taskIdAndRole;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
 	public boolean start(File bpmnFile, Map<String, User> participants) throws Exception {
@@ -82,10 +84,10 @@ public class Choreography {
 			choreography.FlowNodeSearch();
 			choreographyFile = choreography.initial(bpmnFile.getName(), participants) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
-			finalContract = new ContractObject(null,elementsID ,tasks,roleFortask , null, null, gatewayGuards);
+			finalContract = new ContractObject(null,tasks, null, null, gatewayGuards, taskIdAndRole);
 			choreography.fileAll(bpmnFile.getName());
 			System.out.println("Contract creation done");
-			System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
+		//	System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
 			return true;
 		}
 		catch(Exception e) {
@@ -93,6 +95,14 @@ public class Choreography {
 			return false;
 		}
 		 
+	}
+	
+	public void mergeMap(String id, String role){
+		taskIdAndRole.put(id, role);
+		System.out.println("mergeMap---->  " + taskIdAndRole);
+		System.out.println(id);
+		System.out.println(role);
+
 	}
 
 	public Choreography() {
@@ -116,6 +126,7 @@ public class Choreography {
 		request = "";
 		response = "";
 		startEventAdd = "";
+		taskIdAndRole = new HashMap<String, String>();
 	}
 
 	public void readFile(File bpFile) throws IOException {
@@ -353,6 +364,7 @@ public class Choreography {
 					start.setAttributeValue("name", "startEvent_" + startCounter);
 					startCounter++;
 					nodeSet.add(start.getAttributeValue("id"));
+					mergeMap(start.getAttributeValue("id"), "internal");
 					elementsID.add(start.getAttributeValue("id"));
 					roleFortask.add("internal");
 					tasks.add(start.getAttributeValue("name"));
@@ -384,6 +396,7 @@ public class Choreography {
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
 				roleFortask.add("internal");
+				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
 				String descr = "function " + parseSid(getNextId(node, false)) +"() private {\n" 
 						+"	require(elements[position[\"" + node.getAttributeValue("id") +"\"]].status==State.ENABLED);\n"
@@ -420,6 +433,7 @@ public class Choreography {
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
 				roleFortask.add("internal");
+				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
 				String descr = "function " + parseSid(getNextId(node, false))+ "() private {\n" 
 						+"	require(elements[position[\"" + node.getAttributeValue("id") +"\"]].status==State.ENABLED);\n"
@@ -439,6 +453,7 @@ public class Choreography {
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
 				roleFortask.add("internal");
+				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
 				String descr = "function " +  parseSid(getNextId(node, false))  + "() private { \n" 
 						+"	require(elements[position[\"" + node.getAttributeValue("id") +"\"]].status==State.ENABLED);\n"
@@ -488,6 +503,7 @@ public class Choreography {
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
 				roleFortask.add("internal");
+				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
 				String descr = "function " + parseSid(getNextId(node, false))+ "() private {\n" 
 						+"	require(elements[position[\"" + node.getAttributeValue("id") +"\"]].status==State.ENABLED);\n"
@@ -611,7 +627,7 @@ public class Choreography {
 
 
 	
-	public static void getRequestAndResponse(ChoreographyTask task) {
+	public void getRequestAndResponse(ChoreographyTask task) {
 		//if there is only the response
 		Participant participant = modelInstance.getModelElementById(task.getInitialParticipant().getId());
 		String participantName = participant.getAttributeValue("name");
@@ -627,6 +643,7 @@ public class Choreography {
 			response = responseMessage.getAttributeValue("name");
 			tasks.add(response);
 			roleFortask.add(task.getParticipantRef().getName());
+			mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
 			
 		}
 		//if there is only the request
@@ -641,6 +658,7 @@ public class Choreography {
 			request = requestMessage.getAttributeValue("name");
 			tasks.add(request);
 			roleFortask.add(participantName);
+			mergeMap(requestMessage.getId(), participantName);
 		
 		}
 		//if there are both
@@ -664,6 +682,10 @@ public class Choreography {
 			
 			roleFortask.add(participantName);
 			roleFortask.add(task.getParticipantRef().getName());
+			
+			mergeMap(requestMessage.getId(), participantName);
+			mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+
 			
 		}
 
