@@ -1,7 +1,9 @@
 package com.unicam.rest;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -468,6 +470,16 @@ public class Controller {
 	private User getHashUser() {
 		return loggedUser;
 
+	}
+	
+	@POST
+	@Path("/saveModel/{fileName}")
+	public void saveModel(@PathParam("fileName") String filename, String xml) throws Exception {
+		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath +  File.separator + "resources"+  File.separator + filename + ".bpmn"));
+		BufferedWriter bChor = new BufferedWriter(wChor);
+		bChor.write(xml);
+		bChor.flush();
+		bChor.close();
 	}
 	
 
