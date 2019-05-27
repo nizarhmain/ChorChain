@@ -6,13 +6,22 @@
 <script
 	src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
 	integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="
-	crossorigin="anonymous"></script>
+	crossorigin="anonymous"></script>	
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link href="website.css" rel="stylesheet" type="text/css"> 
+	<!-- Modeler import -->
+		<link rel="stylesheet" href="css/diagram-js.css" />
+		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
+		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
+		<link rel="stylesheet" href="css/app.css" />
+		<link rel="stylesheet" href="css/chor-editor.css"/>
+	<!-- Modeler end import -->
+	<!-- Sweet alert -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
 	
-
 </head>
 <body ng-app="monitor" ng-controller="monitorCtrl">
 	<div class="container-fluid">
@@ -25,7 +34,7 @@
 				<div class="col-2">
 					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 							<div ng-repeat="contract in contracts track by $index" >
-								<a ng-click="getTask(contract.id)" class="nav-link" id="{{contract.id}}-tab" data-toggle="pill" href="#{{contract.id}}" role="tab" aria-controls="v-pills-profile" aria-selected="false">{{contract.id}}</a>
+								<a ng-click="getTask(contract.id); getXml(contract.name)" class="nav-link" id="{{contract.id}}-tab" data-toggle="pill" href="#{{contract.id}}" role="tab" aria-controls="v-pills-profile" aria-selected="false">{{contract.id}}</a>
 							</div>
 						
 							
@@ -35,9 +44,13 @@
 				<div class="col-10">
 					<div class="tab-content p-2" id="v-pills-tabContent" style="border: 1px solid rgba(0,0,0,.125); background-color:#eee; height:500px;">
 						<div  ng-repeat="contract in contracts track by $index" class="tab-pane fade" id="{{contract.id}}" role="tabpanel" aria-labelledby="{{contract.id}}-tab" >
+							<div class="row">							
+								<div class="col-12">
+								<div id="canvas" style="height: 400px;"></div>		
+								</div>
+							</div>
 							<div class="row">
 								<div class="col-9">
-							
 								<div class="col-8">Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 									<ul class="list-group">
 										<li class="list-group-item my-2" ng-repeat="msg in msgs" ng-if="msg.status == 'Enabled'">
@@ -46,9 +59,9 @@
 										{{actualContract.participants[currentRole]}} ----- {{user.id}}
 											<form class="mt-3" ng-if="msg.show==1 && actualContract.participants[currentRole] == user.id">
 												<div class="form-group">
-													<input type="text" class="form-control" id="inputProva" placeholder="Function input" ng-model="sendParams.par">
+													<input type="text" class="form-control" placeholder="Function input" ng-model="sendParams.par">
 												</div>
-													<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id)">
+													<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id)" id="submitbtn">
 											</form>
 										</li>
 									</ul>
@@ -68,7 +81,6 @@
 		</div>
 	</div>
 	
-	
 	<script src="lib/app.js"></script>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -76,20 +88,13 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+		<script src="lib/appmodeler.js"></script>
+	
 </body>
 <script>
-
-
-
 var app = angular.module('monitor', ['ngCookies']);
 
 app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
-	
-	
-	
-	
-	
-	
 	
 	$scope.user = {};
 	$scope.sendParams = {};
@@ -119,8 +124,7 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
 	
 	
 $scope.launch =  async function(task, $index, refresh){
-	
-	
+	$( "#submitbtn" ).prop("disabled",true);
 		var params = $scope.sendParams.par;
 		var name = $scope.actualContract.tasks[$index];
 		console.log($scope.actualContract.tasks[$index]);
@@ -151,24 +155,35 @@ $scope.launch =  async function(task, $index, refresh){
 		var replaced = complete.replace(/-/g,'_');
 		for(var method in $scope.myContract.methods){
 			if(method == replaced){
-			//await unlock();
-			var parArray = [];
-			if($scope.sendParams.par.includes(',')){
-				var a = $scope.sendParams.par;
-				parArray = a.split('\,');
-			}
-			else{
-				parArray.push($scope.sendParams.par);
-			}
-			console.log(parArray);
-				$scope.myContract.methods[method].apply(this, parArray).send({
-					from : $scope.user.address,
-					gas: 200000,
-				}).then(function(error, receipt){
-				//	console.log(error);
-							//console.log(receipt);
-						//	$scope.getTask(refresh);
-				});
+				//await unlock();
+				var parArray = [];
+				if($scope.sendParams.par.includes(',')){
+					var a = $scope.sendParams.par;
+					parArray = a.split('\,');
+				}
+				else{
+					parArray.push($scope.sendParams.par);
+				}
+				console.log(parArray);
+				try {
+					$scope.myContract.methods[method].apply(this, parArray).send({
+						from : $scope.user.address,
+						gas: 200000,
+					}).then(function(error, receipt){
+						if(error) {
+							$( "#submitbtn" ).prop("disabled",false);
+						}
+					//	console.log(error);
+								//console.log(receipt);
+							//	$scope.getTask(refresh);
+					});
+				} catch(e){
+					Swal.fire(
+					  'Bad input!',
+					  'You inserted a wrong type value!',
+					  'error'
+					);						
+				}
 			}
 		}
 	}
@@ -220,6 +235,7 @@ $scope.launch =  async function(task, $index, refresh){
 			$scope.$apply(function(recepit){
 				$scope.msgs = receipt[0];
 				$scope.memory = receipt[1];
+				console.log($scope.msgs);
 				$scope.setRoleActive();
 				sub(id);
 			});
@@ -303,9 +319,9 @@ $scope.launch =  async function(task, $index, refresh){
 				$scope.msgs[i].show = 1;
 				activeSid = $scope.msgs[i].ID;
 				$scope.msgs[i].status = "Enabled";
-				console.log("dentro i" + i);
-				console.log("dentro set role active: "+ $scope.actualContract.taskRoles[i]);
-				$scope.currentRole = $scope.actualContract.taskRoles[i];
+				console.log("dentro i" + activeSid);
+				console.log("dentro set role active: "+ $scope.actualContract.taskIdAndRole[activeSid]);
+				$scope.currentRole = $scope.actualContract.taskIdAndRole[activeSid];
 				
 			}
 			else if($scope.msgs[i].status == 0){
@@ -372,7 +388,12 @@ $scope.launch =  async function(task, $index, refresh){
 	$scope.setUser();
 	
 	//deve partire quando clicco contratto sub();
-	
+	$scope.getXml = function(filename){
+		$http.post("rest/getXml/" + filename).then(function(response){
+			$scope.model = response.data;
+			console.log($scope.model);
+		});
+	}
 	
 });
 

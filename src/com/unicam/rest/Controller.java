@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -480,6 +482,20 @@ public class Controller {
 		bChor.write(xml);
 		bChor.flush();
 		bChor.close();
+	}
+	
+	@POST
+	@Path("/getXml/{fileName}")
+	public String getxml(@PathParam("fileName") String fileName) {
+		String xml = "";
+		try {
+			xml = new String(Files.readAllBytes(Paths.get(ContractFunctions.projectPath + File.separator + "bpmn"+  File.separator + fileName)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return xml;
 	}
 	
 

@@ -56,6 +56,8 @@ import com.unicam.model.User;
 //import com.unicam.resources.Choreography.InfoNextEventResponse;
 import com.unicam.translator.Choreography;
 
+import io.reactivex.Flowable;
+
 import org.bson.Document;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
 import org.web3j.tuples.*;
@@ -342,6 +344,12 @@ public class ContractFunctions {
 
 		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
+		  try {
+			  org.web3j.protocol.core.methods.response.Transaction pendingT =  web3j.pendingTransactionFlowable().blockingFirst();
+			 System.out.println(pendingT.toString());
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
 		  if(transactionResponse.hasError()) {
 		  System.out.println(transactionResponse.getError().getData());
 		  System.out.println(transactionResponse.getError().getMessage());}
