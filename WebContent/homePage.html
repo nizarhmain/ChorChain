@@ -76,8 +76,8 @@ display: none;
 						</form>
 						<hr>						
 						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-							<h6>Model list </h6>
-							<a ng-repeat="model in models" class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
+							<h6>Model list</h6>
+							<a ng-repeat="model in models" ng-click="getXml(model.name)"  class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
 						</div>	
 						
 					</div>
@@ -92,7 +92,7 @@ display: none;
 									Model roles: {{model.mandatoryRoles}}<br>
 									<button ng-click="getInstances(model)" class="btn btn-primary my-2">See instances</button>
 									<button ng-click="createInstance(model) " class="btn btn-success">Create a new instance</button>
-									<button id="js-preview" data-toggle="modal"  data-target="#modalPreview" class="btn btn-success" >See model preview</button>
+									<button data-toggle="modal" id="js-preview" data-value="{{model.name}}" data-target="#modalPreview" class="btn btn-success" >See model preview</button>
 									
 									 <div class="btn-group">
 									 
@@ -197,12 +197,15 @@ display: none;
 
 <script>
 $('#modalPreview').on('shown.bs.modal', function (e) {
+	
+	
 	document.querySelector('.viewport').setAttribute("transform", "matrix(1,0,0,1,-240,-117)");
 	
 	setTimeout(function(){
 	var removeBlock = document.querySelector('.viewport');
 	removeBlock.classList.remove('viewport');}, 100);
 	})
+	
 </script>
 
 <script>

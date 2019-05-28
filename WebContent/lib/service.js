@@ -48,6 +48,9 @@ angular.module('homePage.services', []).factory('service',
 			service.getContracts = function(cookieId){
 				return $http.post("rest/getCont/" + cookieId);
 			}
+			service.getXml = function(modelname){
+				return $http.post("rest/getXml/" + modelname);
+			}
 
 			return service;
 		}]);

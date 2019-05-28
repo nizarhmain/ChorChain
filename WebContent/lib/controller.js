@@ -96,8 +96,11 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 				})
 			}
 			
-		
-			
-		
-		    
+			$scope.getXml = function(filename){
+				service.getXml(filename).then(function(response){
+					$scope.model = response.data;
+					console.log($scope.model);
+				});
+			}
+  
    }]);

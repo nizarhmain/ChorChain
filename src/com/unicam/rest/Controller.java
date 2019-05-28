@@ -498,5 +498,19 @@ public class Controller {
 		return xml;
 	}
 	
+	@GET
+	@Path("/requestNewXml/")
+	public String newXml() {
+		String xml = "";
+		try {
+			xml = new String(Files.readAllBytes(Paths.get(ContractFunctions.projectPath + File.separator + "bpmn"+  File.separator + "newDiagram.bpmn")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return xml;
+	}
+	
 
 }

@@ -65,8 +65,7 @@
     </div>
     <div class="row">
         <div class="col">
-    <button class="col btn btn-secondary" id="save" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
-     <button class="col btn btn-secondary" id="js-preview" style="height:40px;width:150px;margin-left:23px;" title="Save Model">Preview <i class="fa fa-inbox"></i></button>			
+    <button class="col btn btn-secondary" id="js-save" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
   	<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Download Model" data-toggle="modal" data-target="#modalDownload">Export Model <a class="fas fa-download"></a></button>				
         </div>   
     </div>
@@ -105,7 +104,6 @@
 
 				
 	<script src="lib/appmodeler.js"></script>
-	
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -116,42 +114,18 @@
 
 <script>
 function saveModel() {
-	Swal.fire({
-		  type: 'success',
-		  title: 'Your model has been saved',
-		  showConfirmButton: false,
-		  timer: 1700,
-		  backdrop: false
-		})
+	
 }
 </script>
 
 <script>
 function newModel() {
 	swal({
-		  title: 'Insert the new model name',
-		  input: 'text',
-		  backdrop: false,
-		  confirmButtonText: 'Submit',
-		  showLoaderOnConfirm: true,
-		  preConfirm: function (text) {
-		    return new Promise(function (resolve, reject) {
-		      setTimeout(function() {
-		        if (text === 'taken') {
-		          reject('This name is already taken.')
-		        } else {
-		          resolve()
-		        }
-		      }, 2000)
-		    })
-		  },
-		  allowOutsideClick: false
-		}).then(function (text) {
-		  swal({
-		    type: 'success',
-		    title: 'Model created!',
-		    backdrop: false,
-		  })
+		  type: 'success',
+		  title: 'Your model has been created',
+		  showConfirmButton: false,
+		  timer: 1700,
+		  backdrop: false
 		})
 }
 </script>
@@ -465,6 +439,13 @@ $scope.launch =  async function(task, $index, refresh){
 	$scope.setUser();
 	
 	//deve partire quando clicco contratto sub();
+	$scope.getXml = function(filename){
+		$http.post("rest/getXml/" + filename).then(function(response){
+			$scope.model = response.data;
+			console.log($scope.model);
+			renderModel($scope.model);
+		});
+	}
 	
 	
 });
