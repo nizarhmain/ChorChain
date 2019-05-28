@@ -20,11 +20,6 @@
 <!-- Modeler end import -->
 
 <style>
-.viewport {
-transform: matrix(1,0,0,1,-240,-117);
-
-}
-
 .bjs-powered-by{
 display: none;
 }
@@ -179,7 +174,6 @@ display: none;
 	   </div>
        </div>
        <div class="modal-footer">
-        <button type="button" class="btn btn-default" onclick="modifyPreview()">Modify Preview</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>   
       </div>
 
@@ -202,11 +196,13 @@ display: none;
 
 
 <script>
-
-function modifyPreview() {
+$('#modalPreview').on('shown.bs.modal', function (e) {
+	document.querySelector('.viewport').setAttribute("transform", "matrix(1,0,0,1,-240,-117)");
+	
+	setTimeout(function(){
 	var removeBlock = document.querySelector('.viewport');
-	removeBlock.classList.remove('viewport');
-	}
+	removeBlock.classList.remove('viewport');}, 100);
+	})
 </script>
 
 <script>
