@@ -94,11 +94,12 @@
        <div class="modal-footer">
 
         <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>  
-        x 
+        
       </div>
 	</div>
    </div>
   </div>
+<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
 
 <!-- end modal download -->
 		
@@ -113,7 +114,8 @@
 
 <script>
 function saveModel() {
-	Swal.fire({
+	var specialCharacters = /^[a-zA-Z]*$/;
+	Swal.fire({		
 	    title: "Insert the new model name",
 	    text: "Don't use special characters!",
 	    input: 'text',
@@ -126,20 +128,23 @@ function saveModel() {
 	        if (value == "taken") {
 		          return 'This name is already taken!'
 		        }
-	        if (value == ".") {
+	        if (!specialCharacters.test(value)) {
 		          return 'This name contain special characters!'
 		        }
 	      }
 	}).then((result) => {		
 		swal({
 			  type: 'success',
-			  title: 'Your model has been saved',
-			  showConfirmButton: false,
-			  timer: 1700,
-			  backdrop: false
+			  title: 'Model saved',
+			  text: 'Your model has been saved as: ' + result.value + '.bpmn',
+			  backdrop: false,
+ 
 			})
 	    if (result.value) {
-	        console.log("Result: " + result.value);
+	        var nameAdded = result.value;
+	        document.querySelector('.modelNameTrigger').setAttribute('data-value', nameAdded)
+
+	        $("#js-save").trigger('click'); 
 	    }
 	});
 }
