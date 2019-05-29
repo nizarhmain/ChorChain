@@ -17,9 +17,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			$location.path();
 			$scope.cookieId = null;
 			$scope.user.address = "";
+			$scope.modelName = "";
 		
 			
-			
+			$scope.setModelName = function(fileName){
+				$scope.modelName = fileName;
+			}
 			
 			$scope.registerUser = function(){
 				service.registerUser($scope.regUser).then(function(response){	
