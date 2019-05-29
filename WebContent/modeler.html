@@ -65,7 +65,7 @@
     </div>
     <div class="row">
         <div class="col">
-    <button class="col btn btn-secondary" id="js-save" style="height:40px;width:150px;margin-left:23px;" title="Save Model" onclick="saveModel()">Save Model <i class="fa fa-inbox"></i></button>
+    <button class="col btn btn-secondary"  style="height:40px;width:150px;margin-left:23px;" onclick="saveModel()" title="Save Model" >Save Model <i class="fa fa-inbox"></i></button>
   	<button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Download Model" data-toggle="modal" data-target="#modalDownload">Export Model <a class="fas fa-download"></a></button>				
         </div>   
     </div>
@@ -101,9 +101,7 @@
   </div>
 
 <!-- end modal download -->
-
-
-				
+		
 	<script src="lib/appmodeler.js"></script>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -115,7 +113,35 @@
 
 <script>
 function saveModel() {
-	
+	Swal.fire({
+	    title: "Insert the new model name",
+	    text: "Don't use special characters!",
+	    input: 'text',
+	    backdrop: false,
+	    allowOutsideClick: false, 
+	    inputValidator: (value) => {
+	        if (!value) {
+	          return 'You need to write something!'
+	        }
+	        if (value == "taken") {
+		          return 'This name is already taken!'
+		        }
+	        if (value == ".") {
+		          return 'This name contain special characters!'
+		        }
+	      }
+	}).then((result) => {		
+		swal({
+			  type: 'success',
+			  title: 'Your model has been saved',
+			  showConfirmButton: false,
+			  timer: 1700,
+			  backdrop: false
+			})
+	    if (result.value) {
+	        console.log("Result: " + result.value);
+	    }
+	});
 }
 </script>
 
@@ -159,299 +185,5 @@ function importModel() {
 }
 </script>
 
-<script>
 
-var app = angular.module('monitor', ['ngCookies']);
-
-app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
-	
-	$scope.user = {};
-	$scope.sendParams = {};
-	$scope.contracts = {};
-	$scope.tasks = {};
-	//var web3 = new Web3("http://193.205.92.133:8545");
-    var web777 = new Web3("ws://193.205.92.133:8546");
-    $scope.actualContract = {};
-    $scope.myContract = {};
-    $scope.abi = {};
-    $scope.inputs = {};
-    $scope.memory = {};
- 	$scope.msgs = {};
- 	$scope.singleMemory = null;
- 	$scope.index = null;
- 	$scope.valueNames = {};
- 	$scope.currentRole = "";
-    
-	//var abiContract = JSON.parse(sessionStorage.getItem('contract'));
-	
-	//$scope.params = $scope.contract.tasks[0].params[0].split(",");
-	
-
-	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
-
-
-	
-	
-$scope.launch =  async function(task, $index, refresh){
-	
-	
-		var params = $scope.sendParams.par;
-		var name = $scope.actualContract.tasks[$index];
-		console.log($scope.actualContract.tasks[$index]);
-		var n1 = name.split('\(');
-		//var n2 = n1.split(',');
-		var n3 = n1[1].split(' ');
-		console.log(n3);
-		var complete = task + '(';
-		for(var i in n3){
-
-			if(n3[i] == 'uint' || n3[i] == 'string' || n3[i] == 'bool'){
-				if(n3[i] == 'uint'){
-					n3[i] = 'uint256';
-				}
-				complete += n3[i] + ' , ';
-			}
-		}
-		var addPar = complete.split(' ');
-	 	console.log(addPar);
-		addPar.pop();
-		addPar.pop();
-		console.log(addPar);
-		complete = "";
-		for(i in addPar){
-			complete += addPar[i];
-		}
-		complete += ')';
-		var replaced = complete.replace(/-/g,'_');
-		for(var method in $scope.myContract.methods){
-			if(method == replaced){
-			//await unlock();
-			var parArray = [];
-			if($scope.sendParams.par.includes(',')){
-				var a = $scope.sendParams.par;
-				parArray = a.split('\,');
-			}
-			else{
-				parArray.push($scope.sendParams.par);
-			}
-			console.log(parArray);
-				$scope.myContract.methods[method].apply(this, parArray).send({
-					from : $scope.user.address,
-					gas: 200000,
-				}).then(function(error, receipt){
-				//	console.log(error);
-							//console.log(receipt);
-						//	$scope.getTask(refresh);
-				});
-			}
-		}
-	}
-	
-	
-	
-	$scope.getUserContracts = function(){
-		
-		$http.post("rest/getCont/" + $cookies.get('UserId')).then(function(response){
-			$scope.contracts = response.data;
-			console.log($scope.contracts);
-		});
-	}
-	
-	$scope.getSingleMem = function(){
-		for(var i in $scope.memory){
-		//console.log(i);
-		}
-		
-		$scope.singleMemory = $scope.memory[$scope.index];
-		//console.log($scope.singleMemory);
-	}
-	
-	$scope.getTask = function(name){
-		$scope.msgs = null;
-		$scope.memory = null;
-		$scope.sendParams.par = null;
-		console.log($scope.msgs);
-		for(var i in $scope.contracts){
-			if($scope.contracts[i].name == name){
-				$scope.actualContract =  $scope.contracts[i];
-				$scope.tasks = $scope.contracts[i].tasks;
-				$scope.valueNames = $scope.contracts[i].varNames;
-				break;
-			}
-		}
-		$scope.abi = JSON.parse($scope.actualContract.abi);
-		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
-		
-		console.log($scope.myContract);
-		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
-			$scope.$apply(function(recepit){
-				$scope.msgs = receipt[0];
-				$scope.memory = receipt[1];
-				$scope.setRoleActive();
-				sub(name);
-			});
-
-			
-		});
-		
-		
-		
-		
-	}
-	
-	$scope.setUser = function(){
-		$http.post("rest/getUserInfo/" + $cookies.get('UserId')).then(function(response){
-		
-			$scope.user = response.data;
-			//console.log($scope.user);
-		});
-	}
-	
-	async function unlock(){
-		console.log($scope.user);
-		//TODO java method. optional: rimettere psw quando tento di sbloccare account $scope.user.address
-		/*$http.post("rest/getUserInfo/").then(function(response){
-			 web3.eth.personal.unlockAccount(
-					response.data.address, response.data.privateKey)
-					.then(console.log('Account unlocked'));
-		});*/console.log($scope.user.address);
-		await web3.eth.personal.unlockAccount($scope.user.address
-					, $scope.user.privateKey, 10000)
-					.then(console.log('Account unlocked'));
-	}
-	
-		function sub1(refresh){
-			console.log("i'm the sub starting");
-		for(var type in $scope.abi){
-			if($scope.abi[type].name=="stateChanged"){
-				$scope.inputs = $scope.abi[type].inputs;
-			}
-		}
-		const subscription = web777.eth.subscribe('logs', {
-		    //address: $scope.actualContract.address,
-		    address : $scope.actualContract.address,
-		    topics: ['0x8fd8f487a1d703cca2ded1250c8e7c8c1ae6f0b6cdc81883a282e0863a6d7283']//prendere da bytecode
-		}, function(error, result){
-			console.log("inside sub on callback");
-			 if (!error) {
-				 	console.log("inside sub on good");
-			        const eventObj = web3.eth.abi.decodeLog(
-			            $scope.inputs,
-			            result.data,
-			            result.topics
-			          )
-			        $scope.actualContract =  null;
-					$scope.tasks = null;
-					$scope.valueNames = null;
-			     //   $scope.getTask(refresh);
-			      //  $scope.getTask(refresh);
-			       
-			      }
-			 else
-				 console.log(error);    
-			});
-		}
-		
-	
-	
-	$scope.getPast = function(){
-		myContract.getPastEvents('allEvents', {
-		    fromBlock: 0,
-		    toBlock: 'latest'
-		}, (error, events) => { console.log(events); })
-		.then((events) => {
-		    console.log(events) 
-		});
-	}
-	
-	$scope.setRoleActive = function(){
-		var activeSid = {};
-		//console.log($scope.actualContract);
-		for(var i in $scope.msgs){
-
-			if($scope.msgs[i].status == 1){
-				$scope.msgs[i].show = 1;
-				activeSid = $scope.msgs[i].ID;
-				$scope.msgs[i].status = "Enabled";
-				$scope.currentRole = $scope.actualContract.taskRoles[i];
-				
-			}
-			else if($scope.msgs[i].status == 0){
-				$scope.msgs[i].status = "Disabled";
-			}
-			else if($scope.msgs[i].status == 2){
-				$scope.msgs[i].status = "Done";
-			}
-		}
-
-		for(var i in $scope.actualContract.tasksID){
-			
-			if($scope.actualContract.tasksID[i] == activeSid){
-				/*console.log("ecco il sid del contratto:" + $scope.actualContract.tasksID[i]);
-				console.log("con nome: " + $scope.actualContract.tasks[i]);
-				console.log("e role: " +  $scope.actualContract.taskRoles[i])
-				/*for(var r in $scope.user.userRoles[r]){
-					if(){
-						hyzh
-					}
-				}*/
-			}
-		}
-	
-	}
-	
-	$scope.addMeta = function(){
-		$window.addEventListener("load", function() {
-		    if (typeof web3 !== "undefined") {
-		     web3 = new Web3(web3.currentProvider);
-		     console.log(web3);
-		      //web3.eth.getAccounts().then(console.log);
-		    } else {
-		      console.log("No web3? You should consider trying MetaMask!");
-		    }
-
-		  });
-	}
-	
-	function sub(refresh){
-		for(var type in $scope.abi){
-			if($scope.abi[type].name=="stateChanged"){
-				$scope.inputs = $scope.abi[type].inputs;
-			}
-		}
-		console.log("dentro il sub");
-		$scope.myContract.events.stateChanged((error, result) => {
-			const eventObj = web3.eth.abi.decodeLog(
-		            $scope.inputs,
-		            result.data,
-		            result.topics
-		          )
-		        $scope.actualContract =  null;
-				$scope.tasks = null;
-				$scope.valueNames = null;
-		        $scope.getTask(refresh);	
-		});
-		
-			}
-	
-	
-	$scope.addMeta();
-	$scope.getUserContracts();
-	$scope.setUser();
-	
-	//deve partire quando clicco contratto sub();
-	$scope.getXml = function(filename){
-		$http.post("rest/getXml/" + filename).then(function(response){
-			$scope.model = response.data;
-			console.log($scope.model);
-			renderModel($scope.model);
-		});
-	}
-	
-	
-});
-
-
-	
-</script>
 </html>

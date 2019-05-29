@@ -477,7 +477,7 @@ public class Controller {
 	@POST
 	@Path("/saveModel/{fileName}")
 	public void saveModel(@PathParam("fileName") String filename, String xml) throws Exception {
-		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath +  File.separator + "resources"+  File.separator + filename + ".bpmn"));
+		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn"));
 		BufferedWriter bChor = new BufferedWriter(wChor);
 		bChor.write(xml);
 		bChor.flush();
