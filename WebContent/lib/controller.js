@@ -86,6 +86,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 			
 			$scope.deploy = function(model, instanceId){
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
+					console.log(response.data);
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
 					$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
 				});

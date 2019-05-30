@@ -388,6 +388,10 @@ public class Controller {
 			System.out.println("Compiled");
 			// Thread.sleep(10000);
 			String cAddress = contract.deploy(instanceForDeploy.getName());
+			if(cAddress.equals("ERROR")) {
+				tm.rollback();
+				return null;
+			}
 
 			contractReturn.setAddress(cAddress);
 

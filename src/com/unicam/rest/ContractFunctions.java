@@ -78,6 +78,8 @@ public class ContractFunctions {
 	public String CONTRACT_ADDRESS = "";
 	private static final String VirtualProsAccount = "0x0D49A19F4732184E03549a4A190684a316c725F7";
 	
+	public static boolean pendingTransaction = false;
+	
 	//public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
 	public static String projectPath = System.getenv("ChorChain"); 
 	
@@ -286,7 +288,11 @@ public class ContractFunctions {
 	}
 	
 	public String deploy(String bin) throws Exception {
-	
+		  if(pendingTransaction == true) {
+			  System.out.println("C'è una transazione pendente");
+			  return "ERROR";
+		  }
+		 
 		/*System.out.println(solPath);
 		
 		String solPath = projectPath + "ChorChain/src/com/unicam/resources/" + parseName(bin, ".sol");
@@ -344,12 +350,7 @@ public class ContractFunctions {
 
 		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
-		  try {
-			  org.web3j.protocol.core.methods.response.Transaction pendingT =  web3j.pendingTransactionFlowable().blockingFirst();
-			 System.out.println(pendingT.toString());
-		  } catch (Exception e) {
-			  e.printStackTrace();
-		  }
+		  pendingTransaction = true;
 		  if(transactionResponse.hasError()) {
 		  System.out.println(transactionResponse.getError().getData());
 		  System.out.println(transactionResponse.getError().getMessage());}
@@ -372,6 +373,7 @@ public class ContractFunctions {
 		  System.out.println(transactionReceiptFinal.getContractAddress());
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();
+		  pendingTransaction = false;
 		  System.out.println(contractAddress);
 		  return contractAddress;
 
