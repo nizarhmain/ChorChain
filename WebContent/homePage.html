@@ -7,6 +7,9 @@
 	<title>Main page</title>
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
+	integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" 
+	crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link href="website.css" rel="stylesheet" type="text/css"> 
 	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
@@ -44,9 +47,6 @@ display: none;
 						<input type="submit" value="Modeler" class="btn btn-primary" style="width:100%;">
 					</form>
 					<hr>
-						<div class="p-3" style="background-color:#eee">
-							<a href="http://193.205.92.133:8080/ChorChain/deploy.html">Personal page</a>
-						</div>
 						<form class="text-center p-3" style="background-color:#eee">
 							<div class="form-group">
 								<label for="searchModel"><h6>Search a model </h6></label>
@@ -54,7 +54,7 @@ display: none;
 							  </div>
 						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 							  <span ng-show='searchText'>
-							    <a ng-repeat="model in models | filter:searchText " class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
+							    <a ng-repeat="model in models | filter:searchText " class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" > <i class="fas fa-file"></i> {{model.name}}</a>
 						      </span>
 						</div>
 						</form>
@@ -75,13 +75,8 @@ display: none;
 							<input type="submit"  value="Publish"  class="btn btn-primary mb-2" style="width:100%;">
 						</form>
 						<hr>						
-						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-							<h6>Model list</h6>
-							<a ng-repeat="model in models" ng-click="setModelName(model.name)"  class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" >{{model.name}}</a>
-						</div>	
-						
 					</div>
-					<div class="col-md-9">
+					<div class="col-md-6">
 						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent">
 						
 							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab">
@@ -148,7 +143,18 @@ display: none;
 									</div>	
 								</div>		
 							</div>							
-						</div>						
+						</div>	
+						<div class="col-md-3">
+						<form action="http://193.205.92.133:8080/ChorChain/deploy.html">
+							<input type="submit" value="Personal Page" class="btn btn-primary" style="width:100%;">
+						</form>
+						<hr>						
+						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+							<label style="text-align:center"><h6>Model File List</h6></label>
+							<a ng-repeat="model in models" ng-click="setModelName(model.name)"  class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" > <i class="fas fa-file"></i> {{model.name}}</a>
+						</div>
+						<hr>
+						</div>					
 					</div>				
 				</div>				
 			</div>			
