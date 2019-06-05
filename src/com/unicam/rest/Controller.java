@@ -516,5 +516,23 @@ public class Controller {
 		return xml;
 	}
 	
+	@POST
+	@Path("/changeOptional/{role}/{modelId}")
+	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("modelId") String modelId) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		try {
+			Model actualModel = em.find(Model.class, modelId);
+			List<String> mandatory = actualModel.getMandatoryRoles();
+			mandatory.remove(optionalRole);
+			List<String> optional = actualModel.getOptionalRoles();
+			optional.add(optionalRole);
+			tm.commit();
+			em.close();
+		}catch(Exception e) {
+			tm.rollback();
+		}
+	}
+	
 
 }
