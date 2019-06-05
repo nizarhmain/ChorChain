@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link href="website.css" rel="stylesheet" type="text/css"> 
 	<!-- Modeler import -->
-		<link rel="stylesheet" href="css/diagram-js.css" />
+		<link rel="stylesheet" href="css/diagram-js-preview.css" />
 		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
 		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
 		<link rel="stylesheet" href="css/app.css" />
@@ -20,7 +20,17 @@
 	<!-- Sweet alert -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
-	
+
+<style>
+.bjs-powered-by{
+display: none;
+}
+
+.djs-palette two-column open{
+display: none;
+}
+</style>
+
 </head>
 <body ng-app="monitor" ng-controller="monitorCtrl">
 	<div class="container-fluid">
@@ -50,7 +60,7 @@
 								<div>
 									<div class="row">
 										<div class="col-9">
-										<button type="button" id="test-function" data-value="sid-00e1b46c-e485-4551-a17b-6f0c3f21ec2c">click me to test function</button>
+										<button type="button" id="test-function" data-value="EndEvent_0ahgq09">click me to test function</button>
 								 			<button type="button" style="display: none"  id="js-preview" data-value="{{actualContract.name}}"></button> 
 											<div>Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 											<ul class="list-group">
@@ -93,6 +103,7 @@
 	<script src="lib/appmodeler.js"></script>
 	
 </body>
+
 <script>
 $(document).on("click", ".nav-link", function() {
 	$( "#js-preview" ).trigger( "click" );	
