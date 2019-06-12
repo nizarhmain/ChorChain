@@ -48,7 +48,7 @@ display: none;
 				<div class="col-2">
 					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 							<div ng-repeat="contract in contracts track by $index" >
-								<a ng-click="getTask(contract.id);" class="nav-link" >{{contract.id}}</a>
+								<a ng-click="getTask(contract.id);" class="nav-link" >{{contract.name}}<small class="text-muted">{{contract.id}}</small></a>
 							</div>							
 						<!-- <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false">{{contract.name}}</a>--->
 					</div>
@@ -69,7 +69,7 @@ display: none;
 											<div>Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 											<ul class="list-group">
 												<li class="list-group-item my-2" ng-repeat="msg in msgs" ng-if="msg.status == 'Enabled'">
-												<b>{{activeSid}}</b>
+												<b>{{activeSid}}</b>												
 													{{actualContract.tasks[$index]}}<div class="float-right"> Status: {{msg.status}}</div>
 													{{currentRole}}
 													{{actualContract.participants[currentRole]}} ----- {{user.id}}
@@ -189,6 +189,7 @@ $scope.launch =  async function(task, $index, refresh){
 						from : $scope.user.address,
 						gas: 200000,
 					}).then(function(error, receipt){
+						removehighlightmsg($scope.activeSid);
 						if(error) {
 							$( "#submitbtn" ).prop("disabled",false);
 						} 
