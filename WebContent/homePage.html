@@ -108,9 +108,9 @@ display: none;
 													Free roles in the instance: {{instance.freeRoles}}<br>
 													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{model.maxNumber}})
 												
-												<!--<button ng-click="deploy(instance)" ng-if="instance.actualNumber == instance.maxNumber" class="btn btn-success">
+												<!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
 													Deploy {{instance.name}}
-												</button>--->
+												</button>-->
 												
 													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
 														<div class="spinner-border text-success" role="status">
@@ -135,7 +135,11 @@ display: none;
 												</form>-->
 											</div>
 											
-										</div>									
+										</div>	
+											
+										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.done==true" data-ng-init="getContractFromInstance(instance.id)">
+											ciao amici
+										</div>								
 										{{msg}}	
 											
 										</div>	
@@ -201,17 +205,19 @@ display: none;
 
 
 <script>
+var contractInstance;
 window.addEventListener('load', function() {
-	console.log(web3.eth.accounts[0]);
-	  // Check if this address ID is in the MM extension
-	  if (web3.eth.accounts[0] == "todo") {
-		console.log("Metamask presente!");
 
+	  // Check if Web3 has been injected by the browser (Mist/MetaMask).
+	  if (typeof web3 !== 'undefined' && web3.currentProvider.isMetaMask == true) {
+		console.log("Metamask presente!");
+	    web3js = new Web3(web3.currentProvider);
+	    // window.ethereum.enable();
 	  } else {
 		  Swal.fire({
 			  backdrop: false,
 			  type: 'error',
-			  title: 'Account not present in the MetaMask Extension!',
+			  title: 'MetaMask Extension not present!',
 			  html: 'You will be redirected to the MetaMask site',
 			  timer: 2500,
 			  onBeforeOpen: () => {
@@ -238,6 +244,13 @@ window.addEventListener('load', function() {
 	  }
 
 });
+
+function getContractFromInstance(instanceId){
+	$http.post("rest/getContractFromInstance/" + instanceId).then(function(response){
+		contractInstance = response.data;
+		console.log(contractInstance);
+	});
+}
 
 </script>
 

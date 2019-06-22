@@ -76,13 +76,13 @@ public class Choreography {
 	private static Map<String, String> taskIdAndRole;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
-	public boolean start(File bpmnFile, Map<String, User> participants) throws Exception {
+	public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles) throws Exception {
 		try{
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
 			choreography.getParticipants();
-			choreography.FlowNodeSearch();
-			choreographyFile = choreography.initial(bpmnFile.getName(), participants) + choreographyFile;
+			choreography.FlowNodeSearch(optionalRoles);
+			choreographyFile = choreography.initial(bpmnFile.getName(), participants, optionalRoles) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
 			finalContract = new ContractObject(null,tasks, null, null, gatewayGuards, taskIdAndRole);
 			choreography.fileAll(bpmnFile.getName());
@@ -145,7 +145,7 @@ public class Choreography {
 
 	
 
-	private static String initial(String filename, Map<String, User> participants) {
+	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles) {
 		String intro = "pragma solidity ^0.5.3; \n"
 				+ "	pragma experimental ABIEncoderV2;\n"
 				+ "	contract " + ContractFunctions.parseName(filename, "") +"{\n"
@@ -180,8 +180,17 @@ public class Choreography {
 			if ((i + 1) < participantsWithoutDuplicates.size())
 				intro += ", ";
 		}
-		intro += " ]; \n" + "	mapping(string=>address) roles; \n";
+		intro += " ]; \n";
+		intro += "	string[] optionalList = [";
+		for (int i = 0; i < optionalRoles.size(); i++) {
+			intro += "\"" + optionalRoles.get(i) + "\"";
+			if ((i + 1) < optionalRoles.size())
+				intro += ", ";
+		}
 		
+		
+		intro += " ]; \n" + "	mapping(string=>address) roles; \r\n"+
+							"	mapping(string=>address) optionalRoles; \r\n";
 		String constr = "constructor() public{\r\n" + 
 				"    //struct instantiation\r\n" + 
 				"    for (uint i = 0; i < elementsID.length; i ++) {\r\n" + 
@@ -196,6 +205,9 @@ public class Choreography {
 				
 					constr+="	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getAddress() + ";\n";
 					i++;
+				}
+				for(String optional : optionalRoles) {
+					constr+="	optionalRoles[\"" + optional + "\"] = 0x0000000000000000000000000000000000000000;";
 				}
 		
 				/*"         roles[\"Buyer\"] = 0x0000000000000000000000000000000000000000;\r\n" + 
@@ -226,10 +238,9 @@ public class Choreography {
 				"       	}\r\n" + 
 				"   }\r\n" + 
 				 "\nfunction subscribe_as_participant(string memory _role) public {\r\n" + 
-						"        if(roles[_role]==0x0000000000000000000000000000000000000000){\r\n" + 
-						"          roles[_role]!=msg.sender;\r\n" + 
+						"        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n" + 
+						"          optionalRoles[_role]=msg.sender;\r\n" + 
 						"        }\r\n" + 
-						"        init();\r\n" + 
 						"    }\n";
 		
 		return intro + constr + other;
@@ -345,7 +356,7 @@ public class Choreography {
 	
 	
 
-	public void FlowNodeSearch() {
+	public void FlowNodeSearch(List<String> optionalRoles) {
 		//check for all SequenceFlow elements in the BPMN model
 		for (SequenceFlow flow : modelInstance.getModelElementsByType(SequenceFlow.class)) {
 			//node to be processed, created by the target reference of the sequence flow
@@ -524,7 +535,7 @@ public class Choreography {
 				String participantName = "";
 				ChoreographyTask task = new ChoreographyTask((ModelElementInstanceImpl) node, modelInstance);
 				getRequestAndResponse(task);
-				//System.out.println("SONO ENTRATOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: " + request);
+				
 				
 				participant = modelInstance.getModelElementById(task.getInitialParticipant().getId());
 				
@@ -551,7 +562,7 @@ public class Choreography {
 				if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
 					
 					
-						String pName = getRole(participantName);
+						String pName = getRole(participantName, optionalRoles);
 		    			
 		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public checkRole(" + pName
 								+ ") {\n";
@@ -567,7 +578,7 @@ public class Choreography {
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
 					
 				
-						String pName = getRole(participantName);
+						String pName = getRole(participantName, optionalRoles);
 		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public checkRole(" + pName
 								+ "){\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
@@ -579,7 +590,7 @@ public class Choreography {
 						addGlobal(request);	
 						
 						
-						pName = getRole(task.getParticipantRef().getName());
+						pName = getRole(task.getParticipantRef().getName(), optionalRoles);
 						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public checkRole(" + pName +"){\n"
 								+"	require(elements[position[\"" + getNextId(node, true) + "\"]].status==State.ENABLED);\n"
 								+"	done(\"" + getNextId(node, true) + "\");\n"
@@ -613,12 +624,19 @@ public class Choreography {
 		}
 	}
 	
-	public String getRole(String part) {
+	public String getRole(String part, List<String> optionalRoles) {
 		String res = "";
 		for(int i = 0; i < participantsWithoutDuplicates.size(); i++) {
 			
 			if((participantsWithoutDuplicates.get(i)).equals(part)) {
 				res = "roleList[" + i + "]";
+				return res;
+			}
+		}
+		for(int o = 0; o < optionalRoles.size(); o++) {
+			if((optionalRoles.get(o)).equals(part)) {
+				res = "optionalList[" + o + "]";
+				return res;
 			}
 		}
 		

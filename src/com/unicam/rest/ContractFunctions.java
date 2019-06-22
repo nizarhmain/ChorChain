@@ -88,12 +88,12 @@ public class ContractFunctions {
 
 
 
-	public ContractObject createSolidity(String fileName, Map<String, User> participants) {
+	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
 			System.out.println(f.getAbsolutePath());
-			cho.start(f, participants);
+			cho.start(f, participants, freeRoles);
 			//allFunctions = cho.allFunctions;
 
 			//Thread.sleep(15000);

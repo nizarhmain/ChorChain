@@ -380,7 +380,7 @@ public class Controller {
 
 			contractReturn = instanceForDeploy.getDeployedContract();
 
-			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants());
+			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getFreeRoles());
 
 			System.out.println("Starting to compile...");
 			// Thread.sleep(5000);
@@ -511,15 +511,14 @@ public class Controller {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
 		return xml;
 	}
 	
 	@POST
 	@Path("/changeOptional/{role}/{modelId}")
 	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("modelId") String modelId) throws Exception {
-		tm.begin();
+		/*tm.begin();
 		EntityManager em = emf.createEntityManager();
 		try {
 			Model actualModel = em.find(Model.class, modelId);
@@ -531,7 +530,25 @@ public class Controller {
 			em.close();
 		}catch(Exception e) {
 			tm.rollback();
+		}*/
+	}
+	
+	@POST
+	@Path("/getContractFromInstance/{instanceId}")
+	public ContractObject getContractFromInstance(@PathParam("instanceId") String instanceId) {
+		ContractObject contract = new ContractObject();
+		EntityManager em = emf.createEntityManager();
+		Instance instance = em.find(Instance.class, instanceId);
+		try {
+			contract = instance.getDeployedContract();
+			em.close();
 		}
+		catch(Exception e) {
+			
+			e.printStackTrace();
+		} 
+		return contract;
+		
 	}
 	
 
