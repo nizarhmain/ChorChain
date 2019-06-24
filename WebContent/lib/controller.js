@@ -1,8 +1,9 @@
+
 'use strict'
 
 
 var module = angular.module('homePage.controllers', ['ngCookies']);
-module.controller("controller", [ "$scope","$window", "$location", "service",'$cookies',
+module.controller("controller", [ "$scope","$window", "$location", "service", '$cookies',
 		function($scope,$window, $location,service, $cookies) {
 		
 			$scope.regUser = {};
@@ -81,6 +82,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 				service.createInstance(model, $cookies.get('UserId')).then(function(){
 					
 					$scope.msg = "Instance created";
+					getInstances(model);
 				});
 			}
 			
@@ -106,5 +108,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service",'$c
 					console.log($scope.model);
 				});
 			}
-  
+			
+			
    }]);

@@ -88,12 +88,12 @@ public class ContractFunctions {
 
 
 
-	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles) {
+	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
 			System.out.println(f.getAbsolutePath());
-			cho.start(f, participants, freeRoles);
+			cho.start(f, participants, freeRoles, mandatoryRoles);
 			//allFunctions = cho.allFunctions;
 
 			//Thread.sleep(15000);
@@ -321,7 +321,7 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-		  BigInteger GAS_PRICE = BigInteger.valueOf(2_000_000_000L);
+		  BigInteger GAS_PRICE = BigInteger.valueOf(2_500_000_000L);
 		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();

@@ -77,14 +77,15 @@ display: none;
 						<hr>						
 					</div>
 					<div class="col-md-6">
-						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent">
+						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent" >
 						
 							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab">
-								<div class="card-body">
+								<div class="card-body" data-ng-init="getInstances(model)">
 								   
 									Uploaded by: {{model.uploadedBy}}<br>
 									Maximum number of participants: {{model.maxNumber}}<br>
-									Model roles: {{model.mandatoryRoles}}<br>
+									Mandatory roles: {{model.mandatoryRoles}}<br>
+									Optional roles: {{model.optionalRoles}}<br>
 									<button ng-click="createInstance(model); getInstances(model)" class="btn btn-primary my-2">Create instances</button>									
 									<button data-toggle="modal"  data-target="#modalPreview" class="btn btn-success" >See model preview</button>
 									
@@ -137,11 +138,14 @@ display: none;
 											
 										</div>	
 											
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.done==true" data-ng-init="getContractFromInstance(instance.id)">
-											ciao amici
+										<div class="card  my-2">
+											<button onclick="getInstances(model.id)">
+											Want an optional role?
+											</button>
+											subscribe this instance dynamically
 										</div>								
 										{{msg}}	
-											
+										
 										</div>	
 									</div>	
 								</div>		
@@ -205,7 +209,6 @@ display: none;
 
 
 <script>
-var contractInstance;
 window.addEventListener('load', function() {
 
 	  // Check if Web3 has been injected by the browser (Mist/MetaMask).
@@ -245,10 +248,36 @@ window.addEventListener('load', function() {
 
 });
 
+function getInstances(modelId){
+	console.log(modelId);
+}
 function getContractFromInstance(instanceId){
-	$http.post("rest/getContractFromInstance/" + instanceId).then(function(response){
-		contractInstance = response.data;
-		console.log(contractInstance);
+	 var rawFile = new XMLHttpRequest();
+     rawFile.open("POST", "rest/getContractFromInstance/"+ instanceId, false);
+     rawFile.onreadystatechange = function ()
+     {
+         if(rawFile.readyState === 4)
+         {
+             if(rawFile.status === 200 || rawFile.status == 0)
+             {
+                 var allText = rawFile.responseText;
+                console.log(allText);
+             }
+         }
+     }
+   
+}
+
+function printhi(){
+	$scope.myContract.methods.subscribe_as_participant($scope.sendParams.par).send({
+		from : $scope.user.address,
+		gas: 200000,
+	}).then(function(receipt){
+		$http.post("rest/newSubscribe/" + $cookies.get('UserId')).then(function(response){
+			
+			
+			console.log(response);
+		});
 	});
 }
 

@@ -327,7 +327,8 @@ public class Controller {
 			
 			int max = modelInstance.getMaxNumber();
 			int actual = instanceToSub.getActualNumber();
-			
+			System.out.println(max);
+			System.out.println(actual);
 			if (max >= actual + 1) {
 				instanceToSub.setActualNumber(actual + 1);
 				List<String> freeRoles = instanceToSub.getFreeRoles();
@@ -380,7 +381,7 @@ public class Controller {
 
 			contractReturn = instanceForDeploy.getDeployedContract();
 
-			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getFreeRoles());
+			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), modelInstance.getOptionalRoles(), modelInstance.getMandatoryRoles());
 
 			System.out.println("Starting to compile...");
 			// Thread.sleep(5000);
@@ -473,10 +474,7 @@ public class Controller {
 		return loggedUser;
 	}
 
-	private User getHashUser() {
-		return loggedUser;
 
-	}
 	
 	@POST
 	@Path("/saveModel/{fileName}")
@@ -515,22 +513,27 @@ public class Controller {
 		return xml;
 	}
 	
-	@POST
+	@GET
 	@Path("/changeOptional/{role}/{modelId}")
 	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("modelId") String modelId) throws Exception {
-		/*tm.begin();
+		tm.begin();
 		EntityManager em = emf.createEntityManager();
+		System.out.println(optionalRole + modelId);
 		try {
 			Model actualModel = em.find(Model.class, modelId);
 			List<String> mandatory = actualModel.getMandatoryRoles();
 			mandatory.remove(optionalRole);
+		
 			List<String> optional = actualModel.getOptionalRoles();
 			optional.add(optionalRole);
+			actualModel.setMaxNumber(mandatory.size());
+			em.merge(actualModel);
 			tm.commit();
-			em.close();
 		}catch(Exception e) {
 			tm.rollback();
-		}*/
+		}finally {
+			em.close();
+		}
 	}
 	
 	@POST

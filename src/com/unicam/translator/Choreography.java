@@ -76,13 +76,13 @@ public class Choreography {
 	private static Map<String, String> taskIdAndRole;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
-	public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles) throws Exception {
+	public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles, List<String> mandatoryRoles) throws Exception {
 		try{
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
 			choreography.getParticipants();
 			choreography.FlowNodeSearch(optionalRoles);
-			choreographyFile = choreography.initial(bpmnFile.getName(), participants, optionalRoles) + choreographyFile;
+			choreographyFile = choreography.initial(bpmnFile.getName(), participants, optionalRoles, mandatoryRoles) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
 			finalContract = new ContractObject(null,tasks, null, null, gatewayGuards, taskIdAndRole);
 			choreography.fileAll(bpmnFile.getName());
@@ -145,7 +145,7 @@ public class Choreography {
 
 	
 
-	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles) {
+	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles, List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n"
 				+ "	pragma experimental ABIEncoderV2;\n"
 				+ "	contract " + ContractFunctions.parseName(filename, "") +"{\n"
@@ -175,9 +175,9 @@ public class Choreography {
 				
 				intro += "	string[] roleList = [ ";
 		
-		for (int i = 0; i < participantsWithoutDuplicates.size(); i++) {
-			intro += "\"" + participantsWithoutDuplicates.get(i) + "\"";
-			if ((i + 1) < participantsWithoutDuplicates.size())
+		for (int i = 0; i < mandatoryRoles.size(); i++) {
+			intro += "\"" + mandatoryRoles.get(i) + "\"";
+			if ((i + 1) < mandatoryRoles.size())
 				intro += ", ";
 		}
 		intro += " ]; \n";

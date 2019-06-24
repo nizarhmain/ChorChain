@@ -51,6 +51,9 @@ angular.module('homePage.services', []).factory('service',
 			service.getXml = function(modelname){
 				return $http.post("rest/getXml/" + modelname);
 			}
+			service.getContractFromInstance = function(instanceId){
+				return $http.post("rest/getContractFromInstance/" + instanceId);
+			}
 
 			return service;
 		}]);
