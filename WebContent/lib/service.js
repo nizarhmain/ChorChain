@@ -54,6 +54,9 @@ angular.module('homePage.services', []).factory('service',
 			service.getContractFromInstance = function(instanceId){
 				return $http.post("rest/getContractFromInstance/" + instanceId);
 			}
+			service.setUser = function(userId){
+				return $http.post("rest/getUserInfo/" + userId);
+			}
 
 			return service;
 		}]);

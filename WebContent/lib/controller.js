@@ -1,11 +1,10 @@
-
 'use strict'
 
 
 var module = angular.module('homePage.controllers', ['ngCookies']);
 module.controller("controller", [ "$scope","$window", "$location", "service", '$cookies',
 		function($scope,$window, $location,service, $cookies) {
-		
+			
 			$scope.regUser = {};
 			$scope.user = {};
 			$scope.role = null;
@@ -17,8 +16,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.contracts = {};
 			$location.path();
 			$scope.cookieId = null;
-			$scope.user.address = "";
+			//$scope.user.address = "";
 			$scope.modelName = "";
+			$scope.myContract = {};
 		
 			
 			$scope.setModelName = function(fileName){
@@ -82,7 +82,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				service.createInstance(model, $cookies.get('UserId')).then(function(){
 					
 					$scope.msg = "Instance created";
-					getInstances(model);
+					$scope.getInstances(model);
 				});
 			}
 			
@@ -108,6 +108,52 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					console.log($scope.model);
 				});
 			}
+			
+			$scope.getContractFromInstance = function(instanceId){
+					
+				
+				service.getContractFromInstance(instanceId).then(function(response){
+					console.log(response.data.abi);
+					console.log(response.data.address);
+					$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
+					console.log($scope.myContract);
+					
+					$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
+						from : $scope.user.address,
+						gas: 200000,
+					}).then(function(receipt){
+						console.log(receipt);
+					});
+				});
+			}
+			
+			$scope.optionalSubscribe = function(instanceId){
+				$scope.getContractFromInstance(instanceId);
+				
+			}
+			$scope.addMeta = function(){
+				$window.addEventListener("load", function() {
+				    if (typeof web3 !== "undefined") {
+				     web3 = new Web3(web3.currentProvider);
+				     console.log(web3);
+				      //web3.eth.getAccounts().then(console.log);
+				    } else {
+				      console.log("No web3? You should consider trying MetaMask!");
+				    }
+
+				  });
+			}
+			
+			$scope.setUser = function(){
+				var userId = $cookies.get('UserId');
+				service.setUser(userId).then(function(response){
+					$scope.user = response.data;
+					console.log($scope.user);
+				});
+			}
+			
+			$scope.setUser();
+			$scope.addMeta();
 			
 			
    }]);
