@@ -81,7 +81,7 @@ public class Choreography {
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
 			choreography.getParticipants();
-			choreography.FlowNodeSearch(optionalRoles);
+			choreography.FlowNodeSearch(optionalRoles, mandatoryRoles);
 			choreographyFile = choreography.initial(bpmnFile.getName(), participants, optionalRoles, mandatoryRoles) + choreographyFile;
 			choreographyFile += choreography.lastFunctions();
 			finalContract = new ContractObject(null,tasks, null, null, gatewayGuards, taskIdAndRole);
@@ -356,7 +356,7 @@ public class Choreography {
 	
 	
 
-	public void FlowNodeSearch(List<String> optionalRoles) {
+	public void FlowNodeSearch(List<String> optionalRoles, List<String> mandatoryRoles) {
 		//check for all SequenceFlow elements in the BPMN model
 		for (SequenceFlow flow : modelInstance.getModelElementsByType(SequenceFlow.class)) {
 			//node to be processed, created by the target reference of the sequence flow
@@ -562,7 +562,7 @@ public class Choreography {
 				if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
 					
 					
-						String pName = getRole(participantName, optionalRoles);
+						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 		    			
 		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public checkRole(" + pName
 								+ ") {\n";
@@ -578,7 +578,7 @@ public class Choreography {
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
 					
 				
-						String pName = getRole(participantName, optionalRoles);
+						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public checkRole(" + pName
 								+ "){\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
@@ -590,7 +590,7 @@ public class Choreography {
 						addGlobal(request);	
 						
 						
-						pName = getRole(task.getParticipantRef().getName(), optionalRoles);
+						pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
 						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public checkRole(" + pName +"){\n"
 								+"	require(elements[position[\"" + getNextId(node, true) + "\"]].status==State.ENABLED);\n"
 								+"	done(\"" + getNextId(node, true) + "\");\n"
@@ -624,11 +624,11 @@ public class Choreography {
 		}
 	}
 	
-	public String getRole(String part, List<String> optionalRoles) {
+	public String getRole(String part, List<String> optionalRoles, List<String> mandatoryRoles) {
 		String res = "";
-		for(int i = 0; i < participantsWithoutDuplicates.size(); i++) {
+		for(int i = 0; i < mandatoryRoles.size(); i++) {
 			
-			if((participantsWithoutDuplicates.get(i)).equals(part)) {
+			if((mandatoryRoles.get(i)).equals(part)) {
 				res = "roleList[" + i + "]";
 				return res;
 			}

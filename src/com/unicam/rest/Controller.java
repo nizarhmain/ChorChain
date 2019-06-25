@@ -554,5 +554,26 @@ public class Controller {
 		
 	}
 	
+	@POST
+	@Path("/newSubscribe/{instanceId}/{role}/{cookieId}")
+	public void newSubscribe(@PathParam("instanceId") String instanceId, @PathParam("role") String role, 
+			@PathParam("cookieId") String cookieId) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		loggedUser = retrieveUser(cookieId);
+		Instance instance = em.find(Instance.class, instanceId);
+		try {
+			//List<String> optionalRoles = instance.getFreeRoles();
+			//optionalRoles.remove(role);
+			Map<String, User> subscribers = instance.getParticipants();
+			subscribers.put(role, loggedUser);
+			em.merge(instance);
+			tm.commit();
+		}catch(Exception e) {
+			tm.rollback();
+		}finally {
+			em.close();
+		}
+	}
 
 }

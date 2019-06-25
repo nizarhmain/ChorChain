@@ -109,7 +109,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.getContractFromInstance = function(instanceId){
+			$scope.getContractFromInstance = function(instanceId, role){
 					
 				
 				service.getContractFromInstance(instanceId).then(function(response){
@@ -123,6 +123,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						gas: 200000,
 					}).then(function(receipt){
 						console.log(receipt);
+						service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
+							console.log("yeee");
+						});
 					});
 				});
 			}

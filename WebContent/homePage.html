@@ -102,7 +102,7 @@ display: none;
 									<div class="" ng-if="instances!=undefined">
 									
 								
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name && instance.done==false">
+										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
 											<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
 											<div class="card-body">
 												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
@@ -127,30 +127,21 @@ display: none;
 													    <button class="btn btn-outline-secondary" ng-click="subscribe(model, instance.id)" type="button">Subscribe</button>
 													  </div>
 													</div>
-												<!-- <form class="collapse" ng-if="instance.actualNumber < instance.maxNumber" id="collapseExample">
-													<div class="form-group mr-2">
-													    <label for="subAs" class="mr-2">Sub as </label>
-													    <input type="text" class="form-control" id="subAs"  ng-model="user.role" name="role">
-													  </div>
-													  <input type="submit" class="btn btn-primary" ng-click="subscribe(model, instance.id)" value="Submit">
-												</form>-->
 											</div>
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.done==true">
-											Instance {{instance.id}} already deployed <br>
+											<div ng-if="instance.done==true">
+											Instance already deployed <br>
 											Want to subscribe? Insert one optional role ({{model.optionalRoles}})
-											<form class="mt-3">
-												<div class="form-group">
-													<input type="text" class="form-control" placeholder="role" ng-model="user.role" >
-												</div>
-												<input type="submit" class="btn btn-primary" value="Submit" ng-click="optionalSubscribe(instance.id)" id="submitbtn">
-											</form>
-											
-											<button ng-click="getContractFromInstance(instance.id)">
-											</button>
-											
-										</div>				
+											<div class="input-group col-6" >
+												<select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
+													<option ng-repeat="role in model.optionalRoles track by $index" value="{{role}}" >{{role}}</option>
+												</select>
+												<div class="input-group-append">
+													<button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)" type="button">Optional subscribe</button>
+												</div>	
+											</div>	
+											</div>		
 										</div>	
-											
+										
 														
 										{{msg}}	
 										

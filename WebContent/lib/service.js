@@ -57,6 +57,9 @@ angular.module('homePage.services', []).factory('service',
 			service.setUser = function(userId){
 				return $http.post("rest/getUserInfo/" + userId);
 			}
+			service.newSubscribe = function(InstanceId, role, cookieId){
+				return $http.post("rest/newSubscribe/" + instanceId + role + cookieId);
+			}
 
 			return service;
 		}]);

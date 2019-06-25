@@ -26,7 +26,7 @@ import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageTyp
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 @NamedQuery(name = "Model.findAll", query = "SELECT m FROM Model m")
 public class Model {
-	 @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Type(type = "objectid")
     private String id;
