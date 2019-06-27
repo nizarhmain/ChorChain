@@ -222,8 +222,9 @@ public class Choreography {
 				"    }\r\n" + 
 				"    ";
 		
-		String other = "modifier checkRole(string storage role) \n" + "{ \n\trequire(msg.sender == roles[role]); \n\t_;"
-				+ "}\n\n" + "modifier Owner(string memory task) \n" + "{ \n\trequire(elements[position[task]].status==State.ENABLED);\n\t_;\n}\n"
+		String other = "modifier checkMand(string storage role) \n" + "{ \n\trequire(msg.sender == roles[role]); \n\t_; }"
+				+ "modifier checkOpt(string storage role) \n" + "{ \n\trequire(msg.sender == optionalRoles[role]); \n\t_; }"
+				+ "modifier Owner(string memory task) \n" + "{ \n\trequire(elements[position[task]].status==State.ENABLED);\n\t_;\n}\n"
 				+"function init() internal{\r\n" + 
 				"       bool result=true;\r\n" + 
 				"       	for(uint i=0; i<roleList.length;i++){\r\n" + 
@@ -564,7 +565,7 @@ public class Choreography {
 					
 						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 		    			
-		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public checkRole(" + pName
+		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public " + pName
 								+ ") {\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
 								+ "	done(\"" +  getNextId(node, false) + "\");\n"
@@ -579,7 +580,7 @@ public class Choreography {
 					
 				
 						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
-		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public checkRole(" + pName
+		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public " + pName
 								+ "){\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
 								+ "	done(\"" + getNextId(node, false) + "\");\n"
@@ -591,7 +592,7 @@ public class Choreography {
 						
 						
 						pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
-						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public checkRole(" + pName +"){\n"
+						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public " + pName +"){\n"
 								+"	require(elements[position[\"" + getNextId(node, true) + "\"]].status==State.ENABLED);\n"
 								+"	done(\"" + getNextId(node, true) + "\");\n"
 								+ addToMemory(response)
@@ -629,13 +630,13 @@ public class Choreography {
 		for(int i = 0; i < mandatoryRoles.size(); i++) {
 			
 			if((mandatoryRoles.get(i)).equals(part)) {
-				res = "roleList[" + i + "]";
+				res = "checkMand(roleList[" + i + "]";
 				return res;
 			}
 		}
 		for(int o = 0; o < optionalRoles.size(); o++) {
 			if((optionalRoles.get(o)).equals(part)) {
-				res = "optionalList[" + o + "]";
+				res = "checkOpt(optionalList[" + o + "]";
 				return res;
 			}
 		}

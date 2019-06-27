@@ -560,7 +560,8 @@ public class Controller {
 			@PathParam("cookieId") String cookieId) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		loggedUser = retrieveUser(cookieId);
+		//loggedUser = retrieveUser(cookieId);
+		loggedUser = em.find(User.class, cookieId);
 		Instance instance = em.find(Instance.class, instanceId);
 		try {
 			//List<String> optionalRoles = instance.getFreeRoles();

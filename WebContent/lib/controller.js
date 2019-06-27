@@ -115,9 +115,27 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				service.getContractFromInstance(instanceId).then(function(response){
 					console.log(response.data.abi);
 					console.log(response.data.address);
+				//	$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
+					//console.log($scope.myContract);
+					service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
+						console.log("yeee");
+					});
+				/*	$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
+						from : $scope.user.address,
+						gas: 200000,
+					}).then(function(receipt){
+						console.log(receipt);
+						service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
+							console.log("yeee");
+						});
+					});*/
+				});
+			}
+			
+			$scope.optionalSubscribe = function(instanceId){
+				//$scope.getContractFromInstance(instanceId);
+				service.getContractFromInstance(instanceId).then(function(response){
 					$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
-					console.log($scope.myContract);
-					
 					$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
 						from : $scope.user.address,
 						gas: 200000,
@@ -128,10 +146,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						});
 					});
 				});
-			}
-			
-			$scope.optionalSubscribe = function(instanceId){
-				$scope.getContractFromInstance(instanceId);
 				
 			}
 			$scope.addMeta = function(){
@@ -155,7 +169,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.setUser();
+			//$scope.setUser();
 			$scope.addMeta();
 			
 			
