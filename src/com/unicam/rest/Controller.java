@@ -211,8 +211,7 @@ public class Controller {
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(), loggedUser.getAddress(), roles,
-				new ArrayList<String>(), new ArrayList<Instance>());
+		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(), loggedUser.getAddress(), roles, new ArrayList<Instance>());
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		
@@ -246,10 +245,11 @@ public class Controller {
 		return allModels;
 		
 	}
-
+	
 	@POST
-	@Path("/createInstance/{cookieId}")
-	public void createInstance(Model m, @PathParam("cookieId") String cookieId) throws Exception {
+	@Path("/createInstance/{cookieId}/{optionalRoles}/{mandatoryRoles}")
+	public void createInstance(Model m, @PathParam("cookieId") String cookieId, @PathParam("optionalRoles") List<String> optionalRoles,
+		@PathParam("mandatoryRoles") List<String> mandatoryRoles) throws Exception {
 		// Find the model we want to instantiate
 		// loggedUser = retrieveUser(cookieId);
 		tm.begin();
@@ -263,8 +263,8 @@ public class Controller {
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
 			List<String> visibleAt = new ArrayList<String>();
-			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), m.getMandatoryRoles(),
-					loggedUser.getAddress(), false,  visibleAt, deployedContract);
+			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), mandatoryRoles, optionalRoles,
+					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
 			
 			modelInstances.add(modelInstance);

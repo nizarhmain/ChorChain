@@ -44,6 +44,12 @@ public class Instance {
 	private Map<String, User> participants = new HashMap<String, User>();
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> freeRoles;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> freeRolesOptional;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> mandatoryRoles;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> optionalRoles;
 	private String createdBy;
 	private boolean done;
 	//@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
@@ -109,7 +115,29 @@ public class Instance {
 		this.done = done;
 	}
 
-	
+	public List<String> getFreeRolesOptional() {
+		return freeRolesOptional;
+	}
+
+	public void setFreeRolesOptional(List<String> freeRolesOptional) {
+		this.freeRolesOptional = freeRolesOptional;
+	}
+
+	public List<String> getMandatoryRoles() {
+		return mandatoryRoles;
+	}
+
+	public void setMandatoryRoles(List<String> mandatoryRoles) {
+		this.mandatoryRoles = mandatoryRoles;
+	}
+
+	public List<String> getOptionalRoles() {
+		return optionalRoles;
+	}
+
+	public void setOptionalRoles(List<String> optionalRoles) {
+		this.optionalRoles = optionalRoles;
+	}
 
 	public ContractObject getDeployedContract() {
 		return deployedContract;
@@ -119,14 +147,18 @@ public class Instance {
 		this.deployedContract = deployedContract;
 	}
 
-	public Instance(String name, int actualNumber, Map<String, User> participants, List<String> freeRoles,
-			String createdBy, boolean done, List<String> visibleAt, ContractObject deployedContract) {
+	public Instance(String name, int actualNumber, Map<String, User> participants, List<String> mandatoryRoles, List<String> optionalRoles,
+			List<String> freeRoles, List<String> freeRolesOptional, String createdBy, boolean done, List<String> visibleAt, 
+			ContractObject deployedContract) {
 		super();
 		//_id = _id;
 		this.name = name;
 		this.actualNumber = actualNumber;
 		this.participants = participants;
+		this.mandatoryRoles = mandatoryRoles;
+		this.optionalRoles = optionalRoles;
 		this.freeRoles = freeRoles;
+		this.freeRolesOptional = freeRolesOptional;
 		this.createdBy = createdBy;
 		this.done = done;
 		this.visibleAt = visibleAt;

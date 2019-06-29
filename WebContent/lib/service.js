@@ -38,8 +38,8 @@ angular.module('homePage.services', []).factory('service',
 				return $http.post("rest/getInstances/", model);
 			}
 			
-			service.createInstance = function(model, cookieId){
-				return $http.post("rest/createInstance/" + cookieId, model);
+			service.createInstance = function(model, cookieId, optional, mandatory){
+				return $http.post("rest/createInstance/" + cookieId + "/" + optional + "/" + mandatory, model);
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){

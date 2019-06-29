@@ -19,7 +19,20 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			//$scope.user.address = "";
 			$scope.modelName = "";
 			$scope.myContract = {};
-		
+			$scope.selectedRoles = [];
+			
+			// Toggle selection for the roles
+			 $scope.toggleSelection = function toggleSelection(roleselected) {
+			    var idx = $scope.selectedRoles.indexOf(roleselected);
+			    // Is currently selected
+			    if (idx > -1) {
+			      $scope.selectedRoles.splice(idx, 1);
+			    }
+			    // Is newly selected
+			    else {
+			    	$scope.selectedRoles.push(roleselected);
+			    }
+			 }
 			
 			$scope.setModelName = function(fileName){
 				$scope.modelName = fileName;
@@ -78,13 +91,25 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.createInstance = function(model){
-				service.createInstance(model, $cookies.get('UserId')).then(function(){
-					
+			 $scope.createInstance = function(model){
+				var allRoles = angular.copy(model.roles);
+				var allRoleslength = angular.copy(allRoles.length);
+				for (var i= $scope.selectedRoles.length-1; i>=0; i--) {
+					//remove the role selected from the all roles array
+					var itemselected = allRoles.indexOf($scope.selectedRoles[i])
+					allRoles.splice(itemselected, 1);
+			    }
+				
+				if(allRoles.length == 0){
+					console.log("ci sono solo ruoli opzionali")
+				}
+				
+				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles).then(function(){
+					$scope.selectedRoles = [];
 					$scope.msg = "Instance created";
 					$scope.getInstances(model);
 				});
-			}
+			 }
 			
 			$scope.deploy = function(model, instanceId){
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
