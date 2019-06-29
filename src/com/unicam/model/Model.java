@@ -34,9 +34,7 @@ public class Model {
 	private int maxNumber;
 	private String uploadedBy;
 	@ElementCollection(fetch=FetchType.EAGER)
-	private List<String> mandatoryRoles;
-	@ElementCollection(fetch=FetchType.EAGER)
-	private List<String> optionalRoles;
+	private List<String> roles;
 	@OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
 	private List<Instance> instances;
 
@@ -71,21 +69,13 @@ public class Model {
 	public void setUploadedBy(String uploadedBy) {
 		this.uploadedBy = uploadedBy;
 	}
-
-	public List<String> getMandatoryRoles() {
-		return mandatoryRoles;
+	
+	public List<String> getRoles() {
+		return roles;
 	}
 
-	public void setMandatoryRoles(List<String> mandatoryRoles) {
-		this.mandatoryRoles = mandatoryRoles;
-	}
-
-	public List<String> getOptionalRoles() {
-		return optionalRoles;
-	}
-
-	public void setOptionalRoles(List<String> optionalRoles) {
-		this.optionalRoles = optionalRoles;
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
 	}
 
 	public List<Instance> getInstances() {
@@ -96,15 +86,13 @@ public class Model {
 		this.instances = instances;
 	}
 
-	public Model(String name, int maxNumber, String uploadedBy, List<String> mandatoryRoles,
-			List<String> optionalRoles, List<Instance> instances) {
+	public Model(String name, int maxNumber, String uploadedBy, List<String> roles, List<Instance> instances) {
 		super();
 		//_id = iD;
 		this.name = name;
 		this.maxNumber = maxNumber;
 		this.uploadedBy = uploadedBy;
-		this.mandatoryRoles = mandatoryRoles;
-		this.optionalRoles = optionalRoles;
+		this.roles = roles;
 		this.instances = instances;
 	}
 
