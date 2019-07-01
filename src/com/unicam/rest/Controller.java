@@ -211,7 +211,7 @@ public class Controller {
 		getRoles.readFile(new File(filepath));
 		getRoles.getParticipants();
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		Model modelUploaded = new Model(fileDetail.getFileName(), roles.size(), loggedUser.getAddress(), roles, new ArrayList<Instance>());
+		Model modelUploaded = new Model(fileDetail.getFileName(), loggedUser.getAddress(), roles, new ArrayList<Instance>());
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		
@@ -263,12 +263,13 @@ public class Controller {
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
 			List<String> visibleAt = new ArrayList<String>();
-			Instance modelInstance = new Instance(m.getName(), 0, new HashMap<String, User>(), mandatoryRoles, optionalRoles,
+			Instance modelInstance = new Instance(m.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
 					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
 			
 			modelInstances.add(modelInstance);
 			model.setInstances(modelInstances);
+			
 			em.persist(deployedContract);
 			em.persist(modelInstance);
 			
@@ -325,7 +326,7 @@ public class Controller {
 	
 			Instance instanceToSub = em.find(Instance.class, instanceId);
 			
-			int max = modelInstance.getMaxNumber();
+			int max = instanceToSub.getMaxNumber();
 			int actual = instanceToSub.getActualNumber();
 			System.out.println(max);
 			System.out.println(actual);
@@ -381,7 +382,7 @@ public class Controller {
 
 			contractReturn = instanceForDeploy.getDeployedContract();
 
-			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), modelInstance.getOptionalRoles(), modelInstance.getMandatoryRoles());
+			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
 			System.out.println("Starting to compile...");
 			// Thread.sleep(5000);
@@ -514,20 +515,23 @@ public class Controller {
 	}
 	
 	@GET
-	@Path("/changeOptional/{role}/{modelId}")
-	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("modelId") String modelId) throws Exception {
+	@Path("/changeOptional/{role}/{instanceId}/{modelId}")
+	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("instanceId") String instanceId, 
+			 @PathParam("modelId") String modelId) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		System.out.println(optionalRole + modelId);
+		System.out.println(optionalRole + instanceId);
 		try {
-			Model actualModel = em.find(Model.class, modelId);
-			List<String> mandatory = actualModel.getMandatoryRoles();
+			Instance actualInstance = em.find(Instance.class, instanceId);
+			List<String> mandatory = actualInstance.getFreeRoles();
 			mandatory.remove(optionalRole);
 		
-			List<String> optional = actualModel.getOptionalRoles();
+			List<String> optional = actualInstance.getFreeRolesOptional();
 			optional.add(optionalRole);
-			actualModel.setMaxNumber(mandatory.size());
-			em.merge(actualModel);
+			//Model actualModel = em.find(Model.class, modelId);
+			actualInstance.setMaxNumber(mandatory.size());
+			//em.merge(actualModel);
+			em.merge(actualInstance);
 			tm.commit();
 		}catch(Exception e) {
 			tm.rollback();

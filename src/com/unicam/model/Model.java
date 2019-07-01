@@ -31,7 +31,7 @@ public class Model {
     @Type(type = "objectid")
     private String id;
 	private String name;
-	private int maxNumber;
+	//private int maxNumber;
 	private String uploadedBy;
 	@ElementCollection(fetch=FetchType.EAGER)
 	private List<String> roles;
@@ -54,13 +54,13 @@ public class Model {
 		this.name = name;
 	}
 
-	public int getMaxNumber() {
-		return maxNumber;
-	}
+//	public int getMaxNumber() {
+//		return maxNumber;
+//	}
 
-	public void setMaxNumber(int maxNumber) {
-		this.maxNumber = maxNumber;
-	}
+//	public void setMaxNumber(int maxNumber) {
+//		this.maxNumber = maxNumber;
+//	}
 
 	public String getUploadedBy() {
 		return uploadedBy;
@@ -86,11 +86,11 @@ public class Model {
 		this.instances = instances;
 	}
 
-	public Model(String name, int maxNumber, String uploadedBy, List<String> roles, List<Instance> instances) {
+	public Model(String name, String uploadedBy, List<String> roles, List<Instance> instances) {
 		super();
 		//_id = iD;
 		this.name = name;
-		this.maxNumber = maxNumber;
+		//this.maxNumber = maxNumber;
 		this.uploadedBy = uploadedBy;
 		this.roles = roles;
 		this.instances = instances;

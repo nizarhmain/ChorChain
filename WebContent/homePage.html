@@ -85,7 +85,7 @@ display: none;
 								<div class="card-body" data-ng-init="getInstances(model)">
 								   
 									Uploaded by: {{model.uploadedBy}}<br>
-									Maximum number of participants: {{model.maxNumber}}<br>
+									<!-- Maximum number of participants: {{model.maxNumber}}<br>--->
 									All roles: {{model.roles}}<br>
 									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mymodal" ng-click="getInstances(model);">Create instance</button>
 									<!-- Modal set roles -->
@@ -142,19 +142,19 @@ display: none;
 											<div class="card-body">
 												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
 													Free roles in the instance: {{instance.freeRoles}}<br>
-													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{model.maxNumber}})
+													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{instance.maxNumber}})
 												
 												<!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
 													Deploy {{instance.name}}
 												</button>-->
-												
-													<div ng-if="instance.actualNumber == model.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
+
+													<div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
 														<div class="spinner-border text-success" role="status">
 														  <span class="">deploying...</span>
 														</div>
 													</div>
-		
-	  												<div class="input-group col-6" ng-if="instance.actualNumber < model.maxNumber">
+	
+	  												<div class="input-group col-6" ng-if="instance.actualNumber < instance.maxNumber">
 													  <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
 													    <option ng-repeat="role in instance.freeRoles track by $index" value="{{role}}" >{{role}}</option>
 													  </select>
@@ -165,10 +165,10 @@ display: none;
 											</div>
 											<div ng-if="instance.done==true">
 											Instance already deployed <br>
-											Want to subscribe? Insert one optional role ({{model.optionalRoles}})
+											Want to subscribe? Insert one optional role ({{instance.freeRolesOptional}})
 											<div class="input-group col-6" >
 												<select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
-													<option ng-repeat="role in model.optionalRoles track by $index" value="{{role}}" >{{role}}</option>
+													<option ng-repeat="role in instance.freeRolesOptional track by $index" value="{{role}}" >{{role}}</option>
 												</select>
 												<div class="input-group-append">
 													<button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)" type="button">Optional subscribe</button>
@@ -242,48 +242,6 @@ display: none;
 	
 </body>
 
-
-<script>
-/*window.addEventListener('load', function() {
-
-	  // Check if Web3 has been injected by the browser (Mist/MetaMask).
-	  if (typeof web3 !== 'undefined' && web3.currentProvider.isMetaMask == true) {
-		console.log("Metamask presente!");
-	    web3js = new Web3(web3.currentProvider);
-	    // window.ethereum.enable();
-	  } else {
-		  Swal.fire({
-			  backdrop: false,
-			  type: 'error',
-			  title: 'MetaMask Extension not present!',
-			  html: 'You will be redirected to the MetaMask site',
-			  timer: 2500,
-			  onBeforeOpen: () => {
-			    Swal.showLoading()
-			    timerInterval = setInterval(() => {
-			      Swal.getContent().querySelector('strong')
-			        .textContent = Swal.getTimerLeft()
-			    }, 100)
-			  },
-			  onClose: () => {
-			    clearInterval(timerInterval)
-			  }
-			}).then((result) => {
-			  if (
-			    // Read more about handling dismissals
-			    result.dismiss === Swal.DismissReason.timer
-			  ) {
-			    console.log('I was closed by the timer')
-			    window.location.replace('https://metamask.io/');
-		
-			  }
-			})
-			
-	  }
-
-});*/
-
-</script>
 
 
 <script>

@@ -38,6 +38,7 @@ public class Instance {
 	private String id;
 	private String name;
 	private int actualNumber;
+	private int maxNumber;
 	@JsonIgnore
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
 	@MapKeyColumn(name="role")
@@ -81,6 +82,15 @@ public class Instance {
 
 	public void setActualNumber(int actualNumber) {
 		this.actualNumber = actualNumber;
+	}
+	
+
+	public int getMaxNumber() {
+		return maxNumber;
+	}
+
+	public void setMaxNumber(int maxNumber) {
+		this.maxNumber = maxNumber;
 	}
 
 	public Map<String, User> getParticipants() {
@@ -147,13 +157,14 @@ public class Instance {
 		this.deployedContract = deployedContract;
 	}
 
-	public Instance(String name, int actualNumber, Map<String, User> participants, List<String> mandatoryRoles, List<String> optionalRoles,
+	public Instance(String name, int actualNumber, int maxNumber, Map<String, User> participants, List<String> mandatoryRoles, List<String> optionalRoles,
 			List<String> freeRoles, List<String> freeRolesOptional, String createdBy, boolean done, List<String> visibleAt, 
 			ContractObject deployedContract) {
 		super();
 		//_id = _id;
 		this.name = name;
 		this.actualNumber = actualNumber;
+		this.maxNumber = maxNumber;
 		this.participants = participants;
 		this.mandatoryRoles = mandatoryRoles;
 		this.optionalRoles = optionalRoles;

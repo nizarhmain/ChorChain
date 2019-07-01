@@ -141,7 +141,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					console.log(response.data.abi);
 					console.log(response.data.address);
 				//	$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
-					//console.log($scope.myContract);
+					
 					service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
 						console.log("yeee");
 					});
@@ -158,16 +158,22 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.optionalSubscribe = function(instanceId){
-				//$scope.getContractFromInstance(instanceId);
-				service.getContractFromInstance(instanceId).then(function(response){
-					$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
-					$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
-						from : $scope.user.address,
-						gas: 200000,
-					}).then(function(receipt){
-						console.log(receipt);
-						service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
-							console.log("yeee");
+				var userId = $cookies.get('UserId');
+				var role = $scope.user.role;
+				service.setUser(userId).then(function(response){
+					$scope.user = response.data;
+					service.getContractFromInstance(instanceId).then(function(response){
+						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
+					
+						$scope.myContract.methods.subscribe_as_participant(role).send({
+							from : $scope.user.address,
+							gas: 200000,
+						}).then(function(receipt){
+							console.log(receipt);
+							service.newSubscribe(instanceId, role, $cookies.get('UserId')).then(function(receipt){
+								console.log("yeee");
+								
+							});
 						});
 					});
 				});
