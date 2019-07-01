@@ -20,8 +20,20 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.modelName = "";
 			$scope.myContract = {};
 			$scope.selectedRoles = [];
-			
-			
+			$scope.visibleAtFields = [
+			        {}
+			    ];
+			   
+			$scope.addField = function() {
+		       var newUser = {};
+		       $scope.visibleAtFields.push(newUser);
+			}
+			$scope.removeField = function(addr) {
+		       var index = $scope.visibleAtFields.indexOf(addr);
+		       if(index>0){
+			       $scope.visibleAtFields.splice(index,1);
+		       }
+			}
 			// Toggle selection for the roles
 			 $scope.toggleSelection = function toggleSelection(roleselected) {
 			    var idx = $scope.selectedRoles.indexOf(roleselected);
@@ -94,19 +106,27 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			 $scope.createInstance = function(model, visibleAt){
 				 console.log(visibleAt);
-				var allRoles = angular.copy(model.roles);
-				var allRoleslength = angular.copy(allRoles.length);
-				for (var i= $scope.selectedRoles.length-1; i>=0; i--) {
-					//remove the role selected from the all roles array
-					var itemselected = allRoles.indexOf($scope.selectedRoles[i])
-					allRoles.splice(itemselected, 1);
-			    }
-				
-				if(allRoles.length == 0){
-					console.log("ci sono solo ruoli opzionali")
-				}
-				
-				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAt).then(function(){
+				 var visibleAtArray = [];
+				 for(var i = 0; i< visibleAt.length; i++){
+					 if(visibleAt[i].address){
+						 visibleAtArray.push(visibleAt[i].address);
+					 }
+				 }
+				 if(visibleAtArray[0] == undefined){
+					 visibleAtArray = null;
+				 }
+				 var allRoles = angular.copy(model.roles);
+				 if($scope.selectedRoles.length != 0){
+					var allRoleslength = angular.copy(allRoles.length);
+					for (var i= $scope.selectedRoles.length-1; i>=0; i--) {
+						//remove the role selected from the all roles array
+						var itemselected = allRoles.indexOf($scope.selectedRoles[i])
+						allRoles.splice(itemselected, 1);
+				    }
+				 } else {
+					 $scope.selectedRoles = null;
+				 }		
+				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAtArray).then(function(){
 					$scope.selectedRoles = [];
 					$scope.msg = "Instance created";
 					$scope.getInstances(model);

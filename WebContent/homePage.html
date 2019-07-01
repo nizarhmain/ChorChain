@@ -91,40 +91,69 @@ display: none;
 									<!-- Modal set roles -->
 									<!-- The Modal -->
 									  <div class="modal fade" id="mymodal">
-									    <div class="modal-dialog modal-sm">
+									    <div class="modal-dialog modal-lg">
 									      <div class="modal-content">
 									        <!-- Modal Header -->
 									        <div class="modal-header">
-									          <h4 class="modal-title">Set optional roles</h4>
+									          <h4 class="modal-title">Create new instance</h4>
 									          <button type="button" class="close" data-dismiss="modal">&times;</button>
 									        </div>
 									        <!-- Modal body -->
-									        <div class="modal-body">
-									        <p>Select the optional roles.
-									        	<br>
-									        	<small class="text-danger">The roles not selected are considered MANDATORY</small>
-									        </p>
-									        <div class="checkbox">
-												<div ng-repeat="role in model.roles">
-  													<label><input type="checkbox" name="selectedRoles[]"
-  													ng-checked="selection.indexOf(role) > -1"
-    												ng-click="toggleSelection(role)"
-  													 value="{{role}}"> {{role}}</label>
+									        <div class="modal-body">	
+									        <div class="row">
+										        <div class="col-sm-6">
+													<div class="card">
+													 	<div class="card-body">
+														  	<h5 class="card-title">Select the optional roles</h5>
+												          	<p class="card-text text-danger">The roles not selected are considered MANDATORY</p>
+													        
+															<div ng-repeat="role in model.roles">
+																<div class="custom-control custom-checkbox">
+				  													<input type="checkbox" name="selectedRoles[]"
+				  													ng-checked="selection.indexOf(role) > -1"
+				    												ng-click="toggleSelection(role)"
+				  													 value="{{role}}" class="custom-control-input" id="{{role}}"> 
+				  													 <label class="custom-control-label" for="{{role}}">{{role}}</label>
+																</div>
+															</div>
+															<div ng-if="selectedRoles.length >= model.roles.length">
+																<small>You cannot select all the roles as optional</small>											
+															</div>
+											        	</div>		
+									        		</div>
+									        	</div>
+									        	<div class="col-sm-6">
+											        <div class="card">
+		  												<div class="card-body">		
+		  												<h5 class="card-title">Set visibility</h5>
+		  												<p class="card-text">Entering the addresses, the instance will become private and will be visible only to those addresses.</p>			        
+														  <div ng-repeat="field in visibleAtFields">
+														  <div class="col-auto">
+														      <div class="input-group mb-2">
+														      	<div class="input-group-prepend">
+														        	<div class="input-group-text">{{ $index + 1 }}.</div>
+														        </div>
+														      	<input ng-model="field.address" type="text" class="form-control">
+														        <div class="input-group-append">
+														        <a class="input-group-text text-danger" ng-click="removeField(field)">X</a>
+														        </div>
+														      </div>
+														    </div>
+														  </div>
+														</div>
+														<div class="card-footer bg-transparent text-right"><button class="btn btn-success btn-sm" ng-click="addField()">Add Address</button>	</div>
+													</div>
 												</div>
 											</div>
-											<div class="form-group">
-												<label><input type="text" ng-model="visibleAt"></label>
 											</div>
-									        </div>
 									        <!-- Modal footer -->
 									        <div class="modal-footer">
-									        	<button ng-click="createInstance(model, visibleAt); getInstances(model)" class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>									
-									        </div>
-									        
+												<button ng-disabled="selectedRoles.length >= model.roles.length" ng-click="createInstance(model, visibleAtFields); getInstances(model)" id="submitForm"  class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>									
+											</div>
 									      </div>
 									    </div>
 									  </div>
-									<!-- end modal preview -->
+									<!-- end modal -->
 									<button data-toggle="modal"  data-target="#modalPreview" class="btn btn-success" >See model preview</button>
 									
 									 <div class="btn-group">
@@ -136,24 +165,21 @@ display: none;
 									      <a class="dropdown-item" ng-repeat="role in model.roles track by $index"  href="#">{{role}}</a>
 									    </div>
 									  </div>
-
 									<div class="" ng-if="instances!=undefined">
-									
-								
-										
-										
-											<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
-											<div ng-repeat="address in instance.visibleAt track by $index" ng-if="user.address == address">
-										
-											<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
-											<div class="card-body">
-												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
+										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
+											<div ng-if="instance.visibleAt == 'undefined' || instance.visibleAt.indexOf(user.address) > -1">	
+											<div ng-if="instance.visibleAt.indexOf(user.address) > -1"		>
+											PRIVATAAAAAAA
+											</div>							
+												<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
+												<div class="card-body">
+													<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
 													Free roles in the instance: {{instance.freeRoles}}<br>
 													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{instance.maxNumber}})
 												
-												<!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
-													Deploy {{instance.name}}
-												</button>-->
+													<!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
+														Deploy {{instance.name}}
+													</button>-->
 
 													<div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
 														<div class="spinner-border text-success" role="status">
@@ -169,25 +195,23 @@ display: none;
 													    <button class="btn btn-outline-secondary" ng-click="subscribe(model, instance.id)" type="button">Subscribe</button>
 													  </div>
 													</div>
-											</div>
-											<div ng-if="instance.done==true">
-											Instance already deployed <br>
-											Want to subscribe? Insert one optional role ({{instance.freeRolesOptional}})
-											<div class="input-group col-6" >
-												<select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
-													<option ng-repeat="role in instance.freeRolesOptional track by $index" value="{{role}}" >{{role}}</option>
-												</select>
-												<div class="input-group-append">
-													<button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)" type="button">Optional subscribe</button>
-												</div>	
-											</div>	
-											</div>		
-										</div>	
-										
-														
-										{{msg}}	
-											</div>
-										</div>	
+												</div>
+												<div ng-if="instance.done==true">
+													Instance already deployed <br>
+													Want to subscribe? Insert one optional role ({{instance.freeRolesOptional}})
+													<div class="input-group col-6" >
+														<select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
+															<option ng-repeat="role in instance.freeRolesOptional track by $index" value="{{role}}" >{{role}}</option>
+														</select>
+														<div class="input-group-append">
+															<button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)" type="button">Optional subscribe</button>
+														</div>	
+													</div>	
+												</div>		
+											</div>				
+											{{msg}}	
+										</div>
+									</div>	
 									</div>	
 								</div>		
 							</div>							
@@ -252,6 +276,19 @@ display: none;
 
 
 <script>
+function nextChar(c) {
+    var i = (parseInt(c, 36) + 1 ) % 36;
+    return (!i * 10 + i).toString(36);
+}
+
+function add(){
+    var new_chq_no = nextChar($('#total_chq').val());
+    var new_input="<input type='text'  ng-model='new."+new_chq_no+"'>";
+    $('#groupvisibleat').append(new_input);
+    $('#total_chq').val(new_chq_no)
+  }
+
+
 $('#modalPreview').on('shown.bs.modal', function (e) {	
 	document.querySelector('.viewport').setAttribute("transform", "matrix(1,0,0,1,-240,-117)");
 	
