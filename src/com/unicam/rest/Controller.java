@@ -247,14 +247,14 @@ public class Controller {
 	}
 	
 	@POST
-	@Path("/createInstance/{cookieId}/{optionalRoles}/{mandatoryRoles}")
+	@Path("/createInstance/{cookieId}/{optionalRoles}/{mandatoryRoles}/{visibleAt}")
 	public void createInstance(Model m, @PathParam("cookieId") String cookieId, @PathParam("optionalRoles") List<String> optionalRoles,
-		@PathParam("mandatoryRoles") List<String> mandatoryRoles) throws Exception {
+		@PathParam("mandatoryRoles") List<String> mandatoryRoles, @PathParam("visibleAt") List<String> visibleAt) throws Exception {
 		// Find the model we want to instantiate
 		// loggedUser = retrieveUser(cookieId);
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+		System.out.println("VISIBLE ATTTTT: " + visibleAt);
 		try {
 			
 			loggedUser = em.find(User.class, cookieId);
@@ -262,7 +262,7 @@ public class Controller {
 			Model model = em.find(Model.class, m.getID());
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
-			List<String> visibleAt = new ArrayList<String>();
+			//List<String> visibleAt = new ArrayList<String>();
 			Instance modelInstance = new Instance(m.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
 					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
@@ -461,11 +461,7 @@ public class Controller {
 		return participants;
 	}
 
-	@POST
-	@Path("/setActive/{nextActive}")
-	public void setNextActive(@PathParam("nextActive") String next, ContractObject userContract) {
-
-	}
+	
 
 	@POST
 	@Path("/getUserInfo/{cookieId}")

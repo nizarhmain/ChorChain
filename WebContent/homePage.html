@@ -39,7 +39,7 @@ display: none;
 
 <body  ng-app="homePage" ng-controller="controller">
 <div class="container-fluid">
-		<div class="containerHomePage">
+		<div class="containerHomePage" data-ng-init="setUser()">
 			<h3 class="text-center mt-2">Home Page</h3>
 			<hr><hr>	
 			<div data-ng-init="getModels()">		
@@ -112,10 +112,13 @@ display: none;
   													 value="{{role}}"> {{role}}</label>
 												</div>
 											</div>
+											<div class="form-group">
+												<label><input type="text" ng-model="visibleAt"></label>
+											</div>
 									        </div>
 									        <!-- Modal footer -->
 									        <div class="modal-footer">
-									        	<button ng-click="createInstance(model); getInstances(model)" class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>									
+									        	<button ng-click="createInstance(model, visibleAt); getInstances(model)" class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>									
 									        </div>
 									        
 									      </div>
@@ -137,7 +140,11 @@ display: none;
 									<div class="" ng-if="instances!=undefined">
 									
 								
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
+										
+										
+											<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
+											<div ng-repeat="address in instance.visibleAt track by $index" ng-if="user.address == address">
+										
 											<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
 											<div class="card-body">
 												<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
@@ -179,7 +186,7 @@ display: none;
 										
 														
 										{{msg}}	
-										
+											</div>
 										</div>	
 									</div>	
 								</div>		

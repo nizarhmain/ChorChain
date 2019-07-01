@@ -38,8 +38,9 @@ angular.module('homePage.services', []).factory('service',
 				return $http.post("rest/getInstances/", model);
 			}
 			
-			service.createInstance = function(model, cookieId, optional, mandatory){
-				return $http.post("rest/createInstance/" + cookieId + "/" + optional + "/" + mandatory, model);
+			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
+				console.log("eddaje: " + visibleAt);
+				return $http.post("rest/createInstance/" + cookieId + "/" + optional + "/" + mandatory + "/" + visibleAt, model);
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){

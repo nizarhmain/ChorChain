@@ -21,6 +21,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.myContract = {};
 			$scope.selectedRoles = [];
 			
+			
 			// Toggle selection for the roles
 			 $scope.toggleSelection = function toggleSelection(roleselected) {
 			    var idx = $scope.selectedRoles.indexOf(roleselected);
@@ -91,7 +92,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			 $scope.createInstance = function(model){
+			 $scope.createInstance = function(model, visibleAt){
+				 console.log(visibleAt);
 				var allRoles = angular.copy(model.roles);
 				var allRoleslength = angular.copy(allRoles.length);
 				for (var i= $scope.selectedRoles.length-1; i>=0; i--) {
@@ -104,7 +106,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					console.log("ci sono solo ruoli opzionali")
 				}
 				
-				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles).then(function(){
+				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAt).then(function(){
 					$scope.selectedRoles = [];
 					$scope.msg = "Instance created";
 					$scope.getInstances(model);
@@ -160,8 +162,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.optionalSubscribe = function(instanceId){
 				var userId = $cookies.get('UserId');
 				var role = $scope.user.role;
-				service.setUser(userId).then(function(response){
-					$scope.user = response.data;
+				
+					//$scope.user = response.data;
 					service.getContractFromInstance(instanceId).then(function(response){
 						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
 					
@@ -176,7 +178,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 							});
 						});
 					});
-				});
+			
 				
 			}
 			$scope.addMeta = function(){
