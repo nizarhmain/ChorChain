@@ -48,8 +48,8 @@ crossorigin="anonymous">
 								class="form-text text-muted"> </small>
 						</div>
 						
-						<input type="submit" class="btn btn-primary text-center"
-							value="Login" ng-click="loginUser()">
+						<input type="submit" id="loginbutton" class="btn btn-primary text-center"
+							value="Login" disabled ng-click="loginUser()">
 					</form>
 					<div class="video1">
 						<h2> Tool Demostration:</h2>
@@ -168,14 +168,14 @@ top:60px;
 <script> 
 // If the MetaMask extension is present,you are asked to log in to your account the permissions to access the wallet
 ethereum.enable();
-$("#labeladdress").text(web3.eth.accounts[0]);
-$
-
 var account = web3.eth.accounts[0];
+
+$("#labeladdress").text(web3.toChecksumAddress(account));
+
 var accountInterval = setInterval(function() {
   if (web3.eth.accounts[0] !== account) {
-    account = web3.eth.accounts[0].toUpperCase();
-    $("#labeladdress").text(account);
+    account = web3.eth.accounts[0]
+    $("#labeladdress").text(web3.toChecksumAddress(account));
   }
 }, 100);
 </script>
@@ -188,6 +188,18 @@ function copyToClipboard(element) {
 	  document.execCommand("copy");
 	  $temp.remove();
 	}
+</script>
+
+<script>
+
+
+var accountInterval = setInterval(function() {
+	var account = web3.eth.accounts[0];
+	console.log(document.getElementById("address").text)
+if (document.getElementById("address").text == account) {
+	document.getElementById("loginbutton").disabled = false;
+}
+}, 100);
 </script>
 
 <script>
