@@ -192,13 +192,16 @@ function copyToClipboard(element) {
 
 <script>
 
-
 var accountInterval = setInterval(function() {
-	var account = web3.eth.accounts[0];
-	console.log(document.getElementById("address").text)
-if (document.getElementById("address").text == account) {
+	
+var selectedAccount = web3.toChecksumAddress(web3.eth.accounts[0]);	
+
+if (document.getElementById("address").value == selectedAccount) {
 	document.getElementById("loginbutton").disabled = false;
 }
+else
+	document.getElementById("loginbutton").disabled = true;
+	
 }, 100);
 </script>
 
