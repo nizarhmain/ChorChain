@@ -1,317 +1,358 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 
-	<meta charset="ISO-8859-1">
-	<title>Main page</title>
-	<script src="lib/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
-	integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" 
-	crossorigin="anonymous">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link href="website.css" rel="stylesheet" type="text/css"> 
-	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
-	integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="
-	crossorigin="anonymous"></script>
-	
+  <meta charset="ISO-8859-1">
+  <title>Main page</title>
+  <script src="lib/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link href="website.css" rel="stylesheet" type="text/css">
+  <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+    integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
 
-	<!-- Modeler import -->
-		<link rel="stylesheet" href="css/diagram-js-preview.css" />
-		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
-		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
-		
-	<!-- Modeler end import -->
 
-<style>
-.bjs-powered-by{
-display: none;
-}
+  <!-- Modeler import -->
+  <link rel="stylesheet" href="css/diagram-js-preview.css" />
+  <link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
+  <link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
 
-.djs-direct-editing-content{
-display: none;
-}
-</style>
+  <!-- Modeler end import -->
+
+  <style>
+    .bjs-powered-by {
+      display: none;
+    }
+
+    .djs-direct-editing-content {
+      display: none;
+    }
+  </style>
 
 
 </head>
 
-<body  ng-app="homePage" ng-controller="controller">
-<div class="container-fluid">
-		<div class="containerHomePage" data-ng-init="setUser()">
-			<h3 class="text-center mt-2">Home Page</h3>
-			<hr><hr>	
-			<div data-ng-init="getModels()">		
-				<div class="row">
-					<div class="col-md-3">
-					<form action="http://localhost:8080/ChorChain/modeler.html">
-						<input type="submit" value="Modeler" class="btn btn-primary" style="width:100%;">
-					</form>
-					<hr>
-						<form class="text-center p-3" style="background-color:#eee">
-							<div class="form-group">
-								<label for="searchModel"><h6>Search a model </h6></label>
-						    	<input type="text" class="form-control" ng-model="searchText" id="searchModel" name="role" style="width:100%;">
-							  </div>
-						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-							  <span ng-show='searchText'>
-							    <a ng-repeat="model in models | filter:searchText " class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" > <i class="fas fa-file"></i> {{model.name}}</a>
-						      </span>
-						</div>
-						</form>
-						<hr>
-						<form action="rest/upload" method="POST" enctype="multipart/form-data" class="text-center p-3" style="background-color:#eee">
-							<!-- <div class="form-group">
+<body ng-app="homePage" ng-controller="controller">
+  <div class="container-fluid">
+    <div class="containerHomePage" data-ng-init="setUser()">
+      <h3 class="text-center mt-2">Home Page</h3>
+      <hr>
+      <hr>
+      <div data-ng-init="getModels()">
+        <div class="row">
+          <div class="col-md-3">
+            <form action="http://localhost:8080/ChorChain/modeler.html">
+              <input type="submit" value="Modeler" class="btn btn-primary" style="width:100%;">
+            </form>
+            <hr>
+            <form class="text-center p-3" style="background-color:#eee">
+              <div class="form-group">
+                <label for="searchModel">
+                  <h6>Search a model </h6>
+                </label>
+                <input type="text" class="form-control" ng-model="searchText" id="searchModel" name="role"
+                  style="width:100%;">
+              </div>
+              <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <span ng-show='searchText'>
+                  <a ng-repeat="model in models | filter:searchText " class="nav-link " id="{{model.name}}-tab"
+                    data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true"> <i
+                      class="fas fa-file"></i>
+                    {{model.name}}</a>
+                </span>
+              </div>
+            </form>
+            <hr>
+            <form action="rest/upload" method="POST" enctype="multipart/form-data" class="text-center p-3"
+              style="background-color:#eee">
+              <!-- <div class="form-group">
 								<label for="file"><h6>Select BPMN file </h6></label>
 								<input type="file" class="form-control-file" id="file"  name="fileName" placeholder="No file selected">
 							</div>--->
-							<label for="uplaodModel"><h6>Upload a new model</h6></label>
-							    <div class="custom-file mb-3">
-    							  <input type="file" class="custom-file-input" id="customFile"  name="fileName" accept=".bpmn">
-      							  <label class="custom-file-label" id="customFileLabel" for="customFile">
-      							  	 
-      							  </label>
-      							    <input type="hidden" id="" name="cookieId" value="{{cookieId}}">
- 							    </div>
-							<input type="submit"  value="Publish"  class="btn btn-primary mb-2" style="width:100%;">
-						</form>
-						<hr>						
-					</div>
-					<div class="col-md-6">
-						<div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent" >
-						
-							<div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel" aria-labelledby="{{model.name}}-tab">
-								<div class="card-body" data-ng-init="getInstances(model)">
-								   
-									Uploaded by: {{model.uploadedBy}}<br>
-									<!-- Maximum number of participants: {{model.maxNumber}}<br>--->
-									All roles: {{model.roles}}<br>
-									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mymodal" ng-click="getInstances(model);">Create instance</button>
-									<!-- Modal set roles -->
-									<!-- The Modal -->
-									  <div class="modal fade" id="mymodal">
-									    <div class="modal-dialog modal-lg">
-									      <div class="modal-content">
-									        <!-- Modal Header -->
-									        <div class="modal-header">
-									          <h4 class="modal-title">Create new instance</h4>
-									          <button type="button" class="close" data-dismiss="modal">&times;</button>
-									        </div>
-									        <!-- Modal body -->
-									        <div class="modal-body">	
-									        <div class="row">
-										        <div class="col-sm-6">
-													<div class="card">
-													 	<div class="card-body">
-														  	<h5 class="card-title">Select the optional roles</h5>
-												          	<p class="card-text text-danger">The roles not selected are considered MANDATORY</p>
-													        
-															<div ng-repeat="role in model.roles">
-																<div class="custom-control custom-checkbox">
-				  													<input type="checkbox" name="selectedRoles[]"
-				  													ng-checked="selection.indexOf(role) > -1"
-				    												ng-click="toggleSelection(role)"
-				  													 value="{{role}}" class="custom-control-input" id="{{role}}"> 
-				  													 <label class="custom-control-label" for="{{role}}">{{role}}</label>
-																</div>
-															</div>
-															<div ng-if="selectedRoles.length >= model.roles.length">
-																<small>You cannot select all the roles as optional</small>											
-															</div>
-											        	</div>		
-									        		</div>
-									        	</div>
-									        	<div class="col-sm-6">
-											        <div class="card">
-		  												<div class="card-body">		
-		  												<h5 class="card-title">Set visibility</h5>
-		  												<p class="card-text">Entering the addresses, the instance will become private and will be visible only to those addresses.</p>			        
-														  <div ng-repeat="field in visibleAtFields">
-														  <div class="col-auto">
-														      <div class="input-group mb-2">
-														      	<div class="input-group-prepend">
-														        	<div class="input-group-text">{{ $index + 1 }}.</div>
-														        </div>
-														      	<input ng-model="field.address" type="text" class="form-control">
-														        <div class="input-group-append">
-														        <a class="input-group-text text-danger" ng-click="removeField(field)">X</a>
-														        </div>
-														      </div>
-														    </div>
-														  </div>
-														</div>
-														<div class="card-footer bg-transparent text-right"><button class="btn btn-success btn-sm" ng-click="addField()">Add Address</button>	</div>
-													</div>
-												</div>
-											</div>
-											</div>
-									        <!-- Modal footer -->
-									        <div class="modal-footer">
-												<button ng-disabled="selectedRoles.length >= model.roles.length" ng-click="createInstance(model, visibleAtFields); getInstances(model)" id="submitForm"  class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>									
-											</div>
-									      </div>
-									    </div>
-									  </div>
-									<!-- end modal -->
-									<button data-toggle="modal"  data-target="#modalPreview" class="btn btn-success" >See model preview</button>
-									
-									 <div class="btn-group">
-									 
-									    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
-									       Search for role
-									    </button>
-									    <div class="dropdown-menu">
-									      <a class="dropdown-item" ng-repeat="role in model.roles track by $index"  href="#">{{role}}</a>
-									    </div>
-									  </div>
-									<div class="" ng-if="instances!=undefined">
-										<div class="card  my-2" ng-repeat="instance in instances" ng-if="instance.name==model.name">
-											<div ng-if="instance.visibleAt == 'undefined' || instance.visibleAt.indexOf(user.address) > -1">	
-											<div ng-if="instance.visibleAt.indexOf(user.address) > -1"		>
-											PRIVATAAAAAAA
-											</div>							
-												<h5 class="card-header">{{instance.name}} number: {{instance.id}}</h5>
-												<div class="card-body">
-													<p class="card-text">	Instance created By: {{instance.createdBy}}</p>
-													Free roles in the instance: {{instance.freeRoles}}<br>
-													Actual number of subscribed users: {{instance.actualNumber}} (Max:{{instance.maxNumber}})
-												
-													<!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
+              <label for="uplaodModel">
+                <h6>Upload a new model</h6>
+              </label>
+              <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="customFile" name="fileName" accept=".bpmn">
+                <label class="custom-file-label" id="customFileLabel" for="customFile">
+
+                </label>
+                <input type="hidden" id="" name="cookieId" value="{{cookieId}}">
+              </div>
+              <input type="submit" value="Publish" class="btn btn-primary mb-2" style="width:100%;">
+            </form>
+            <hr>
+          </div>
+          <div class="col-md-6">
+            <div class="tab-content p-2" style="background-color:#ccc;" id="v-pills-tabContent">
+
+              <div ng-repeat="model in models" class="tab-pane fade" id="{{model.name}}" role="tabpanel"
+                aria-labelledby="{{model.name}}-tab">
+                <div class="card-body" data-ng-init="getInstances(model)">
+
+                  Uploaded by: {{model.uploadedBy}}<br>
+                  <!-- Maximum number of participants: {{model.maxNumber}}<br>--->
+                  All roles: {{model.roles}}<br>
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mymodal"
+                    ng-click="getInstances(model);">Create instance</button>
+                  <!-- Modal set roles -->
+                  <!-- The Modal -->
+                  <div class="modal fade" id="mymodal">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Create new instance</h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-sm-6">
+                              <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Select the optional roles
+                                  </h5>
+                                  <p class="card-text text-danger">The roles not
+                                    selected are considered MANDATORY</p>
+
+                                  <div ng-repeat="role in model.roles">
+                                    <div class="custom-control custom-checkbox">
+                                      <input type="checkbox" name="selectedRoles[]"
+                                        ng-checked="selection.indexOf(role) > -1" ng-click="toggleSelection(role)"
+                                        value="{{role}}" class="custom-control-input" id="{{role}}">
+                                      <label class="custom-control-label" for="{{role}}">{{role}}</label>
+                                    </div>
+                                  </div>
+                                  <div ng-if="selectedRoles.length >= model.roles.length">
+                                    <small>You cannot select all the roles as
+                                      optional</small>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-sm-6">
+                              <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Set visibility</h5>
+                                  <p class="card-text">Entering the addresses, the
+                                    instance will become private and will be visible
+                                    only to those addresses.</p>
+                                  <div ng-repeat="field in visibleAtFields">
+                                    <div class="col-auto">
+                                      <div class="input-group mb-2">
+                                        <div class="input-group-prepend">
+                                          <div class="input-group-text">
+                                            {{ $index + 1 }}.</div>
+                                        </div>
+                                        <input ng-model="field.address" type="text" class="form-control">
+                                        <div class="input-group-append">
+                                          <a class="input-group-text text-danger" ng-click="removeField(field)">X</a>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="card-footer bg-transparent text-right">
+                                  <button class="btn btn-success btn-sm" ng-click="addField()">Add Address</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button ng-disabled="selectedRoles.length >= model.roles.length"
+                            ng-click="createInstance(model, visibleAtFields); getInstances(model)" id="submitForm"
+                            class="btn btn-primary my-2" data-dismiss="modal">Create instances</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- end modal -->
+                  <button data-toggle="modal" data-target="#modalPreview" class="btn btn-success">See
+                    model preview</button>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                      Search for role
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" ng-repeat="role in model.roles track by $index" href="#">{{role}}</a>
+                    </div>
+                  </div>
+                  <div>
+
+                    <div ng-repeat="instance in instances" ng-if="instance.name==model.name">
+                      <div class="card  my-2"  ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
+                        <h5 class="card-header">{{instance.name}} number: {{instance.id}}<span class="float-right fa fa-lock" ng-show="instance.visibleAt.indexOf(user.address) > -1"></span></h5> 
+                        <div class="card-body">
+                          <p class="card-text"> Instance created By: {{instance.createdBy}}
+                          </p>
+                          Free roles in the instance: {{instance.freeRoles}}<br>
+                          Actual number of subscribed users: {{instance.actualNumber}}
+                          (Max:{{instance.maxNumber}})
+
+                          <!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
 														Deploy {{instance.name}}
 													</button>-->
 
-													<div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"  data-ng-init="deploy(model, instance.id)">
-														<div class="spinner-border text-success" role="status">
-														  <span class="">deploying...</span>
-														</div>
-													</div>
-	
-	  												<div class="input-group col-6" ng-if="instance.actualNumber < instance.maxNumber">
-													  <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
-													    <option ng-repeat="role in instance.freeRoles track by $index" value="{{role}}" >{{role}}</option>
-													  </select>
-													  <div class="input-group-append">
-													    <button class="btn btn-outline-secondary" ng-click="subscribe(model, instance.id)" type="button">Subscribe</button>
-													  </div>
-													</div>
-												</div>
-												<div ng-if="instance.done==true">
-													Instance already deployed <br>
-													Want to subscribe? Insert one optional role ({{instance.freeRolesOptional}})
-													<div class="input-group col-6" >
-														<select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
-															<option ng-repeat="role in instance.freeRolesOptional track by $index" value="{{role}}" >{{role}}</option>
-														</select>
-														<div class="input-group-append">
-															<button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)" type="button">Optional subscribe</button>
-														</div>	
-													</div>	
-												</div>		
-											</div>				
-											{{msg}}	
-										</div>
-									</div>	
-									</div>	
-								</div>		
-							</div>							
-						</div>	
-						<div class="col-md-3">
-						<form action="http://193.205.92.133:8080/ChorChain/deploy.html">
-							<input type="submit" value="Personal Page" class="btn btn-primary" style="width:100%;">
-						</form>
-						<hr>						
-						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-							<label style="text-align:center"><h6>Model File List</h6></label>
-							<a ng-repeat="model in models" ng-click="setModelName(model.name)"  class="nav-link " id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model" aria-selected="true" > <i class="fas fa-file"></i> {{model.name}}</a>
-						</div>
-						<hr>
-						</div>					
-					</div>				
-				</div>				
-			</div>			
-		</div>
+                          <div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"
+                            data-ng-init="deploy(model, instance.id)">
+                            <div class="spinner-border text-success" role="status">
+                              <span class="">deploying...</span>
+                            </div>
+                          </div>
 
-<!-- Modal preview -->
-<div id="modalPreview" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <!-- Modal content-->
-    <div class="modal-content" style="height:570px;">
-      <div class="modal-header">
-        <h4 class="modal-title">Model Preview</h4> <h6>{{modelName}}</h6>
+                          <div class="input-group col-6" ng-if="instance.actualNumber < instance.maxNumber">
+                            <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
+                              <option ng-repeat="role in instance.freeRoles track by $index" value="{{role}}">{{role}}
+                              </option>
+                            </select>
+                            <div class="input-group-append">
+                              <button class="btn btn-outline-secondary" ng-click="subscribe(model, instance.id)"
+                                type="button">Subscribe</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div ng-if="instance.done==true">
+                          Instance already deployed <br>
+                          Want to subscribe? Insert one optional role
+                          ({{instance.freeRolesOptional}})
+                          <div class="input-group col-6">
+                            <select class="custom-select" id="inputGroupSelect04" ng-model="user.role">
+                              <option ng-repeat="role in instance.freeRolesOptional track by $index" value="{{role}}">
+                                {{role}}</option>
+                            </select>
+                            <div class="input-group-append">
+                              <button class="btn btn-outline-secondary" ng-click="optionalSubscribe(instance.id)"
+                                type="button">Optional subscribe</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {{msg}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <form action="http://193.205.92.133:8080/ChorChain/deploy.html">
+              <input type="submit" value="Personal Page" class="btn btn-primary" style="width:100%;">
+            </form>
+            <hr>
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+              <label style="text-align:center">
+                <h6>Model File List</h6>
+              </label>
+              <a ng-repeat="model in models" ng-click="setModelName(model.name)" class="nav-link "
+                id="{{model.name}}-tab" data-toggle="pill" href="#{{model.name}}" role="tab" aria-controls="model"
+                aria-selected="true"> <i class="fas fa-file"></i>
+                {{model.name}}</a>
+            </div>
+            <hr>
+          </div>
+        </div>
       </div>
-
-        <div class="modal-body" style="height:100%;">
-		<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:72%;">
-
-								    <div id="canvas" data-ng-init="attach()" style="height:400px;border:solid;">
-								
-						
-								    </div>		
-								
-	   </div>
-       </div>
-       <div class="modal-footer">
-        <button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button> 
-        <button type="button" style="display:none;" class="btn btn-default" id="js-preview" data-value="{{modelName}}">Trigger</button> 
-      </div>
-
     </div>
   </div>
-</div>
-<!-- end modal preview -->
+
+  <!-- Modal preview -->
+  <div id="modalPreview" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content" style="height:570px;">
+        <div class="modal-header">
+          <h4 class="modal-title">Model Preview</h4>
+          <h6>{{modelName}}</h6>
+        </div>
+
+        <div class="modal-body" style="height:100%;">
+          <div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:72%;">
+
+            <div id="canvas" data-ng-init="attach()" style="height:400px;border:solid;">
 
 
-	<script src="lib/controller.js"></script>
-	<script src="lib/service.js"></script>
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
-	<script src="lib/app.js"></script>
-	<script src="lib/appmodeler.js"></script>
-	
+            </div>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" style="display:none;" class="btn btn-default" id="js-preview"
+            data-value="{{modelName}}">Trigger</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- end modal preview -->
+
+
+  <script src="lib/controller.js"></script>
+  <script src="lib/service.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+  </script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+  <script src="lib/app.js"></script>
+  <script src="lib/appmodeler.js"></script>
+
 </body>
 
 
 
 <script>
-function nextChar(c) {
-    var i = (parseInt(c, 36) + 1 ) % 36;
+  function nextChar(c) {
+    var i = (parseInt(c, 36) + 1) % 36;
     return (!i * 10 + i).toString(36);
-}
+  }
 
-function add(){
+  function add() {
     var new_chq_no = nextChar($('#total_chq').val());
-    var new_input="<input type='text'  ng-model='new."+new_chq_no+"'>";
+    var new_input = "<input type='text'  ng-model='new." + new_chq_no + "'>";
     $('#groupvisibleat').append(new_input);
     $('#total_chq').val(new_chq_no)
   }
 
 
-$('#modalPreview').on('shown.bs.modal', function (e) {	
-	document.querySelector('.viewport').setAttribute("transform", "matrix(1,0,0,1,-240,-117)");
-	
-	setTimeout(function(){
-	var removeBlock = document.querySelector('.viewport');
-	removeBlock.classList.remove('viewport');
-	removeBlock.classList.add('viewport');}, 100);
-	
-	$("#js-preview").trigger('click'); 
-	
-	})
+  $('#modalPreview').on('shown.bs.modal', function (e) {
+    document.querySelector('.viewport').setAttribute("transform", "matrix(1,0,0,1,-240,-117)");
+
+    setTimeout(function () {
+      var removeBlock = document.querySelector('.viewport');
+      removeBlock.classList.remove('viewport');
+      removeBlock.classList.add('viewport');
+    }, 100);
+
+    $("#js-preview").trigger('click');
+
+  })
 </script>
 
 <script>
-$("#close").click(function(){
-	
-	});
+  $("#close").click(function () {
+
+  });
 </script>
 
 
 <script>
-$("#customFile").change(function(){
-	  $("#customFileLabel").text(this.files[0].name);
-	});
+  $("#customFile").change(function () {
+    $("#customFileLabel").text(this.files[0].name);
+  });
 </script>
+
 </html>
