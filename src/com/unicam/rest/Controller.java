@@ -250,14 +250,25 @@ public class Controller {
 	@Path("/createInstance/{cookieId}/{optionalRoles}/{mandatoryRoles}/{visibleAt}")
 	public void createInstance(Model m, @PathParam("cookieId") String cookieId, @PathParam("optionalRoles") List<String> optionalRoles,
 		@PathParam("mandatoryRoles") List<String> mandatoryRoles, @PathParam("visibleAt") List<String> visibleAt) throws Exception {
-		// Find the model we want to instantiate
-		// loggedUser = retrieveUser(cookieId);
+		
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		System.out.println("VISIBLE ATTTTT: " + visibleAt);
 		try {
 			
 			loggedUser = em.find(User.class, cookieId);
+			
+			//if visibleAt is null, it means that the instance is public, otherwise I need to insert also
+			//the user address into the array
+			if(visibleAt.get(0).equals("null")) {
+				visibleAt = null;
+			} else {
+				visibleAt.add(loggedUser.getAddress());
+			}
+			
+			if(optionalRoles.get(0).equals("null")) {
+				optionalRoles = null;
+			}
+			
 			
 			Model model = em.find(Model.class, m.getID());
 			List<Instance> modelInstances = model.getInstances();

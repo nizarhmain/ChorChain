@@ -39,7 +39,8 @@ angular.module('homePage.services', []).factory('service',
 			}
 			
 			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
-				console.log("eddaje: " + visibleAt);
+				console.log("visibleat: " + visibleAt);
+				console.log("optional:" + optional);
 				return $http.post("rest/createInstance/" + cookieId + "/" + optional + "/" + mandatory + "/" + visibleAt, model);
 			}
 			

@@ -113,7 +113,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					 }
 				 }
 				 if(visibleAtArray[0] == undefined){
-					 visibleAtArray = null;
+					 visibleAtArray[0] = "null";
 				 }
 				 var allRoles = angular.copy(model.roles);
 				 if($scope.selectedRoles.length != 0){
@@ -124,7 +124,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						allRoles.splice(itemselected, 1);
 				    }
 				 } else {
-					 $scope.selectedRoles = null;
+					 $scope.selectedRoles[0] = "null";
 				 }		
 				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAtArray).then(function(){
 					$scope.selectedRoles = [];
