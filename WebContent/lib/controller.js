@@ -23,7 +23,26 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.visibleAtFields = [
 			        {}
 			    ];
-			   
+			
+			 //add parameters modal + message
+			$scope.addParam = function() {
+			       var newUser = {};
+			       $scope.visibleAtFields.push(newUser);
+				}
+				$scope.removeParam = function(addr) {
+			       var index = $scope.visibleAtFields.indexOf(addr);
+			       if(index>0){
+				       $scope.visibleAtFields.splice(index,1);
+			       }
+				}
+				$scope.addMessage = function(messageName,messageParam,paramType) {
+				       $scope.str = messageName + "(" + paramType +" "+ messageParam + ")" ;
+				       console.log($scope.str);
+				       //document.querySelector('.text.djs-label').setAttribute("text", $scope.str);
+				       
+					}
+			
+			 //add address modal  
 			$scope.addField = function() {
 		       var newUser = {};
 		       $scope.visibleAtFields.push(newUser);

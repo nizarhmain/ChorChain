@@ -21,8 +21,7 @@
 		<link rel="stylesheet" href="css/diagram-js.css" />
 		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
 		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
-		<link rel="stylesheet" href="css/app.css" />
-<!-- Modeler end import -->
+    <!-- Modeler end import -->
 <style>
 .btn-secondary:not(:disabled):not(.disabled).active{
     background-color: #6c757d;
@@ -44,10 +43,12 @@
     text-transform: uppercase;
     transform: translateX(-50%);
 }
+
 </style>
 </head>
-<body ng-app="homePage" ng-controller="controller">
 
+<body ng-app="homePage" ng-controller="controller">
+{{str}}
 <div class="row" style="padding-top:15px;padding-bottom:15px;padding-left:15px;">
     	<div class="col">
     	
@@ -66,15 +67,17 @@
    		
     </div>
  
+ 
+ <div class="modal-body" style="height:100%;">
+		<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:72%;">
 
-				<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:83%;">
-
-				<div id="canvas" data-ng-init="attach()"></div>		
-				   
-				</div>
-
-	
-
+								    <div id="canvas" data-ng-init="attach()" style="height:500px;">
+								
+						
+								    </div>		
+								
+	   </div>
+       </div>
 <!-- Modal download -->
 <div id="modalDownload" class="modal fade" role="dialog">
   <div class="modal-dialog centered">
@@ -90,7 +93,7 @@
       
    				    <a id="js-download-diagram" class="col btn btn-secondary" style="height:40px;width:200px;margin-left:23px;font-weight:400;text-align:center;" title="Download BPMN file">Download BPMN file <i class="far fa-file"></i></a>
 
-   				    <a id="js-download-svg" class="col btn btn-secondary"  style="height:40px;width:200px;margin-left:23px;font-weight:400;text-align:center;" title="Download as SVG image">Download as SVG image <i class="far fa-file-image"></i></a>
+   				    <a id="js-download-svg" class="col btn btn-secondary"  style="height:40px;width:210px;margin-left:23px;font-weight:400;text-align:center;" title="Download as SVG image">Download as SVG image <i class="far fa-file-image"></i></a>
  		
 		 		</div>   
 		    </div>		
@@ -105,6 +108,65 @@
    </div>
   </div>
 <!-- end modal download -->
+
+ 
+<!-- Modal message -->
+ <div class="modal fade" id="msg">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <!-- Modal Header -->
+       <div class="modal-header">
+         <h4 class="modal-title">Set message</h4>
+         <button type="button" class="close" data-dismiss="modal">&times;</button>
+       </div>
+       <!-- Modal body -->
+       <div class="modal-body">	
+       <div class="row">
+  <form>       
+			
+			 	<div class="card-body">
+				  	<h5 class="card-title">Select the name of the message</h5>
+			        <div class="form-group">
+					    <input type="text" class="form-control" id="msgName" ng-model="messageName">
+					    <small id="msgHelp" class="form-text text-muted">This is the name of the message.</small>
+				    </div>
+					  
+					
+	        	</div>		
+       		
+       	</div>
+
+      <h5 class="card-title">Set parameters </h5>
+			
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+  <div class="dropdown">
+    <select class="browser-default custom-select" style="width:200px;" ng-model="paramType" aria-labelledby="dropdownMenu1" ng-model-options="paramType">
+      <option value="" disabled selected>Set parameter type</option>
+      <option value="uint" class="dropdown-item" >uint</option>
+	  <option value="bool" class="dropdown-item" >boolean</option>
+	  <option value="string" class="dropdown-item" >string</option>
+    </select>
+  </div>
+
+  <input type="text" class="form-control" id="msgParam" ng-model="messageParam">
+  
+
+</div>
+<small id="msgHelp" class="form-text text-muted">This is the type and the name of the parameter.</small>				
+	</div>
+	
+       <!-- Modal footer -->
+      <div class="modal-footer">
+		<button type="submit" class="btn btn-success btn-sm" ng-click="addMessage(messageName,messageParam,paramType)" data-dismiss="modal">Add message</button>	</div>
+      </div>
+      
+      </div>
+     </div>
+</div>
+</form>
+<!-- end modal message -->
+
 
 <button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
 
@@ -196,6 +258,28 @@ function importModel() {
 	  }
 	})
 }
+</script>
+
+<script>
+var accountInterval = setInterval(function() {
+$('.djs-hit').dblclick(function(){
+	$('#msg').modal('show');
+	});
+}, 100);
+</script>
+
+<script>
+$(".dropdown-menu li option").click(function(){
+	  $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+	  $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+	});
+</script>
+
+<script>
+$('#msg').on('hidden.bs.modal', function(){
+    $(this).find('form')[0].reset();
+    $('select').val('');
+});
 </script>
 
 
