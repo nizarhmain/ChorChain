@@ -27,7 +27,6 @@
          <outgoing>sid-A94F6722-6EF5-4346-9076-CF002BD16ADD</outgoing>
          <participantRef>sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83</participantRef>
          <participantRef>sid-65583D47-C996-45A0-916C-8178ABCF99D4</participantRef>
-         <messageFlowRef>sid-11a8c6fa-d758-4a29-a40e-e2fa7d0d50e1</messageFlowRef>
       </choreographyTask>
       <endEvent id="sid-192A33CA-0A65-44EA-8A05-25644B1513D3" name="">
          <extensionElements>

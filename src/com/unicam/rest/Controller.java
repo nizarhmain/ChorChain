@@ -485,31 +485,35 @@ public class Controller {
 
 	
 	@POST
-	@Path("/saveModel/{fileName}")
-	public void saveModel(@PathParam("fileName") String filename, String xml) throws Exception {
-		//File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn");
-		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn"));
-		System.out.println("MA RIESCO A ENTRARE????");
+	@Path("/saveModel/{fileName}/{cookieId}")
+	public void saveModel(@PathParam("fileName") String filename,@PathParam("cookieId") String cookieId , String xml) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		loggedUser = em.find(User.class, cookieId);
+		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn");
+		FileWriter wChor = new FileWriter(uploaded);
+		
 		BufferedWriter bChor = new BufferedWriter(wChor);
 		bChor.write(xml);
 		bChor.flush();
 		bChor.close();
-		tm.begin();
-		EntityManager em = emf.createEntityManager();
+		
+		Choreography getRoles = new Choreography();
+		getRoles.readFile(uploaded);
+		
+		getRoles.getParticipants();
+		
+		List<String> roles = Choreography.participantsWithoutDuplicates;
+		
+		Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
+		
+		
 		try {
-			System.out.println("MA SONO DENTRO AL TRY");
-			Choreography getRoles = new Choreography();
-			getRoles.readFile(new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn"));
-			System.out.println("finito readModel");
-			getRoles.getParticipants();
-			System.out.println("finito get roles");
-			List<String> roles = Choreography.participantsWithoutDuplicates;
-			System.out.println("finito participants");
-			Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
-			System.out.println(modelUploaded);
+			
 			em.persist(modelUploaded);
 			tm.commit();
 		}catch(Exception e) {
+			e.printStackTrace();
 			tm.rollback();
 		}finally {
 			em.close();
