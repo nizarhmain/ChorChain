@@ -65,14 +65,15 @@ display: none;
 								<div>
 									<div class="row">
 										<div class="col-9">
+										<button ng-click="moneyTransaction('0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8',100000000000000000)">CIAOOOOO</button>
 								 			<button type="button" style="display: none"  id="js-preview" data-value="{{actualContract.name}}"></button> 
 											<div>Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 											<ul class="list-group">
 												<li class="list-group-item my-2" ng-repeat="msg in msgs" ng-if="msg.status == 'Enabled'">
-												<b>{{activeSid}}</b>												
+																									
 													{{actualContract.tasks[$index]}}<div class="float-right"> Status: {{msg.status}}</div>
 													{{currentRole}}
-													{{actualContract.participants[currentRole]}} ----- {{user.id}}
+													
 													<form class="mt-3" ng-if="msg.show==1 && actualContract.participants[currentRole] == user.id">
 														<div class="form-group">
 															<input type="text" class="form-control" placeholder="Function input" ng-model="sendParams.par" >
@@ -397,6 +398,19 @@ $scope.launch =  async function(task, $index, refresh){
 		  });
 	}
 	
+	$scope.moneyTransaction = function(toAddress, val){
+		web3.eth.sendTransaction({
+		    from: $scope.user.address,
+		    to: toAddress,
+		    value: val,
+		    gas:200000
+		})
+		.then(function(receipt){
+		    console.log(receipt);
+		});
+	}
+	
+	
 	function sub(refresh){
 		for(var type in $scope.abi){
 			if($scope.abi[type].name=="stateChanged"){
@@ -424,8 +438,6 @@ $scope.launch =  async function(task, $index, refresh){
 			gas: 200000,
 		}).then(function(receipt){
 			$http.post("rest/newSubscribe/" + $cookies.get('UserId')).then(function(response){
-				
-				
 				console.log(response);
 			});
 		});
