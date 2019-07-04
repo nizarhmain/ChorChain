@@ -490,7 +490,9 @@ public class Controller {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		loggedUser = em.find(User.class, cookieId);
-		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename + ".bpmn");
+		filename = filename + ".bpmn";
+		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
+		
 		FileWriter wChor = new FileWriter(uploaded);
 		
 		BufferedWriter bChor = new BufferedWriter(wChor);

@@ -116,7 +116,7 @@
      <div class="modal-content">
        <!-- Modal Header -->
        <div class="modal-header">
-         <h4 class="modal-title">Set message</h4>
+         <h4 class="modal-title">Set model content</h4>
          <button type="button" class="close" data-dismiss="modal">&times;</button>
        </div>
        <!-- Modal body -->
@@ -125,10 +125,10 @@
   <form>       
 			
 			 	<div class="card-body">
-				  	<h5 class="card-title">Select the name of the message</h5>
+				  	<h5 class="card-title">Select the name of the message, participant or task</h5>
 			        <div class="form-group">
 					    <input type="text" class="form-control" id="msgName" ng-model="messageName">
-					    <small id="msgHelp" class="form-text text-muted">This is the name of the message.</small>
+					    <small id="msgHelp" class="text-danger">This can be the name of the message, participant or task.</small>
 				    </div>
 					  
 					
@@ -136,7 +136,8 @@
        		
        	</div>
 
-      <h5 class="card-title">Set parameters </h5>
+      <h5 class="card-title" style="float:left">Set parameters <small id="msgHelp" class="text-danger">*</small> </h5>
+      <button type="button" class="btn btn-success btn-sm" style="float:right" alt="Add a new parameter" onclick="addParam()">+</button>	
 			
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -153,7 +154,9 @@
   
 
 </div>
-<small id="msgHelp" class="form-text text-muted">This is the type and the name of the parameter.</small>				
+<small id="msgHelp" class="text-danger">*Define them only if you are creating a message</small>	
+	
+
 	</div>
 	
        <!-- Modal footer -->
@@ -262,7 +265,7 @@ function importModel() {
 
 <script>
 var accountInterval = setInterval(function() {
-$('.djs-hit').dblclick(function(){
+$('.djs-direct-editing-content').dblclick(function(){
 	$('#msg').modal('show');
 	});
 }, 100);

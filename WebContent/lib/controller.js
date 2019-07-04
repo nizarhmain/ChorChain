@@ -36,10 +36,20 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			       }
 				}
 				$scope.addMessage = function(messageName,messageParam,paramType) {
-				       $scope.str = messageName + "(" + paramType +" "+ messageParam + ")" ;
-				       console.log($scope.str);
-				       //document.querySelector('.text.djs-label').setAttribute("text", $scope.str);
-				       
+					   if(messageParam == null & paramType == undefined)
+						   {  
+						   	$scope.str = messageName;
+						   	$('.djs-direct-editing-content').text($scope.str);
+						   	$('.djs-direct-editing-content').focus();					   
+						   	
+						   }
+					   else
+						   {
+						   $scope.str = messageName + "(" + paramType +" "+ messageParam + ")" ;
+						   $('.djs-direct-editing-content').text($scope.str);
+						   $('.djs-direct-editing-content').focus();
+						   
+						   }
 					}
 			
 			 //add address modal  
