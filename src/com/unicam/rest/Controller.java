@@ -247,9 +247,13 @@ public class Controller {
 	}
 	
 	@POST
-	@Path("/createInstance/{cookieId}/{optionalRoles}/{mandatoryRoles}/{visibleAt}")
-	public void createInstance(Model m, @PathParam("cookieId") String cookieId, @PathParam("optionalRoles") List<String> optionalRoles,
-		@PathParam("mandatoryRoles") List<String> mandatoryRoles, @PathParam("visibleAt") List<String> visibleAt) throws Exception {
+	@Path("/createInstance/{cookieId}")
+	public void createInstance(Map alldata, @PathParam("cookieId") String cookieId) throws Exception {
+		
+		String m = (String) alldata.get("modelID");
+		List<String> visibleAt = (List<String>) alldata.get("visibleAt");
+		List<String> mandatoryRoles = (List<String>) alldata.get("mandatory");
+		List<String> optionalRoles = (List<String>) alldata.get("optional");
 		
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
@@ -269,12 +273,11 @@ public class Controller {
 				optionalRoles = null;
 			}
 			
-			
-			Model model = em.find(Model.class, m.getID());
+			Model model = em.find(Model.class, m);
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
 			//List<String> visibleAt = new ArrayList<String>();
-			Instance modelInstance = new Instance(m.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
+			Instance modelInstance = new Instance(model.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
 					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
 			
@@ -603,8 +606,8 @@ public class Controller {
 		loggedUser = em.find(User.class, cookieId);
 		Instance instance = em.find(Instance.class, instanceId);
 		try {
-			//List<String> optionalRoles = instance.getFreeRoles();
-			//optionalRoles.remove(role);
+			List<String> optionalRoles = instance.getFreeRolesOptional();
+			optionalRoles.remove(role);
 			Map<String, User> subscribers = instance.getParticipants();
 			subscribers.put(role, loggedUser);
 			em.merge(instance);

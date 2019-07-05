@@ -39,9 +39,10 @@ angular.module('homePage.services', []).factory('service',
 			}
 			
 			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
-				console.log("visibleat: " + visibleAt);
-				console.log("optional:" + optional);
-				return $http.post("rest/createInstance/" + cookieId + "/" + optional + "/" + mandatory + "/" + visibleAt, model);
+				console.log(model.id);
+				 var data = {modelID:model.id, optional:optional, mandatory:mandatory, visibleAt:visibleAt};
+
+				return $http.post("rest/createInstance/" + cookieId ,data);
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){

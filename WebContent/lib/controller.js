@@ -80,6 +80,10 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				$scope.modelName = fileName;
 			}
 			
+			$scope.setModel = function(model){
+				$scope.model = model;
+			}
+			
 			$scope.registerUser = function(){
 				service.registerUser($scope.regUser).then(function(response){	
 					alert(response.data);
@@ -111,23 +115,23 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.subscribe = function(model, instanceId,role){
-				service.subscribe(model, instanceId, $scope.user.role, $cookies.get('UserId')).then(function(response){
+			$scope.subscribe = function(model, instanceId,roletosub){
+				console.log(instanceId);
+				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
 					service.getInstances(model).then(function(response){
 						console.log(response);
 						$scope.instances = response.data;
 						$scope.present = true;
-						
+						$scope.getInstances(model);
 					});
 				});
 			}
 			
 			
 			$scope.getInstances = function(model){
-			
 				service.getInstances(model).then(function(response){
-					$scope.instances = response.data;
+					$scope.model.instances = response.data;
 					console.log(response.data);
 					$scope.present = true;
 				});
@@ -157,6 +161,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				 }		
 				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAtArray).then(function(){
 					$scope.selectedRoles = [];
+					$scope.visibleAtFields = [
+				        {}
+				    ];
 					$scope.msg = "Instance created";
 					$scope.getInstances(model);
 				});
@@ -208,20 +215,19 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.optionalSubscribe = function(instanceId){
+			$scope.optionalSubscribe = function(instanceId, roletosubscribe){
 				var userId = $cookies.get('UserId');
-				var role = $scope.user.role;
 				
 					//$scope.user = response.data;
 					service.getContractFromInstance(instanceId).then(function(response){
 						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
 					
-						$scope.myContract.methods.subscribe_as_participant(role).send({
+						$scope.myContract.methods.subscribe_as_participant(roletosubscribe).send({
 							from : $scope.user.address,
 							gas: 200000,
 						}).then(function(receipt){
 							console.log(receipt);
-							service.newSubscribe(instanceId, role, $cookies.get('UserId')).then(function(receipt){
+							service.newSubscribe(instanceId, roletosubscribe, $cookies.get('UserId')).then(function(receipt){
 								console.log("yeee");
 								
 							});
