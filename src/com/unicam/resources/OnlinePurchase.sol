@@ -25,8 +25,10 @@ string invoiceInfo;
 	Element[] elements;
 	  StateMemory currentMemory;
 	string[] elementsID = ["sid-0EC70E7E-A42A-4C9E-B120-16B25BDACE7A", "sid-00e1b46c-e485-4551-a17b-6f0c3f21ec2c", "sid-C240C6E9-F55F-46A5-B1F6-5FC4A0F30B04", "sid-624ca53e-cc27-4a74-97be-055cb19cae54", "sid-72ee2908-7c6b-4b9e-a80b-4734a6b2cb0b", "sid-E2CFD2E8-7869-4F28-AC83-296ED8FA7D6E", "sid-94C810EF-69BE-4D67-91B8-4A34DF4D1940", "sid-abba267c-92e3-4944-a98a-d317e035c861", "sid-e385b492-6b2b-475b-a8dd-8fc09513393b", "sid-b9828a39-b70d-4470-b5d2-61cda9b2bc64", "sid-0663CB4E-D3BF-4E12-8D81-D68E9318355F", "sid-859C73C7-F0DD-45ED-AA88-E0DEA0340C91", "sid-2F272EDB-9940-467E-AADC-2B485679AF43", "sid-06caa7c5-fba5-4524-8d4d-2f24b1d51468", "sid-CCD2A372-D382-426E-B823-05F778D4EA44", "sid-094362A8-CC68-4CB6-AC98-74DCF1163997", "sid-80A4BF32-23C1-4585-A70C-26A40D63DA7F", "sid-E761CE7E-ED53-413A-A3C8-3D6569A80525"];
-	string[] roleList = [ "Buyer", "Seller" ]; 
+	string[] roleList = [ "Buyer" ]; 
+	string[] optionalList = ["Seller" ]; 
 	mapping(string=>address) roles; 
+	mapping(string=>address) optionalRoles; 
 constructor() public{
     //struct instantiation
     for (uint i = 0; i < elementsID.length; i ++) {
@@ -36,18 +38,18 @@ constructor() public{
          
          //roles definition
          //mettere address utenti in base ai ruoli
-	roles["Buyer"] = 0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8;
-	roles["Seller"] = 0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8;
-         
+	roles["Buyer"] = 0x04A730f3109D0286A70f4f28876755c91562569E;
+	optionalRoles["Seller"] = 0x0000000000000000000000000000000000000000;         
          //enable the start process
          init();
     }
-    modifier checkRole(string storage role) 
+    modifier checkMand(string storage role) 
 { 
 	require(msg.sender == roles[role]); 
-	_;}
-
-modifier Owner(string memory task) 
+	_; }modifier checkOpt(string storage role) 
+{ 
+	require(msg.sender == optionalRoles[role]); 
+	_; }modifier Owner(string memory task) 
 { 
 	require(elements[position[task]].status==State.ENABLED);
 	_;
@@ -67,10 +69,9 @@ function init() internal{
    }
 
 function subscribe_as_participant(string memory _role) public {
-        if(roles[_role]==0x0000000000000000000000000000000000000000){
-          roles[_role]!=msg.sender;
+        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){
+          optionalRoles[_role]=msg.sender;
         }
-        init();
     }
 function sid_0EC70E7E_A42A_4C9E_B120_16B25BDACE7A() private {
 	require(elements[position["sid-0EC70E7E-A42A-4C9E-B120-16B25BDACE7A"]].status==State.ENABLED);
@@ -79,7 +80,7 @@ function sid_0EC70E7E_A42A_4C9E_B120_16B25BDACE7A() private {
 	
 }
 
-function sid_00e1b46c_e485_4551_a17b_6f0c3f21ec2c(string memory product) public checkRole(roleList[0]) {
+function sid_00e1b46c_e485_4551_a17b_6f0c3f21ec2c(string memory product) public checkMand(roleList[0]) {
 	require(elements[position["sid-00e1b46c-e485-4551-a17b-6f0c3f21ec2c"]].status==State.ENABLED);  
 	done("sid-00e1b46c-e485-4551-a17b-6f0c3f21ec2c");
 currentMemory.product=product;
@@ -93,13 +94,13 @@ function sid_C240C6E9_F55F_46A5_B1F6_5FC4A0F30B04() private {
 	enable("sid-624ca53e-cc27-4a74-97be-055cb19cae54");  
 }
 
-function sid_624ca53e_cc27_4a74_97be_055cb19cae54(uint price) public checkRole(roleList[1]){
+function sid_624ca53e_cc27_4a74_97be_055cb19cae54(uint price) public checkOpt(optionalList[0]){
 	require(elements[position["sid-624ca53e-cc27-4a74-97be-055cb19cae54"]].status==State.ENABLED);  
 	done("sid-624ca53e-cc27-4a74-97be-055cb19cae54");
 	enable("sid-72ee2908-7c6b-4b9e-a80b-4734a6b2cb0b");
 currentMemory.price=price;
 }
-function sid_72ee2908_7c6b_4b9e_a80b_4734a6b2cb0b(bool accepted, bool reiterate) public checkRole(roleList[0]){
+function sid_72ee2908_7c6b_4b9e_a80b_4734a6b2cb0b(bool accepted, bool reiterate) public checkMand(roleList[0]){
 	require(elements[position["sid-72ee2908-7c6b-4b9e-a80b-4734a6b2cb0b"]].status==State.ENABLED);
 	done("sid-72ee2908-7c6b-4b9e-a80b-4734a6b2cb0b");
 currentMemory.accepted=accepted;
@@ -124,7 +125,7 @@ function sid_94C810EF_69BE_4D67_91B8_4A34DF4D1940() private {
 	enable("sid-e385b492-6b2b-475b-a8dd-8fc09513393b"); 
 }
 
-function sid_abba267c_92e3_4944_a98a_d317e035c861(string memory motivation) public checkRole(roleList[0]) {
+function sid_abba267c_92e3_4944_a98a_d317e035c861(string memory motivation) public checkMand(roleList[0]) {
 	require(elements[position["sid-abba267c-92e3-4944-a98a-d317e035c861"]].status==State.ENABLED);  
 	done("sid-abba267c-92e3-4944-a98a-d317e035c861");
 currentMemory.motivation=motivation;
@@ -133,7 +134,7 @@ disable("sid-e385b492-6b2b-475b-a8dd-8fc09513393b");
 sid_859C73C7_F0DD_45ED_AA88_E0DEA0340C91(); 
 }
 
-function sid_e385b492_6b2b_475b_a8dd_8fc09513393b(string memory shipAddress) public checkRole(roleList[0]) {
+function sid_e385b492_6b2b_475b_a8dd_8fc09513393b(string memory shipAddress) public checkMand(roleList[0]) {
 	require(elements[position["sid-e385b492-6b2b-475b-a8dd-8fc09513393b"]].status==State.ENABLED);  
 	done("sid-e385b492-6b2b-475b-a8dd-8fc09513393b");
 currentMemory.shipAddress=shipAddress;
@@ -141,7 +142,7 @@ disable("sid-abba267c-92e3-4944-a98a-d317e035c861");
 	enable("sid-b9828a39-b70d-4470-b5d2-61cda9b2bc64");
 }
 
-function sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount) public checkRole(roleList[0]) {
+function sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount) public checkMand(roleList[0]) {
 	require(elements[position["sid-b9828a39-b70d-4470-b5d2-61cda9b2bc64"]].status==State.ENABLED);  
 	done("sid-b9828a39-b70d-4470-b5d2-61cda9b2bc64");
 currentMemory.amount=amount;
@@ -160,7 +161,7 @@ function sid_859C73C7_F0DD_45ED_AA88_E0DEA0340C91() private {
 	require(elements[position["sid-859C73C7-F0DD-45ED-AA88-E0DEA0340C91"]].status==State.ENABLED);
 	done("sid-859C73C7-F0DD-45ED-AA88-E0DEA0340C91");  }
 
-function sid_2F272EDB_9940_467E_AADC_2B485679AF43(string memory shipInfo) public checkRole(roleList[1]) {
+function sid_2F272EDB_9940_467E_AADC_2B485679AF43(string memory shipInfo) public checkOpt(optionalList[0]) {
 	require(elements[position["sid-2F272EDB-9940-467E-AADC-2B485679AF43"]].status==State.ENABLED);  
 	done("sid-2F272EDB-9940-467E-AADC-2B485679AF43");
 currentMemory.shipInfo=shipInfo;
@@ -168,7 +169,7 @@ currentMemory.shipInfo=shipInfo;
 sid_CCD2A372_D382_426E_B823_05F778D4EA44(); 
 }
 
-function sid_06caa7c5_fba5_4524_8d4d_2f24b1d51468(string memory invoiceInfo) public checkRole(roleList[1]) {
+function sid_06caa7c5_fba5_4524_8d4d_2f24b1d51468(string memory invoiceInfo) public checkOpt(optionalList[0]) {
 	require(elements[position["sid-06caa7c5-fba5-4524-8d4d-2f24b1d51468"]].status==State.ENABLED);  
 	done("sid-06caa7c5-fba5-4524-8d4d-2f24b1d51468");
 currentMemory.invoiceInfo=invoiceInfo;
