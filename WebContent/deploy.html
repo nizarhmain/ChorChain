@@ -10,12 +10,18 @@
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link href="website.css" rel="stylesheet" type="text/css"> 
+ 
+  <!-- graphics -->
+  <link rel="stylesheet" href="css/unicons.css">
+  <link rel="stylesheet" href="css/owl.carousel.min.css">
+  <link rel="stylesheet" href="css/owl.theme.default.min.css">
+  <!-- MAIN STYLE -->
+  <link rel="stylesheet" href="css/tooplate-style.css">
+  
 <!-- Modeler import -->
 		<link rel="stylesheet" href="css/diagram-js-preview.css" />
 		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
 		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
-		<link rel="stylesheet" href="css/app.css" />
 <!-- Modeler end import -->
 	<!-- Sweet alert -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
@@ -34,35 +40,65 @@ display: none;
 .djs-palette two-column open{
 display: none;
 }
+
+.set-active {
+background:black;
+}
 </style>
 
 </head>
 <body ng-app="monitor" ng-controller="monitorCtrl">
-	<div class="container-fluid">
-		<div >
-			<div class="header-form text-center">
-					<h3 class="span-header-form m-4">Personal area</h3>
-			</div>
-			<hr><hr>
-			<div class="row col-12">
-				<div class="col-2">
-					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-							<div ng-repeat="contract in contracts track by $index" >
-								<a ng-click="getTask(contract.id);" class="nav-link" >{{contract.name}}<small class="text-muted">{{contract.id}}</small></a>
-							</div>							
-						<!-- <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false">{{contract.name}}</a>--->
-					</div>
+<!-- MENU -->
+  <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+    <div class="container">
+      <a class="navbar-brand" href="index.html"></i> ChorChain</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a href="homePage.html" class="nav-link"><span data-hover="Home Page">Home Page</span></a>
+          </li>
+          <li class="nav-item">
+            <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
+          </li>
+          <li class="nav-item">
+            <a href="deploy.html" class="nav-link active"><span data-hover="Personal Page">Personal Page</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <section class=" d-lg-flex justify-content-center align-items-center">
+    <div class="container-fluid">			
+		<div class="row">
+			<div class="col-lg-3">
+	          <div class="card">
+	            <div class="card-body">
+	            	<h6>Model File List</h6>
+		              <ul class="list-group ">
+		                <li class="list-group-item" ng-repeat="contract in contracts track by $index">
+		                  <a ng-click="getTask(contract.id);" class="nav-link" id="{{contract.id}}">{{contract.name}}
+		                  <small class="text-muted">{{contract.id}}</small></a>
+		                </li>
+		              </ul>
+	            </div>
+	           </div>
+	        </div>
+				
+			<div class="col-lg-9">
+			<div class="card">
+			<div class="card-body">
+			 <h5>{{actualContract.name}}</h5>
+				<div class="col-12">
+						<div id="canvas" style="height: 400px;"></div>		
 				</div>
-				<div class="col-10" style="border: 1px solid rgba(0,0,0,.125);">
-					<div class="row">
-						<div class="col-12">
- 							<div id="canvas" style="height: 400px;"></div>		
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12">
-							<div>
-								<div>
+
 									<div class="row">
 										<div class="col-9">
 										<button ng-click="moneyTransaction('0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8',100000000000000000)">CIAOOOOO</button>
@@ -104,9 +140,10 @@ display: none;
 					</div>
 				</div>
 			</div>
+			</div>
+			</div>
 		</div>
-	</div>
-	
+	</section>
 	<script src="lib/app.js"></script>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -123,6 +160,15 @@ $(document).on("click", ".nav-link", function() {
 	$( "#js-preview" ).trigger( "click" );	
 
 });
+
+function setTabActive(contractid){
+	console.log(contractid);
+	tablinks = document.getElementsByClassName("list-group-item");
+	  for (i = 0; i < tablinks.length; i++) {
+	    tablinks[i].className = tablinks[i].className.replace("bg-grey", "");
+	  }
+	  document.getElementById(contractid).parentNode.classList.add('bg-grey');
+}
 var app = angular.module('monitor', ['ngCookies']);
 
 app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
@@ -240,6 +286,7 @@ $scope.launch =  async function(task, $index, refresh){
 	}
 	
 	$scope.getTask = function(id){
+		setTabActive(id);
 		//id è l'id dell instance
 		//qui prendo i participants
 		$http.post("rest/getPart/" + id).then(function(response){

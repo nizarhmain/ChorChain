@@ -1,288 +1,300 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="ISO-8859-1">
-<title>Deploy of smart contract</title>
-<script
-	src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
-	integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk="
-	crossorigin="anonymous"></script>
+	<meta charset="ISO-8859-1">
+	<title>Deploy of smart contract</title>
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+		integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link href="website.css" rel="stylesheet" type="text/css"> 
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
-	integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" 
-	crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+		integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
-	
+
+	<!-- graphics -->
+	<link rel="stylesheet" href="css/unicons.css">
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	<!-- MAIN STYLE -->
+	<link rel="stylesheet" href="css/tooplate-style.css">
+
 	<!-- Modeler import -->
-		<link rel="stylesheet" href="css/diagram-js.css" />
-		<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
-		<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
-    <!-- Modeler end import -->
-<style>
-.btn-secondary:not(:disabled):not(.disabled).active{
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: #fff;
-}
+	<link rel="stylesheet" href="css/diagram-js.css" />
+	<link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
+	<link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
+	<!-- Modeler end import -->
+	<style>
+		.btn-secondary:not(:disabled):not(.disabled).active {
+			background-color: #6c757d;
+			border-color: #6c757d;
+			color: #fff;
+		}
 
-.vertical-divider {
-    position: absolute;
-    z-index: 10;
-    top: 50%;
-    left: 50%;
-    margin: 0;
-    padding: 0;
-    width: auto;
-    height: 50%;
-    line-height: 0;
-    text-align: center;
-    text-transform: uppercase;
-    transform: translateX(-50%);
-}
-
-</style>
+		.vertical-divider {
+			position: absolute;
+			z-index: 10;
+			top: 50%;
+			left: 50%;
+			margin: 0;
+			padding: 0;
+			width: auto;
+			height: 50%;
+			line-height: 0;
+			text-align: center;
+			text-transform: uppercase;
+			transform: translateX(-50%);
+		}
+	</style>
 </head>
 
 <body ng-app="homePage" ng-controller="controller">
-{{str}}
-<div class="row" style="padding-top:15px;padding-bottom:15px;padding-left:15px;">
-    	<div class="col">
-    	
-		   <button class="col btn btn-secondary" id="js-new-diagram" style="height:40px;width:150px;margin-left:23px;" onclick="newModel()" title="Create a new Choreograpy Model">Create Model <a class="fas fa-plus-circle"></a></button>
-					
-		   <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Import a Choreograpy Model" onclick="document.getElementById('input').click()"> Import Model <a class="fas fa-upload"></a> </button> 
-		   <input type="file" id="input" style="display:none;" accept=".bpmn, .xml" onchange="importModel()"/>	
-   		
-   		   <button class="col btn btn-secondary"  style="height:40px;width:150px;margin-left:23px;" onclick="saveModel()" title="Save Model" >Save Model <i class="fa fa-inbox"></i></button>
-   			 
-  	       <button class="col btn btn-secondary" style="height:40px;width:150px;margin-left:23px;" title="Download Model" data-toggle="modal" data-target="#modalDownload">Export Model <a class="fas fa-download"></a></button>				
-   		
-			
-   		</div>
-   		<a href="homePage.html" style="padding-right:30px;"><button type="button" class="col btn btn-secondary" style="height:40px;width:150px;">Back</button></a>   		
-   		
-    </div>
- 
- 
- <div class="modal-body" style="height:100%;">
-		<div class="content with-diagram" id="js-drop-zone" style="weight:100%;height:72%;">
-
-								    <div id="canvas" data-ng-init="attach()" style="height:500px;">
-								
-						
-								    </div>		
-								
-	   </div>
-       </div>
-<!-- Modal download -->
-<div id="modalDownload" class="modal fade" role="dialog">
-  <div class="modal-dialog centered">
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Model {{model.name}} Download </h4>
-      </div>
-
-        <div class="modal-body">
+	<!-- MENU -->
+	<nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+		<div class="container">
+			<a class="navbar-brand" href="index.html"></i> ChorChain</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+				<span class="navbar-toggler-icon"></span>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav mx-auto">
+					<li class="nav-item">
+						<a href="homePage.html" class="nav-link"><span data-hover="Home Page">Home Page</span></a>
+					</li>
+					<li class="nav-item">
+						<a href="modeler.html" class="nav-link active"><span data-hover="Modeler">Modeler</span></a>
+					</li>
+					<li class="nav-item">
+						<a href="deploy.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<section class=" d-lg-flex justify-content-center align-items-center">
+		<div class="container-fluid">
 			<div class="row">
-        		<div class="col ">     		
-      
-   				    <a id="js-download-diagram" class="col btn btn-secondary" style="height:40px;width:200px;margin-left:23px;font-weight:400;text-align:center;" title="Download BPMN file">Download BPMN file <i class="far fa-file"></i></a>
+				<div class="col-lg-12">
+					<div class="btn-group" role="group">
+						<button class="btn custom-btn custom-btn-bg cutom-btn-link" id="js-new-diagram"
+							onclick="newModel()" title="Create a new Choreograpy Model">Create Model <i
+								class="fas fa-plus-circle"></i></button>
+						<button class="btn custom-btn custom-btn-bg cutom-btn-link" title="Import a Choreograpy Model"
+							onclick="document.getElementById('input').click()"> Import Model <i
+								class="fas fa-upload"></i> </button>
+						<input type="file" id="input" style="display:none;" accept=".bpmn, .xml"
+							onchange="importModel()" />
+						<button class="btn custom-btn custom-btn-bg cutom-btn-link" onclick="saveModel()"
+							title="Save Model">Save Model <i class="fa fa-inbox"></i></button>
+						<button class="btn custom-btn custom-btn-bg cutom-btn-link" title="Download Model"
+							data-toggle="modal" data-target="#modalDownload">Export Model <i
+								class="fas fa-download"></i></button>
+					</div>
+					<a href="homePage.html" class="btn custom-btn float-right">Back</a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="content with-diagram m-3" id="js-drop-zone" style="border:1px solid black">
+						<div id="canvas" data-ng-init="attach()" style="height:500px;">
+						</div>
+					</div>
+				</div>
+			</div>
 
-   				    <a id="js-download-svg" class="col btn btn-secondary"  style="height:40px;width:210px;margin-left:23px;font-weight:400;text-align:center;" title="Download as SVG image">Download as SVG image <i class="far fa-file-image"></i></a>
- 		
-		 		</div>   
-		    </div>		
-	   </div>
-       
-       <div class="modal-footer">
-
-        <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>  
-        
-      </div>
-	</div>
-   </div>
-  </div>
-<!-- end modal download -->
-
- 
-<!-- Modal message -->
- <div class="modal fade" id="msg">
-   <div class="modal-dialog">
-     <div class="modal-content">
-       <!-- Modal Header -->
-       <div class="modal-header">
-         <h4 class="modal-title">Set model content</h4>
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-       </div>
-       <!-- Modal body -->
-       <div class="modal-body">	
-       <div class="row">
-  <form>       
-			
-			 	<div class="card-body">
-				  	<h5 class="card-title">Select the name of the message, participant or task</h5>
-			        <div class="form-group">
-					    <input type="text" class="form-control" id="msgName" ng-model="messageName">
-					    <small id="msgHelp" class="text-danger">This can be the name of the message, participant or task.</small>
-				    </div>
-					  
-					
-	        	</div>		
-       		
-       	</div>
-
-      <h5 class="card-title" style="float:left">Set parameters <small id="msgHelp" class="text-danger">*</small> </h5>
-      <button type="button" class="btn btn-success btn-sm" style="float:right" alt="Add a new parameter" onclick="addParam()">+</button>	
-			
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-  <div class="dropdown">
-    <select class="browser-default custom-select" style="width:200px;" ng-model="paramType" aria-labelledby="dropdownMenu1" ng-model-options="paramType">
-      <option value="" disabled selected>Set parameter type</option>
-      <option value="uint" class="dropdown-item" >uint</option>
-	  <option value="bool" class="dropdown-item" >boolean</option>
-	  <option value="string" class="dropdown-item" >string</option>
-    </select>
-  </div>
-
-  <input type="text" class="form-control" id="msgParam" ng-model="messageParam">
-  
-
-</div>
-<small id="msgHelp" class="text-danger">*Define them only if you are creating a message</small>	
-	
-
-	</div>
-	
-       <!-- Modal footer -->
-      <div class="modal-footer">
-		<button type="submit" class="btn btn-success btn-sm" ng-click="addMessage(messageName,messageParam,paramType)" data-dismiss="modal">Add message</button>	</div>
-      </div>
-      
-      </div>
-     </div>
-</div>
-</form>
-<!-- end modal message -->
+			<!-- Modal download -->
+			<div id="modalDownload" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Model {{model.name}} Download </h4>
+						</div>
+						<div class="modal-body text-center">
+							<a id="js-download-diagram" class="btn custom-btn">Download BPMN file <i
+									class="far fa-file"></i></a>
+							<hr>
+							<a id="js-download-svg" class="btn custom-btn">Download as SVG image <i
+									class="far fa-file-image"></i></a>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn custom-btn custom-btn-yellow"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end modal download -->
 
 
-<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
+			<!-- Modal message -->
+			<div class="modal fade" id="msg">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<!-- Modal Header -->
+						<div class="modal-header">
+							<h4 class="modal-title">Set model content</h4>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<!-- Modal body -->
+						<div class="modal-body">
+							<div class="form-group">
+								<label><b>Insert the name of the message, participant or task</b></label>
+								<input type="text" class="form-control" id="msgName" ng-model="messageName">
+								<small id="msgHelp" class="text-danger">This can be the name of the message, participant
+									or task.</small>
+							</div>
+							<div class="form-group">
+								<label><b>Set parameters <small id="msgHelp" class="text-danger">*</small></b></label>
 
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<div class="dropdown">
+											<select class="browser-default custom-select" style="width:200px;"
+												ng-model="paramType" aria-labelledby="dropdownMenu1"
+												ng-model-options="paramType">
+												<option value="" disabled selected>Set parameter type</option>
+												<option value="uint" class="dropdown-item">uint</option>
+												<option value="bool" class="dropdown-item">boolean</option>
+												<option value="string" class="dropdown-item">string</option>
+											</select>
+										</div>
+									</div>
+									<input type="text" class="form-control" id="msgParam" ng-model="messageParam">
+									<div class="input-group-append">
+										<button class="input-group-text  pointer" alt="Add a new parameter"
+											onclick="addParam()"><b>+</b></button>
+									</div>
+								</div>
+								<small id="msgHelp" class="text-danger">*Define them only if you are creating a
+									message</small>
+							</div>
+						</div>
+
+						<!-- Modal footer -->
+						<div class="modal-footer">
+							<button type="submit" class="btn custom-btn custom-btn-bg"
+								ng-click="addMessage(messageName,messageParam,paramType)" data-dismiss="modal">Add message</button> 
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end modal message -->
+
+			<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
+		</div>
+	</section>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+	</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 	<script src="lib/app.js"></script>
 	<script src="lib/appmodeler.js"></script>
 </body>
 
 <script>
-function saveModel() {
-   
-	var specialCharacters = /^[a-zA-Z]*$/;
-	Swal.fire({		
-	    title: "Insert the new model name",
-	    text: "Don't use special characters!",
-	    input: 'text',
-	    backdrop: false,
-	    allowOutsideClick: false, 
-	    inputValidator: (value) => {
-	        if (!value) {
-	          return 'You need to write something!'
-	        }
-	        if (value == "taken") {
-	        	console.log("entro");
-		          return 'This name is already taken!'
-		        }
-	        if (!specialCharacters.test(value)) {
-		          return 'This name contain special characters!'
-		        }
-	      }
-	}).then((result) => {		
-		swal({
-			  type: 'success',
-			  title: 'Model saved',
-			  text: 'Your model has been saved as: ' + result.value + '.bpmn',
-			  backdrop: false,
- 
+	function saveModel() {
+
+		var specialCharacters = /^[a-zA-Z]*$/;
+		Swal.fire({
+			title: "Insert the new model name",
+			text: "Don't use special characters!",
+			input: 'text',
+			backdrop: false,
+			allowOutsideClick: false,
+			inputValidator: (value) => {
+				if (!value) {
+					return 'You need to write something!'
+				}
+				if (value == "taken") {
+					return 'This name is already taken!'
+				}
+				if (!specialCharacters.test(value)) {
+					return 'This name contains special characters!'
+				}
+			}
+		}).then((result) => {
+			swal({
+				type: 'success',
+				title: 'Model saved',
+				text: 'Your model has been saved as: ' + result.value + '.bpmn',
+				backdrop: false,
+
 			})
-	    if (result.value) {
-	        var nameAdded = result.value;
-	        document.querySelector('.modelNameTrigger').setAttribute('data-value', nameAdded)
+			if (result.value) {
+				var nameAdded = result.value;
+				document.querySelector('.modelNameTrigger').setAttribute('data-value', nameAdded)
 
-	        $("#js-save").trigger('click'); 
-	    }
-	});
-}
-</script>
+				$("#js-save").trigger('click');
+			}
+		});
+	}
 
-<script>
-function newModel() {
-	swal({
-		  type: 'success',
-		  title: 'Your model has been created',
-		  showConfirmButton: false,
-		  timer: 1700,
-		  backdrop: false
+	function newModel() {
+		swal({
+			type: 'success',
+			title: 'Your model has been created',
+			showConfirmButton: false,
+			timer: 1700,
+			backdrop: false
 		})
-}
-</script>
+	}
 
-<script>
-function importModel() {
-	let timerInterval
-	Swal.fire({
-	  title: 'Importing a model...',
-	  backdrop: false,
-	  timer: 600,
-	  onBeforeOpen: () => {
-	    Swal.showLoading()
-	    timerInterval = setInterval(() => {
-	      Swal.getContent().querySelector('strong')
-	        .textContent = Swal.getTimerLeft()
-	    }, 100)
-	  },
-	  onClose: () => {
-	    clearInterval(timerInterval)
-	  }
-	}).then((result) => {
-	  if (
-	    // Read more about handling dismissals
-	    result.dismiss === Swal.DismissReason.timer
-	  ) {
-	    console.log('I was closed by the timer')
-	  }
-	})
-}
-</script>
+	function importModel() {
+		let timerInterval
+		Swal.fire({
+			title: 'Importing a model...',
+			backdrop: false,
+			timer: 600,
+			onBeforeOpen: () => {
+				Swal.showLoading()
+				timerInterval = setInterval(() => {
+					Swal.getContent().querySelector('strong')
+						.textContent = Swal.getTimerLeft()
+				}, 100)
+			},
+			onClose: () => {
+				clearInterval(timerInterval)
+			}
+		}).then((result) => {
+			if (
+				// Read more about handling dismissals
+				result.dismiss === Swal.DismissReason.timer
+			) {
+				console.log('I was closed by the timer')
+			}
+		})
+	}
 
-<script>
-var accountInterval = setInterval(function() {
-$('.djs-direct-editing-content').dblclick(function(){
-	$('#msg').modal('show');
+	var accountInterval = setInterval(function () {
+		$('.djs-direct-editing-content').dblclick(function () {
+			$('#msg').modal('show');
+		});
+	}, 100);
+
+	$(".dropdown-menu li option").click(function () {
+		$(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+		$(this).parents(".dropdown").find('.btn').val($(this).data('value'));
 	});
-}, 100);
-</script>
 
-<script>
-$(".dropdown-menu li option").click(function(){
-	  $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-	  $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+	$('#msg').on('hidden.bs.modal', function () {
+		$(this).find('form')[0].reset();
+		$('select').val('');
 	});
-</script>
-
-<script>
-$('#msg').on('hidden.bs.modal', function(){
-    $(this).find('form')[0].reset();
-    $('select').val('');
-});
 </script>
 
 
