@@ -140,55 +140,79 @@
 						<!-- Modal Header -->
 						<div class="modal-header">
 							<h4 class="modal-title">Set model content</h4>
-							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<button type="button" class="close" ng-click="closeModal()" data-dismiss="modal" >&times;</button>
 						</div>
 						<!-- Modal body -->
+					<div class="card">
+						<form>
 						<div class="modal-body">
-							<div class="form-group">
+							<div class="form-group" ng-hide="myCheckbox">
 								<label><b>Insert the name of the message, participant or task</b></label>
 								<input type="text" class="form-control" id="msgName" ng-model="messageName">
 								<small id="msgHelp" class="text-danger">This can be the name of the message, participant
 									or task.</small>
 							</div>
-							<div class="form-group">
+					
+							
+						  <div class="custom-control custom-checkbox">
+						    <input class="custom-control-input" id="checkbox1" ng-model="myCheckbox" type="checkbox">
+						    <label class="custom-control-label" for="checkbox1">Check this box if the message is a payment function</label>
+						  </div>
+						  
+						</div>
+					</form>
+					</div>
+					<div class="card"  ng-hide="myCheckbox">
+						<div class="modal-body">
+							<div class="form-group"  >
 								<label><b>Set parameters <small id="msgHelp" class="text-danger">*</small></b></label>
-
+								
+							<div ng-repeat="parameter in parametersArray">
+							
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<div class="dropdown">
+										
 											<select class="browser-default custom-select" style="width:200px;"
 												ng-model="paramType" aria-labelledby="dropdownMenu1"
 												ng-model-options="paramType">
-												<option value="" disabled selected>Set parameter type</option>
+												<option value="" disabled selected> {{ $index + 1 }}. Set parameter type</option>
 												<option value="uint" class="dropdown-item">uint</option>
 												<option value="bool" class="dropdown-item">boolean</option>
 												<option value="string" class="dropdown-item">string</option>
 											</select>
 										</div>
 									</div>
+								
 									<input type="text" class="form-control" id="msgParam" ng-model="messageParam">
+								
 									<div class="input-group-append">
-										<button class="input-group-text  pointer" alt="Add a new parameter"
-											onclick="addParam()"><b>+</b></button>
+										<button class="input-group-text  pointer" 
+											ng-click="addParam()"><b>+</b></button>
+										<button class="input-group-text  pointer" 
+											ng-click="removeParam(parameter)"><b>-</b></button>
 									</div>
 								</div>
+								
+							  </div>
 								<small id="msgHelp" class="text-danger">*Define them only if you are creating a
 									message</small>
 							</div>
 						</div>
-
+						</div>
+					
+						
 						<!-- Modal footer -->
 						<div class="modal-footer">
 							<button type="submit" class="btn custom-btn custom-btn-bg"
 								ng-click="addMessage(messageName,messageParam,paramType)" data-dismiss="modal">Add message</button> 
 						</div>
+						</div>
+						</div>
+						</div>
 					</div>
-				</div>
-			</div>
 			<!-- end modal message -->
-
 			<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
-		</div>
 	</section>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -293,6 +317,7 @@
 
 	$('#msg').on('hidden.bs.modal', function () {
 		$(this).find('form')[0].reset();
+		$('#msgParam').val('');
 		$('select').val('');
 	});
 </script>

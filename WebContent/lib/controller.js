@@ -23,18 +23,28 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.visibleAtFields = [
 			        {}
 			    ];
+			$scope.parametersArray = [
+		        {}
+		    ];
+		
 			
 			 //add parameters modal + message
 			$scope.addParam = function() {
 			       var newUser = {};
-			       $scope.visibleAtFields.push(newUser);
+			       $scope.parametersArray.push(newUser);
 				}
 				$scope.removeParam = function(addr) {
-			       var index = $scope.visibleAtFields.indexOf(addr);
+			       var index = $scope.parametersArray.indexOf(addr);
 			       if(index>0){
-				       $scope.visibleAtFields.splice(index,1);
+				       $scope.parametersArray.splice(index,1);
 			       }
 				}
+				
+				$scope.closeModal = function() {
+					console.log("entro")
+					$scope.parametersArray.splice(1,2);
+					}
+				
 				$scope.addMessage = function(messageName,messageParam,paramType) {
 					   if(messageParam == null & paramType == undefined)
 						   {  
@@ -50,6 +60,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						   $('.djs-direct-editing-content').focus();
 						   
 						   }
+					   if(messageParam == null & paramType == undefined & messageName == null)
+					   {  
+					   	$scope.str = "payment()";
+					   	$('.djs-direct-editing-content').text($scope.str);
+					   	$('.djs-direct-editing-content').focus();					   
+					   	
+					   }
 					}
 			
 			 //add address modal  
