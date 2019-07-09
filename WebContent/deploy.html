@@ -204,8 +204,9 @@ $scope.launch =  async function(task, $index, refresh, parameter){
 		var params = parameter;
 		var name = $scope.actualContract.tasks[$index];
 		console.log(name);
-		if(name.indexOf("payment") == 1){
-			$scope.setPayment();
+		if(name.includes("payment")){
+			//console.log("DEVO CACCIA I SOLDI");
+			$scope.setPayment(parameter);
 		}
 		var n1 = name.split('\(');
 		//var n2 = n1.split(',');
@@ -451,11 +452,13 @@ $scope.launch =  async function(task, $index, refresh, parameter){
 		  });
 	}
 	
-	$scope.setPayment = function(){
+	$scope.setPayment = function(parameter){
+		var par = parameter.split(",");
+		console.log(par);
 		web3.eth.sendTransaction({
 		    from: $scope.user.address,
-		    to: toAddress,
-		    value: val,
+		    to: par[0],
+		    value: par[1],
 		    gas:200000
 		})
 		.then(function(receipt){
