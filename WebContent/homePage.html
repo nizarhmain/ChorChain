@@ -42,7 +42,7 @@
 
 </head>
 
-<body ng-app="homePage" ng-controller="controller">
+<body ng-app="homePage" ng-controller="controller" ng-cloak>
   <!-- MENU -->
   <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
     <div class="container">
@@ -79,7 +79,7 @@
       </div>
     </div>
   </nav>
-  <section class=" d-lg-flex justify-content-center align-items-center">
+  <section class=" d-lg-flex justify-content-center align-items-center" ng-cloak>
     <div class="container-fluid">
       <div class="row" data-ng-init="getModels()">
         <div class="col-lg-3">
@@ -129,7 +129,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body">
+            <div class="card-body" ng-cloak>
               <h6>Model File List</h6>
               <ul class="list-group">
                 <li class="list-group-item" ng-repeat="model in models | filter:searchText ">
@@ -145,7 +145,7 @@
           <div class="card-body" ng-if="model != null">
             <div class="col-lg-12">
               <div class="row">
-                <div class="col-lg-7">
+                <div class="col-lg-7" ng-cloak>
                   <h5>{{model.name}}</h5>
                   Uploaded by: {{model.uploadedBy}}<br>
                   <!-- Maximum number of participants: {{model.maxNumber}}<br>--->
@@ -161,7 +161,7 @@
                     <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
                       Search for role
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu" ng-cloak>
                       <a class="dropdown-item" ng-repeat="role in model.roles track by $index" href="#">{{role}}</a>
                     </div>
                   </div>

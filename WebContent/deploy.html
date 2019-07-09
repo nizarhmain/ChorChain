@@ -47,7 +47,7 @@ background:black;
 </style>
 
 </head>
-<body ng-app="monitor" ng-controller="monitorCtrl">
+<body ng-app="monitor" ng-controller="monitorCtrl" ng-cloak>
 <!-- MENU -->
   <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
     <div class="container">
@@ -79,7 +79,7 @@ background:black;
 		<div class="row">
 			<div class="col-lg-3">
 	          <div class="card">
-	            <div class="card-body">
+	            <div class="card-body" ng-cloak>
 	            	<h6>Model File List</h6>
 		              <ul class="list-group ">
 		                <li class="list-group-item" ng-repeat="contract in contracts track by $index">
@@ -93,15 +93,15 @@ background:black;
 				
 			<div class="col-lg-9">
 			<div class="card">
-			<div class="card-body">
+			<div class="card-body" ng-cloak>
 			 <h5>{{actualContract.name}}</h5>
 				<div class="col-12">
 						<div id="canvas" style="height: 400px;"></div>		
 				</div>
 
 									<div class="row">
-										<div class="col-9">
-										<button ng-click="moneyTransaction('0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8',100000000000000000)">CIAOOOOO</button>
+										<div class="col-9" ng-cloak>
+										<button ng-click="moneyTransaction('0xA5850Fd69bE6aA3Ec5A010fFcb42b02CE2bb39c8',100000000000000000)">bottone per pagare</button>
 								 			<button type="button" style="display: none"  id="js-preview" data-value="{{actualContract.name}}"></button> 
 											<div>Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 											<ul class="list-group">
@@ -112,9 +112,9 @@ background:black;
 													
 													<form class="mt-3" ng-if="msg.show==1 && actualContract.participants[currentRole] == user.id">
 														<div class="form-group">
-															<input type="text" class="form-control" placeholder="Function input" ng-model="sendParams.par" >
+															<input type="text" class="form-control" placeholder="Function input" ng-model="topolino" >
 														</div>
-														<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id)" id="submitbtn">
+														<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id, topolino)" id="submitbtn">
 													</form>
 												</li>
 												<!--<li class="list-group-item my-2">
@@ -198,11 +198,15 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
 
 	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
 
-$scope.launch =  async function(task, $index, refresh){
+$scope.launch =  async function(task, $index, refresh, parameter){
 	$( "#submitbtn" ).prop("disabled",true);
-		var params = $scope.sendParams.par;
+		
+		var params = parameter;
 		var name = $scope.actualContract.tasks[$index];
-		console.log($scope.actualContract.tasks[$index]);
+		console.log(name);
+		if(name.indexOf("payment") == 1){
+			$scope.setPayment();
+		}
 		var n1 = name.split('\(');
 		//var n2 = n1.split(',');
 		var n3 = n1[1].split(' ');
@@ -232,12 +236,12 @@ $scope.launch =  async function(task, $index, refresh){
 			if(method == replaced){
 				//await unlock();
 				var parArray = [];
-				if($scope.sendParams.par.includes(',')){
-					var a = $scope.sendParams.par;
-					parArray = a.split('\,');
+				if(parameter.includes(',')){
+					//var a = parameter;
+					parArray = parameter.split('\,');
 				}
 				else{
-					parArray.push($scope.sendParams.par);
+					parArray.push(parameter);
 				}
 				console.log(parArray);
 				try {
@@ -259,7 +263,8 @@ $scope.launch =  async function(task, $index, refresh){
 					  'Bad input!',
 					  'You inserted a wrong type value!',
 					  'error'
-					);						
+					);
+					$( "#submitbtn" ).prop("disabled",false);
 				}
 			}
 		}
@@ -296,8 +301,8 @@ $scope.launch =  async function(task, $index, refresh){
 		
 		$scope.msgs = null;
 		$scope.memory = null;
-		$scope.sendParams.par = null;
-		console.log($scope.msgs);
+		//parameter = null;
+		//console.log($scope.msgs);
 		for(var i in $scope.contracts){
 			if($scope.contracts[i].id == id){
 				$scope.actualContract =  $scope.contracts[i].deployedContract;
@@ -310,9 +315,9 @@ $scope.launch =  async function(task, $index, refresh){
 		}
 		$scope.abi = JSON.parse($scope.actualContract.abi);
 		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
-		console.log($scope.myContract);
+		//console.log($scope.myContract);
 		
-		console.log($scope.myContract);
+		//console.log($scope.myContract);
 		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
 			$scope.$apply(function(recepit){
 				$scope.msgs = receipt[0];
@@ -403,9 +408,10 @@ $scope.launch =  async function(task, $index, refresh){
 				$scope.activeSid = activeSid;
 				$scope.msgs[i].status = "Enabled";
 				highlightmsg(activeSid);
-				console.log("dentro i" + $scope.activeSid);
-				console.log("dentro set role active: "+ $scope.actualContract.taskIdAndRole[activeSid]);
+				//console.log("dentro i" + $scope.activeSid);
+				//console.log("dentro set role active: "+ $scope.actualContract.taskIdAndRole[activeSid]);
 				$scope.currentRole = $scope.actualContract.taskIdAndRole[activeSid];
+				console.log($scope.actualContract.tasks[i]);
 				
 			}
 			else if($scope.msgs[i].status == 0){
@@ -416,7 +422,7 @@ $scope.launch =  async function(task, $index, refresh){
 			}
 		}
 
-		for(var i in $scope.actualContract.tasksID){
+		/*for(var i in $scope.actualContract.tasksID){
 			
 			if($scope.actualContract.tasksID[i] == activeSid){
 				/*console.log("ecco il sid del contratto:" + $scope.actualContract.tasksID[i]);
@@ -426,9 +432,9 @@ $scope.launch =  async function(task, $index, refresh){
 					if(){
 						hyzh
 					}
-				}*/
+				}
 			}
-		}
+		}*/
 	
 	}
 	
@@ -445,7 +451,7 @@ $scope.launch =  async function(task, $index, refresh){
 		  });
 	}
 	
-	$scope.moneyTransaction = function(toAddress, val){
+	$scope.setPayment = function(){
 		web3.eth.sendTransaction({
 		    from: $scope.user.address,
 		    to: toAddress,
@@ -479,7 +485,7 @@ $scope.launch =  async function(task, $index, refresh){
 		
 			}
 	
-	function subscribe(){
+	/*function subscribe(){
 		$scope.myContract.methods.subscribe_as_participant($scope.sendParams.par).send({
 			from : $scope.user.address,
 			gas: 200000,
@@ -488,7 +494,7 @@ $scope.launch =  async function(task, $index, refresh){
 				console.log(response);
 			});
 		});
-	}
+	}*/
 	
 	
 	
