@@ -46,6 +46,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					}
 				
 				$scope.addMessage = function(messageName,messageParam,paramType) {
+					
 					   if(messageParam == null & paramType == undefined)
 						   {  
 						   	$scope.str = messageName;
@@ -60,7 +61,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						   $('.djs-direct-editing-content').focus();
 						   
 						   }
-					   if(messageParam == null & paramType == undefined & messageName == null)
+					   if($('#paymentCheck').is(':checked'))
 					   {  
 					   	$scope.str = "payment()";
 					   	$('.djs-direct-editing-content').text($scope.str);
