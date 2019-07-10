@@ -149,7 +149,7 @@ public class Choreography {
 		String intro = "pragma solidity ^0.5.3; \n"
 				+ "	pragma experimental ABIEncoderV2;\n"
 				+ "	contract " + ContractFunctions.parseName(filename, "") +"{\n"
-				+ "	    uint counter;\r\n" 
+				+ "		uint counter;\r\n" 
 				+ "	event stateChanged(uint);  \n"
 				+ "	mapping (string=>uint) position;\n"
 				+ "\n	enum State {DISABLED, ENABLED, DONE} State s; \n"
@@ -182,12 +182,15 @@ public class Choreography {
 		}
 		intro += " ]; \n";
 		intro += "	string[] optionalList = [";
-		for (int i = 0; i < optionalRoles.size(); i++) {
-			intro += "\"" + optionalRoles.get(i) + "\"";
-			if ((i + 1) < optionalRoles.size())
-				intro += ", ";
+		if(optionalRoles.isEmpty()) {
+			intro+="\"\"";
+		}else {
+			for (int i = 0; i < optionalRoles.size(); i++) {
+				intro += "\"" + optionalRoles.get(i) + "\"";
+				if ((i + 1) < optionalRoles.size())
+					intro += ", ";
+			}
 		}
-		
 		
 		intro += " ]; \n" + "	mapping(string=>address) roles; \r\n"+
 							"	mapping(string=>address) optionalRoles; \r\n";
@@ -242,7 +245,10 @@ public class Choreography {
 						"        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n" + 
 						"          optionalRoles[_role]=msg.sender;\r\n" + 
 						"        }\r\n" + 
-						"    }\n";
+						"    }\n"+
+						"function() external payable{\r\n" + 
+						"    \r\n" + 
+						"}";
 		
 		return intro + constr + other;
 	}
