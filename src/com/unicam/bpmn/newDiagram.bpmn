@@ -1,76 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="13.0.1" expressionLanguage="http://www.w3.org/TR/XPath" id="sid-6eb180d0-7ac8-48b8-ad63-e5b3cad0a138" targetNamespace="http://www.signavio.com" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
-   <choreography id="sid-52a02962-9606-4e6f-b464-1895eadc5a9e" isClosed="false">
-      <participant id="sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83" name="">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-      </participant>
-      <participant id="sid-65583D47-C996-45A0-916C-8178ABCF99D4" name="">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-      </participant>
-      <messageFlow id="sid-11a8c6fa-d758-4a29-a40e-e2fa7d0d50e1" sourceRef="sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83" targetRef="sid-65583D47-C996-45A0-916C-8178ABCF99D4"/>
-      <startEvent id="sid-B4A851DC-0656-43FE-AA2F-8702570EDDA6" name="">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-         <outgoing>sid-E9991414-3821-4874-9C31-09C89498B810</outgoing>
-      </startEvent>
-      <choreographyTask id="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7" initiatingParticipantRef="sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83" loopType="None" name="">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-         <incoming>sid-E9991414-3821-4874-9C31-09C89498B810</incoming>
-         <outgoing>sid-A94F6722-6EF5-4346-9076-CF002BD16ADD</outgoing>
-         <participantRef>sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83</participantRef>
-         <participantRef>sid-65583D47-C996-45A0-916C-8178ABCF99D4</participantRef>
-      </choreographyTask>
-      <endEvent id="sid-192A33CA-0A65-44EA-8A05-25644B1513D3" name="">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-         <incoming>sid-A94F6722-6EF5-4346-9076-CF002BD16ADD</incoming>
-      </endEvent>
-      <sequenceFlow id="sid-E9991414-3821-4874-9C31-09C89498B810" name="" sourceRef="sid-B4A851DC-0656-43FE-AA2F-8702570EDDA6" targetRef="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-      </sequenceFlow>
-      <sequenceFlow id="sid-A94F6722-6EF5-4346-9076-CF002BD16ADD" name="" sourceRef="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7" targetRef="sid-192A33CA-0A65-44EA-8A05-25644B1513D3">
-         <extensionElements>
-            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
-         </extensionElements>
-      </sequenceFlow>
-   </choreography>
-   <bpmndi:BPMNDiagram id="sid-b548ddb7-0c24-439b-b3e5-0d76b0c8a45b">
-      <bpmndi:BPMNPlane bpmnElement="sid-52a02962-9606-4e6f-b464-1895eadc5a9e" id="sid-775315c2-10fc-4948-8af0-9c1bf862977e">
-         <bpmndi:BPMNShape bpmnElement="sid-B4A851DC-0656-43FE-AA2F-8702570EDDA6" id="sid-B4A851DC-0656-43FE-AA2F-8702570EDDA6_gui">
-            <omgdc:Bounds height="30.0" width="30.0" x="165.0" y="330.0"/>
-         </bpmndi:BPMNShape>
-         <bpmndi:BPMNShape bpmnElement="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7" id="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7_gui">
-            <omgdc:Bounds height="140.0" width="150.0" x="299.99999349767523" y="275.0"/>
-         </bpmndi:BPMNShape>
-         <bpmndi:BPMNShape bpmnElement="sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83" choreographyActivityShape="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7_gui" id="sid-3465B23A-7EDE-4229-B1F9-EBB96CD9FE83_gui" isMessageVisible="false" participantBandKind="top_initiating">
-            <omgdc:Bounds height="20.0" width="150.0" x="299.99999349767523" y="275.0"/>
-         </bpmndi:BPMNShape>
-         <bpmndi:BPMNShape bpmnElement="sid-65583D47-C996-45A0-916C-8178ABCF99D4" choreographyActivityShape="sid-8B8409AA-392A-42EE-9DD0-32AF656DE2D7_gui" id="sid-65583D47-C996-45A0-916C-8178ABCF99D4_gui" isMessageVisible="false" participantBandKind="bottom_non_initiating">
-            <omgdc:Bounds height="20.0" width="150.0" x="299.99999349767523" y="395.0"/>
-         </bpmndi:BPMNShape>
-         <bpmndi:BPMNShape bpmnElement="sid-192A33CA-0A65-44EA-8A05-25644B1513D3" id="sid-192A33CA-0A65-44EA-8A05-25644B1513D3_gui">
-            <omgdc:Bounds height="28.0" width="28.0" x="554.9999869953505" y="331.0"/>
-         </bpmndi:BPMNShape>
-         <bpmndi:BPMNEdge bpmnElement="sid-E9991414-3821-4874-9C31-09C89498B810" id="sid-E9991414-3821-4874-9C31-09C89498B810_gui">
-            <omgdi:waypoint x="195.0" y="345.0"/>
-            <omgdi:waypoint x="299.99999349767523" y="345.0"/>
-         </bpmndi:BPMNEdge>
-         <bpmndi:BPMNEdge bpmnElement="sid-A94F6722-6EF5-4346-9076-CF002BD16ADD" id="sid-A94F6722-6EF5-4346-9076-CF002BD16ADD_gui">
-            <omgdi:waypoint x="449.99999349767523" y="345.0"/>
-            <omgdi:waypoint x="554.9999869953505" y="345.0"/>
-         </bpmndi:BPMNEdge>
-      </bpmndi:BPMNPlane>
-   </bpmndi:BPMNDiagram>
-</definitions>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- origin at X=0.0 Y=0.0 -->
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xs="http://www.w3.org/2001/XMLSchema" id="_tTv5YOycEeiHGOQ2NkJZNQ">
+    <bpmn2:choreography id="Choreography">
+    </bpmn2:choreography>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_Choreography_1" bpmnElement="Choreography">
+        </bpmndi:BPMNPlane>
+        <bpmndi:BPMNLabelStyle id="BPMNLabelStyle_1">
+            <dc:Font name="arial" size="9.0"/>
+        </bpmndi:BPMNLabelStyle>
+    </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
