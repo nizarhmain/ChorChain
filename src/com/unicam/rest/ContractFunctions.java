@@ -50,6 +50,7 @@ import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
+import org.web3j.utils.Numeric;
 
 import com.unicam.model.ContractObject;
 import com.unicam.model.User;
@@ -65,6 +66,7 @@ import org.web3j.tuples.generated.*;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.WalletUtils;
 
 public class ContractFunctions {
@@ -408,6 +410,46 @@ public class ContractFunctions {
 
 		return sb.toString();
 
+	}
+	
+	public String signOffline(String bin, String privateKey) throws Exception {
+		//0x8460b386B04018f31E04D1bF181be1f26f74bb32 account, 91
+		String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
+		BigInteger GAS_PRICE = BigInteger.valueOf(8_500_000_000L);
+		BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
+		String binar = new String (Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
+		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
+				  myAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
+		 BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+		RawTransaction offlineTransaction = RawTransaction.createContractTransaction(
+				nonce, 
+				GAS_PRICE, 
+				GAS_LIMIT, 
+				BigInteger.ZERO, 
+				binar
+				);
+		
+		Credentials credentials = getCredentialFromPrivateKey(privateKey);
+		byte[] signedMessage = TransactionEncoder.signMessage(offlineTransaction, credentials);
+		String hexValue = Numeric.toHexString(signedMessage);
+		EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
+		String transactionHash = ethSendTransaction.getTransactionHash();
+		EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+		  
+		  for (int i = 0; i < 222220; i++) {
+			  System.out.println("Wait: " + i);
+	            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
+	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+	            } else {
+	                break;
+	            }
+		  }
+		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
+		  System.out.println(transactionReceiptFinal.getContractAddress());
+		  
+		  String contractAddress = transactionReceiptFinal.getContractAddress();
+		  System.out.println(contractAddress);
+		  return contractAddress;
 	}
 
 }
