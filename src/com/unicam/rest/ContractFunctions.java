@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +60,15 @@ import com.unicam.translator.Choreography;
 
 import io.reactivex.Flowable;
 
+
+
 import org.bson.Document;
+import org.omg.CORBA.TypeCodeHolder;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Uint;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
 import org.web3j.tuples.*;
 import org.web3j.tuples.generated.*;
@@ -412,16 +421,17 @@ public class ContractFunctions {
 
 	}
 	
-	public String signOffline(String bin, String privateKey) throws Exception {
+	public void signOffline(String privateKey, ContractObject contractDb) throws Exception {
 		//0x8460b386B04018f31E04D1bF181be1f26f74bb32 account, 91
 		String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
-		BigInteger GAS_PRICE = BigInteger.valueOf(8_500_000_000L);
+		BigInteger GAS_PRICE = BigInteger.valueOf(9_500_000_000L);
 		BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
-		String binar = new String (Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
+		//String binar = new String (Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(contractDb.getName(), ".bin"))));
+		String binar = contractDb.getBin();
 		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-				  myAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
+				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		 BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-		RawTransaction offlineTransaction = RawTransaction.createContractTransaction(
+		/*RawTransaction offlineTransaction = RawTransaction.createContractTransaction(
 				nonce, 
 				GAS_PRICE, 
 				GAS_LIMIT, 
@@ -449,7 +459,82 @@ public class ContractFunctions {
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();
 		  System.out.println(contractAddress);
-		  return contractAddress;
+		  
+		  Function function = new Function(
+				  "sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount)", 
+				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
+				  Arrays.asList(new TypeReference<Uint>() {})
+				  );
+		 String encoded = FunctionEncoder.encode(function);
+		 RawTransaction ta = RawTransaction.createTransaction(
+				 nonce, 
+				 GAS_PRICE, 
+				 GAS_LIMIT, 
+				 contractDb.getAddress(), 
+				 encoded
+				 );
+
+			Credentials credentials = getCredentialFromPrivateKey(privateKey);
+			byte[] signedMessage = TransactionEncoder.signMessage(ta, credentials);
+			String hexValue = Numeric.toHexString(signedMessage);
+			EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
+			  if(ethSendTransaction.hasError()) {
+				  System.out.println(ethSendTransaction.getError().getData());
+				  System.out.println(ethSendTransaction.getError().getMessage());}
+			String transactionHash = ethSendTransaction.getTransactionHash();
+			EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+			  
+			  for (int i = 0; i < 222220; i++) {
+				  System.out.println("Wait: " + i);
+		            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
+		                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+		            } else {
+		                break;
+		            }
+			  }
+			  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
+			  System.out.println(transactionReceiptFinal.getLogs());
+			  System.out.println(transactionReceiptFinal.getLogsBloom());
+			  */
+		 PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
+		 Function function = new Function(
+				  "sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount)", 
+				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
+				  Arrays.asList(new TypeReference<Uint>() {})
+				  );
+			  
+		 String encoded = FunctionEncoder.encode(function);
+		 Transaction tr  = Transaction.createFunctionCallTransaction(
+				 VirtualProsAccount,
+				 nonce,
+				 GAS_PRICE, 
+				 GAS_LIMIT, 
+				 contractDb.getAddress(), 
+				 encoded
+				 );
+		 EthSendTransaction transactionResponse = web3j.ethSendTransaction(tr).sendAsync().get();
+		  pendingTransaction = true;
+		  if(transactionResponse.hasError()) {
+		  System.out.println(transactionResponse.getError().getData());
+		  System.out.println(transactionResponse.getError().getMessage());}
+		  String transactionHash = transactionResponse.getTransactionHash();  
+		  System.out.println("Thash: " + transactionHash);
+		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+		 
+		  //Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
+		  for (int i = 0; i < 222220; i++) {
+			  System.out.println("Wait: " + i);
+	            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
+	                //Thread.sleep(5000);
+	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+	      		    
+	            } else {
+	                break;
+	            }
+		  }
+		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
+		  System.out.println(transactionReceiptFinal.getLogsBloom());
+		  System.out.println(transactionReceiptFinal.getLogs());
 	}
 
 }

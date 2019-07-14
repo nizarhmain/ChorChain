@@ -403,8 +403,8 @@ public class Controller {
 			contract.compile(instanceForDeploy.getName());
 			System.out.println("Compiled");
 			// Thread.sleep(10000);
-			String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
-			//String cAddress = contract.deploy(instanceForDeploy.getName());
+			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
+			String cAddress = contract.deploy(instanceForDeploy.getName());
 			if(cAddress.equals("ERROR")) {
 				tm.rollback();
 				return null;
@@ -618,6 +618,31 @@ public class Controller {
 		}finally {
 			em.close();
 		}
+	}
+	
+	@POST
+	@Path("/external/contractFunction/{instanceId}/{account}/{functionName}")
+	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String accunt, 
+			@PathParam("instanceId") String functionName, String privateKey) throws Exception {
+		ContractObject contract = new ContractObject();
+		EntityManager em = emf.createEntityManager();
+		Instance instance = em.find(Instance.class, instanceId);
+		try {
+			contract = instance.getDeployedContract();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			em.close();
+		}
+		ContractFunctions con = new ContractFunctions();
+		con.signOffline(privateKey, contract);
+		
+		
+		
+		
+		
+		
+		
 	}
 
 }

@@ -550,7 +550,7 @@ public class Choreography {
 				
 				
 				String[] req = response.split(" ");
-				String res = typeParse(request);
+				//String res = typeParse(request);
 				String ret = "";
 				String call = "";
 				String eventBlock="";
@@ -583,9 +583,9 @@ public class Choreography {
 					
 				
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
-					
-				
-						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
+					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
+					if(request != null) {
+						
 		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public " + pName
 								+ "){\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
@@ -594,9 +594,10 @@ public class Choreography {
 								+ addToMemory(request)
 								+ eventBlock
 								+ "}\n";
-						addGlobal(request);	
+						addGlobal(request);
+					}
 						
-						
+					if(response != null) {	
 						pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
 						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public " + pName +"){\n"
 								+"	require(elements[position[\"" + getNextId(node, true) + "\"]].status==State.ENABLED);\n"
@@ -604,7 +605,7 @@ public class Choreography {
 								+ addToMemory(response)
 								+ eventBlock;
 						addGlobal(response);	
-						
+					}
 
 				}
 				choreographyFile += descr;
