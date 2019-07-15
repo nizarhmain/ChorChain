@@ -622,8 +622,8 @@ public class Controller {
 	
 	@POST
 	@Path("/external/contractFunction/{instanceId}/{account}/{functionName}")
-	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String accunt, 
-			@PathParam("instanceId") String functionName, String privateKey) throws Exception {
+	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String account, 
+			@PathParam("functionName") String functionName, String privateKey) throws Exception {
 		ContractObject contract = new ContractObject();
 		EntityManager em = emf.createEntityManager();
 		Instance instance = em.find(Instance.class, instanceId);
@@ -634,8 +634,9 @@ public class Controller {
 		}finally {
 			em.close();
 		}
+		System.out.println("funzione " + functionName + " con questo account " + account + " e questa chiave privata " + privateKey);
 		ContractFunctions con = new ContractFunctions();
-		con.signOffline(privateKey, contract);
+		con.signOffline(privateKey, contract, account, functionName);
 		
 		
 		

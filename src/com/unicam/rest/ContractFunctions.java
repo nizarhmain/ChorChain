@@ -421,23 +421,33 @@ public class ContractFunctions {
 
 	}
 	
-	public void signOffline(String privateKey, ContractObject contractDb) throws Exception {
+	public void signOffline(String privateKey, ContractObject contractDb, String account, String functionName) throws Exception {
+		
+		System.out.println("funzione " + functionName + " con questo account " + account + " e questa chiave privata " + privateKey);
 		//0x8460b386B04018f31E04D1bF181be1f26f74bb32 account, 91
-		String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
-		BigInteger GAS_PRICE = BigInteger.valueOf(9_500_000_000L);
-		BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
+		//String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
+		BigInteger GAS_PRICE = BigInteger.valueOf(7_900_000_000L);
+		BigInteger GAS_LIMIT = BigInteger.valueOf(6_700_000L);
 		//String binar = new String (Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(contractDb.getName(), ".bin"))));
-		String binar = contractDb.getBin();
+		//String binar = contractDb.getBin();
 		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
+				  account, DefaultBlockParameterName.LATEST).sendAsync().get();
 		 BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-		/*RawTransaction offlineTransaction = RawTransaction.createContractTransaction(
-				nonce, 
-				GAS_PRICE, 
-				GAS_LIMIT, 
-				BigInteger.ZERO, 
-				binar
+		  Function function = new Function(
+				  functionName, 
+				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
+				  Arrays.asList(new TypeReference<Uint>() {})
+				  );
+		 String encoded = FunctionEncoder.encode(function);
+		 //PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
+		/*RawTransaction offlineTransaction = RawTransaction.createTransaction(
+				nonce,
+				GAS_PRICE,
+				GAS_PRICE,
+				"0xff3669545d005ef0faebd07e17ef8b978b1b9997",
+				encoded
 				);
+		 
 		
 		Credentials credentials = getCredentialFromPrivateKey(privateKey);
 		byte[] signedMessage = TransactionEncoder.signMessage(offlineTransaction, credentials);
@@ -458,19 +468,15 @@ public class ContractFunctions {
 		  System.out.println(transactionReceiptFinal.getContractAddress());
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();
-		  System.out.println(contractAddress);
+		  System.out.println(contractAddress);*/
 		  
-		  Function function = new Function(
-				  "sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount)", 
-				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
-				  Arrays.asList(new TypeReference<Uint>() {})
-				  );
-		 String encoded = FunctionEncoder.encode(function);
+		 
 		 RawTransaction ta = RawTransaction.createTransaction(
 				 nonce, 
 				 GAS_PRICE, 
-				 GAS_LIMIT, 
-				 contractDb.getAddress(), 
+				 GAS_LIMIT,
+				 "0xff3669545d005ef0faebd07e17ef8b978b1b9997",
+				 //contractDb.getAddress(),
 				 encoded
 				 );
 
@@ -495,28 +501,30 @@ public class ContractFunctions {
 			  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
 			  System.out.println(transactionReceiptFinal.getLogs());
 			  System.out.println(transactionReceiptFinal.getLogsBloom());
-			  */
-		 PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
+			  /*
+		
 		 Function function = new Function(
 				  "sid_b9828a39_b70d_4470_b5d2_61cda9b2bc64(uint amount)", 
 				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
 				  Arrays.asList(new TypeReference<Uint>() {})
 				  );
-			  
-		 String encoded = FunctionEncoder.encode(function);
+			  */
+		/*
 		 Transaction tr  = Transaction.createFunctionCallTransaction(
-				 VirtualProsAccount,
+				 myAccount,
 				 nonce,
 				 GAS_PRICE, 
 				 GAS_LIMIT, 
-				 contractDb.getAddress(), 
+				 "0xff3669545d005ef0faebd07e17ef8b978b1b9997", 
 				 encoded
 				 );
 		 EthSendTransaction transactionResponse = web3j.ethSendTransaction(tr).sendAsync().get();
-		  pendingTransaction = true;
+		 
 		  if(transactionResponse.hasError()) {
-		  System.out.println(transactionResponse.getError().getData());
-		  System.out.println(transactionResponse.getError().getMessage());}
+			  System.out.println(transactionResponse.getError().getData());
+			  System.out.println(transactionResponse.getError().getMessage());
+		  }
+		  
 		  String transactionHash = transactionResponse.getTransactionHash();  
 		  System.out.println("Thash: " + transactionHash);
 		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
@@ -534,7 +542,7 @@ public class ContractFunctions {
 		  }
 		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
 		  System.out.println(transactionReceiptFinal.getLogsBloom());
-		  System.out.println(transactionReceiptFinal.getLogs());
+		  System.out.println(transactionReceiptFinal.getLogs());*/
 	}
 
 }
