@@ -317,9 +317,9 @@
 	
 	var accountInterval = setInterval(function () {
 		
-		$('.djs-element').dblclick(function () {
-			console.log(document.querySelector('.djs-direct-editing-parent').parentNode.getAttribute("element-data-id"))
-			//$('#msg').modal('show');
+		$('.djs-direct-editing-content').dblclick(function () {
+			//console.log(document.querySelector('.djs-direct-editing-parent').parentNode.getAttribute("element-data-id"))
+			$('#msg').modal('show');
 		});
 	}, 100);
 

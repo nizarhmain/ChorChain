@@ -5,6 +5,7 @@ var module = angular.module('homePage.controllers', ['ngCookies']);
 module.controller("controller", [ "$scope","$window", "$location", "service", '$cookies',
 		function($scope,$window, $location,service, $cookies) {
 			
+	        $scope.countPayment = 0;
 			$scope.regUser = {};
 			$scope.user = {};
 			$scope.role = null;
@@ -41,11 +42,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				}
 				
 				$scope.closeModal = function() {
-					console.log("entro")
 					$scope.parametersArray.splice(1,2);
 					}
 				
 				$scope.addMessage = function(messageName,messageParam,paramType) {
+					
+					
 					
 					   if(messageParam == null & paramType == undefined)
 						   {  
@@ -63,7 +65,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						   }
 					   if($('#paymentCheck').is(':checked'))
 					   {  
-					   	$scope.str = "payment()";
+						
+						$scope.countPayment++;
+					   	$scope.str = "payment"+$scope.countPayment+"(address payable to)";
 					   	$('.djs-direct-editing-content').text($scope.str);
 					   	$('.djs-direct-editing-content').focus();					   
 					   	

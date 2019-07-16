@@ -63,7 +63,6 @@ import io.reactivex.Flowable;
 
 
 import org.bson.Document;
-import org.omg.CORBA.TypeCodeHolder;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
