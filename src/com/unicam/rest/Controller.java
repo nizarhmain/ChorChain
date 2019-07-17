@@ -63,6 +63,7 @@ import com.mongodb.client.model.Filters;
 import com.unicam.model.ContractObject;
 import com.unicam.model.Instance;
 import com.unicam.model.Model;
+import com.unicam.model.Parameters;
 import com.unicam.model.TaskObject;
 import com.unicam.model.User;
 import com.unicam.translator.Choreography;
@@ -623,20 +624,27 @@ public class Controller {
 	@POST
 	@Path("/external/contractFunction/{instanceId}/{account}/{functionName}")
 	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String account, 
-			@PathParam("functionName") String functionName, String privateKey) throws Exception {
+			@PathParam("functionName") String functionName, Parameters parameters) throws Exception {
 		ContractObject contract = new ContractObject();
 		EntityManager em = emf.createEntityManager();
 		Instance instance = em.find(Instance.class, instanceId);
 		try {
-			contract = instance.getDeployedContract();
+			//contract = instance.getDeployedContract();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
 			em.close();
 		}
-		System.out.println("funzione " + functionName + " con questo account " + account + " e questa chiave privata " + privateKey);
+		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
-		con.signOffline(privateKey, contract, account, functionName);
+		System.out.println(parameters.getParamsAndValue());
+		for(Map.Entry<String, String> azz : parameters.getParamsAndValue().entrySet()) {
+			System.out.println("chiave: " + azz.getKey());
+			System.out.println("valore: " + azz.getValue());
+		}
+		System.out.println("PRIVATA: " + parameters.getPrivateKey());
+		con.signOffline(parameters, contract, account, functionName);
+		
 		
 		
 		
