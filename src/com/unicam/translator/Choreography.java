@@ -317,6 +317,17 @@ public class Choreography {
 		return add;
 	}
 	
+	private static String createTransaction(String msg) {
+		String ret = "";
+		String n = msg.replace("address", "").replace("payable", "").replace(" ","");
+		String r = n.replace(")", "");
+		String[] t = r.split("\\(");
+		
+		ret = t[1] + ".transfer(msg.value);";
+		
+		return ret;
+	}
+	
 	private static String addGlobal(String name) {
 		String r = name.replace(")", "");
 		String[] t = r.split("\\(");
@@ -427,9 +438,11 @@ public class Choreography {
 						descr += "if("+ addCompareString(outgoing) + "){" +
 									"enable(\"" + getNextId(nextElement, false) + "\"); \n ";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
-							descr += parseSid(getNextId(nextElement, false)) + "();} \n";
+							descr += parseSid(getNextId(nextElement, false)) + "(); \n";
 							
-					}
+						}else {
+							descr += "}\n";
+						}
 					//	descr += "}\n";
 					}
 					else {
@@ -571,6 +584,17 @@ public class Choreography {
 					
 						String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 		    			
+						if(request.contains("payment")) {
+							descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public payable " + pName
+									+ ") {\n";
+							descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
+									+ "	done(\"" +  getNextId(node, false) + "\");\n"
+									+ createTransaction(request)
+									+ eventBlock;
+							
+								
+						}else {
+						
 		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public " + pName
 								+ ") {\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
@@ -579,6 +603,7 @@ public class Choreography {
 								+ eventBlock;
 						
 						addGlobal(request);			
+						}
 					//	roleFortask.add(participantName);
 					
 				

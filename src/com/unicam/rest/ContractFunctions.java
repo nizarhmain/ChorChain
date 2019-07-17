@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,7 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Uint;
+import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
 import org.web3j.tuples.*;
@@ -331,7 +333,7 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-		  BigInteger GAS_PRICE = BigInteger.valueOf(2_500_000_000L);
+		  BigInteger GAS_PRICE = BigInteger.valueOf(8_500_000_000L);
 		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
@@ -425,7 +427,7 @@ public class ContractFunctions {
 		System.out.println("funzione " + functionName + " con questo account " + account + " e questa chiave privata " + privateKey);
 		//0x8460b386B04018f31E04D1bF181be1f26f74bb32 account, 91
 		//String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
-		BigInteger GAS_PRICE = BigInteger.valueOf(7_900_000_000L);
+		BigInteger GAS_PRICE = BigInteger.valueOf(10_500_000_000L);
 		BigInteger GAS_LIMIT = BigInteger.valueOf(6_700_000L);
 		//String binar = new String (Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(contractDb.getName(), ".bin"))));
 		//String binar = contractDb.getBin();
@@ -437,6 +439,10 @@ public class ContractFunctions {
 				  Arrays.asList(new Uint(BigInteger.valueOf(4))), 
 				  Arrays.asList(new TypeReference<Uint>() {})
 				  );
+		  
+		  List<Type> t = new ArrayList<Type>();
+		  t.add(new Uint(BigInteger.valueOf(4)));
+		  //Function f = new Function("dd", t, outputParameters)
 		 String encoded = FunctionEncoder.encode(function);
 		 //PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
 		/*RawTransaction offlineTransaction = RawTransaction.createTransaction(
