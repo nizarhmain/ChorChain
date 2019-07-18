@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class Choreography {
 	public static List<String> elementsID;
 	private static String startEventAdd;
 	private static List<String> roleFortask;
-	private static Map<String, String> taskIdAndRole;
+	private static LinkedHashMap<String, String> taskIdAndRole;
 	//static String projectPath = System.getProperty("user.dir")+ "/workspace"; 
 
 	public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles, List<String> mandatoryRoles) throws Exception {
@@ -126,7 +127,7 @@ public class Choreography {
 		request = "";
 		response = "";
 		startEventAdd = "";
-		taskIdAndRole = new HashMap<String, String>();
+		taskIdAndRole = new LinkedHashMap<String, String>();
 	}
 
 	public void readFile(File bpFile) throws IOException {

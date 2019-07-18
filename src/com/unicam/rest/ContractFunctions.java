@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -337,7 +339,7 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-		  BigInteger GAS_PRICE = BigInteger.valueOf(8_500_000_000L);
+		  BigInteger GAS_PRICE = BigInteger.valueOf(9_500_000_000L);
 		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
@@ -427,17 +429,42 @@ public class ContractFunctions {
 	}
 	
 	public void signOffline(Parameters parameters, ContractObject contractDb, String account, String functionName) throws Exception {
+		LinkedHashMap<String, String> hashed = contractDb.getTaskIdAndRole();
+		System.out.println("size di hashed: " + hashed.size());
+		int b = 0;
+		int z = 0;
+		for(int i = 0; i < contractDb.getTasks().size(); i++) {
+			System.out.println("iiiiii: " + i);
+			if(contractDb.getTasks().get(i).equals(functionName)) {
+				System.out.println("task trovato : " + contractDb.getTasks().get(i));
+				System.out.println("VALORE DI I : " + i);
+				z = i;
+				break;
+			}
+		}
 		
+		for(Map.Entry<String, String> params : hashed.entrySet()) {
+			 System.out.println("valore di b " + b + " e di i " + z);
+			if(b == z) {
+				functionName = params.getKey().split("\\(")[0];
+				System.out.println("chiave: " + params.getKey());
+				break;
+			}else {
+				b++;
+			}
+		 }
 		
-		//0x8460b386B04018f31E04D1bF181be1f26f74bb32 account, 91
-		//String myAccount = "0x8460b386B04018f31E04D1bF181be1f26f74bb32";
-		BigInteger GAS_PRICE = BigInteger.valueOf(10_500_000_000L);
+		System.out.println("NOME NUOVO DELLA FUNZIONE: " + functionName);
+		
+		BigInteger GAS_PRICE = BigInteger.valueOf(9_600_000_000L);
 		BigInteger GAS_LIMIT = BigInteger.valueOf(6_700_000L);
 
 		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
 				  account, DefaultBlockParameterName.LATEST).sendAsync().get();
 		 BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+		 System.out.println(nonce);
 		 
+		
 		 List<Type> t = new ArrayList<Type>();
 		 for(Map.Entry<String, String> params : parameters.getParamsAndValue().entrySet()) {
 				if(params.getKey().equals("uint")) {
@@ -466,11 +493,12 @@ public class ContractFunctions {
 		
 		 
 		 RawTransaction ta = RawTransaction.createTransaction(
-				 nonce, 
+				// nonce, 
+				 BigInteger.valueOf(131),
 				 GAS_PRICE, 
 				 GAS_LIMIT,
-				 "0xcc8bdb5dd918c9ec86e31b416f627ad0cc5ea22d",
-				 //contractDb.getAddress(),
+				 //"0xcc8bdb5dd918c9ec86e31b416f627ad0cc5ea22d",
+				 contractDb.getAddress(),
 				 encoded
 				 );
 

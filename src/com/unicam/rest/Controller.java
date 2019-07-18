@@ -629,7 +629,7 @@ public class Controller {
 		EntityManager em = emf.createEntityManager();
 		Instance instance = em.find(Instance.class, instanceId);
 		try {
-			//contract = instance.getDeployedContract();
+			contract = instance.getDeployedContract();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
@@ -638,7 +638,7 @@ public class Controller {
 		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
 		System.out.println(parameters.getParamsAndValue());
-		for(Map.Entry<String, String> azz : parameters.getParamsAndValue().entrySet()) {
+		for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
 			System.out.println("chiave: " + azz.getKey());
 			System.out.println("valore: " + azz.getValue());
 		}

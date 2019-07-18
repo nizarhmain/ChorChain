@@ -1,6 +1,7 @@
 package com.unicam.model;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.Type;
@@ -23,7 +25,7 @@ import org.json.JSONObject;
 @AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 public class ContractObject {
-	 @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Type(type = "objectid")
     private String id;
@@ -38,14 +40,15 @@ public class ContractObject {
 	private String bin;
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> varNames;
-	@ElementCollection(fetch = FetchType.EAGER)
-	private Map<String, String> taskIdAndRole = new HashMap<String, String>();
+	//@ElementCollection(fetch = FetchType.EAGER)
+	@Lob
+	private LinkedHashMap<String, String> taskIdAndRole = new LinkedHashMap<String, String>();
 
 	
-	public Map<String, String> getTaskIdAndRole() {
+	public LinkedHashMap<String, String> getTaskIdAndRole() {
 		return taskIdAndRole;
 	}
-	public void setTaskIdAndRole(Map<String, String> taskIdAndRole) {
+	public void setTaskIdAndRole(LinkedHashMap<String, String> taskIdAndRole) {
 		this.taskIdAndRole = taskIdAndRole;
 	}
 	/*public List<String> getTaskRoles() {
@@ -100,7 +103,7 @@ public class ContractObject {
 	}
 	
 	public ContractObject(String address, List<String> tasks, String abi, String bin, List<String> varNames,
-			Map<String, String> taskIdAndRole) {
+			LinkedHashMap<String, String> taskIdAndRole) {
 		super();
 		this.address = address;
 		this.tasks = tasks;
