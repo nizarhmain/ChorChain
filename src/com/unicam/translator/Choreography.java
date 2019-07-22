@@ -344,6 +344,9 @@ public class Choreography {
 	private static String getPrameters(String messageName) {
 		//System.out.println("GETPARAM: " + messageName);
 		String[] parsedMsgName = messageName.split("\\(");
+		System.err.println(parsedMsgName[0]);
+		System.err.println(parsedMsgName[1]);
+
 		return "("+parsedMsgName[1];
 	}
 	
@@ -604,8 +607,12 @@ public class Choreography {
 				
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
-					if(request != null) {
-						
+					System.err.println("the request is: -->" + request + "<---");
+					System.err.println(request.isBlank());
+					System.err.println(request.isEmpty());
+					System.err.println(request.length());
+					if(!request.isEmpty()) {
+						System.err.println(request);
 		    			descr += "function "+ parseSid(getNextId(node, false)) + addMemory(getPrameters(request)) + " public " + pName
 								+ "){\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
@@ -617,7 +624,7 @@ public class Choreography {
 						addGlobal(request);
 					}
 						
-					if(response != null) {	
+					if(!response.isEmpty()) {	
 						pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
 						descr += "function " +parseSid(getNextId(node, true)) + addMemory(getPrameters(response))  +" public " + pName +"){\n"
 								+"	require(elements[position[\"" + getNextId(node, true) + "\"]].status==State.ENABLED);\n"
@@ -685,11 +692,13 @@ public class Choreography {
 			Message responseMessage = modelInstance
 					.getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
 		
-			elementsID.add(responseMessage.getId());
-			response = responseMessage.getAttributeValue("name");
-			tasks.add(response);
-			roleFortask.add(task.getParticipantRef().getName());
-			mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+			if(!responseMessage.getAttributeValue("name").isEmpty()) {
+				elementsID.add(responseMessage.getId());
+				response = responseMessage.getAttributeValue("name");
+				tasks.add(response);
+				roleFortask.add(task.getParticipantRef().getName());
+				mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+			} 
 			
 		}
 		//if there is only the request
@@ -698,13 +707,13 @@ public class Choreography {
 			MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
 			Message requestMessage = modelInstance
 					.getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
-			
-			
-			elementsID.add(requestMessage.getId());
-			request = requestMessage.getAttributeValue("name");
-			tasks.add(request);
-			roleFortask.add(participantName);
-			mergeMap(requestMessage.getId(), participantName);
+			if(!requestMessage.getAttributeValue("name").isEmpty()) {	
+				elementsID.add(requestMessage.getId());
+				request = requestMessage.getAttributeValue("name");
+				tasks.add(request);
+				roleFortask.add(participantName);
+				mergeMap(requestMessage.getId(), participantName);
+			}
 		
 		}
 		//if there are both
@@ -717,21 +726,22 @@ public class Choreography {
 					.getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
 			Message responseMessage = modelInstance
 					.getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
-			elementsID.add(requestMessage.getId());
-			elementsID.add(responseMessage.getId());
-			
-			request = requestMessage.getAttributeValue("name");
-			response = responseMessage.getAttributeValue("name");
-
-			tasks.add(request);
-			tasks.add(response);
-			
-			roleFortask.add(participantName);
-			roleFortask.add(task.getParticipantRef().getName());
-			
-			mergeMap(requestMessage.getId(), participantName);
-			mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
-
+			if(responseMessage.getAttributeValue("name") != null && requestMessage.getAttributeValue("name")!= null) {
+				elementsID.add(requestMessage.getId());
+				elementsID.add(responseMessage.getId());
+				
+				request = requestMessage.getAttributeValue("name");
+				response = responseMessage.getAttributeValue("name");
+	
+				tasks.add(request);
+				tasks.add(response);
+				
+				roleFortask.add(participantName);
+				roleFortask.add(task.getParticipantRef().getName());
+				
+				mergeMap(requestMessage.getId(), participantName);
+				mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+			}
 			
 		}
 
