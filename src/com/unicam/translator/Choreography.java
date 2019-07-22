@@ -320,10 +320,9 @@ public class Choreography {
 	
 	private static String createTransaction(String msg) {
 		String ret = "";
-		String n = msg.replace("address", "").replace("payable", "").replace(" ","");
+		String n = msg.replace("address", "").replace("payable", "");
 		String r = n.replace(")", "");
 		String[] t = r.split("\\(");
-		
 		ret = t[1] + ".transfer(msg.value);";
 		
 		return ret;
@@ -438,13 +437,10 @@ public class Choreography {
 						
 						descr += "if("+ addCompareString(outgoing) + "){" +
 									"enable(\"" + getNextId(nextElement, false) + "\"); \n ";
-						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
-							descr += parseSid(getNextId(nextElement, false)) + "(); \n";
-							
-						}else {
-							descr += "}\n";
-						}
-					//	descr += "}\n";
+							if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
+								descr += parseSid(getNextId(nextElement, false)) + "(); \n";
+							}
+						descr += "}\n";
 					}
 					else {
 						descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";
@@ -590,10 +586,8 @@ public class Choreography {
 									+ ") {\n";
 							descr += "	require(elements[position[\"" + getNextId(node, false) + "\"]].status==State.ENABLED);  \n"
 									+ "	done(\"" +  getNextId(node, false) + "\");\n"
-									+ createTransaction(request)
+									+ createTransaction(request) + "\n"
 									+ eventBlock;
-							
-								
 						}else {
 						
 		    			descr += "function " + parseSid(getNextId(node, false))+ addMemory(getPrameters(request))+" public " + pName

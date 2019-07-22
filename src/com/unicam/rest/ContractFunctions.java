@@ -456,7 +456,7 @@ public class ContractFunctions {
 		
 		System.out.println("NOME NUOVO DELLA FUNZIONE: " + functionName);
 		
-		BigInteger GAS_PRICE = BigInteger.valueOf(9_600_000_000L);
+		BigInteger GAS_PRICE = BigInteger.valueOf(7_600_000_000L);
 		BigInteger GAS_LIMIT = BigInteger.valueOf(6_700_000L);
 
 		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
@@ -493,8 +493,8 @@ public class ContractFunctions {
 		
 		 
 		 RawTransaction ta = RawTransaction.createTransaction(
-				// nonce, 
-				 BigInteger.valueOf(131),
+				 nonce, 
+				// BigInteger.valueOf(131),
 				 GAS_PRICE, 
 				 GAS_LIMIT,
 				 //"0xcc8bdb5dd918c9ec86e31b416f627ad0cc5ea22d",
