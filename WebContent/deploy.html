@@ -427,6 +427,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	}
 	
 	$scope.setRoleActive = function(){
+		$scope.payment = false;
 		var activeSid = {};
 		for(var i in $scope.msgs){
 			if($scope.msgs[i].status == 1){

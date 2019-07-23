@@ -110,6 +110,10 @@ b, strong {
   background: #ffc200;
   color: #ffffff;
 }
+.custom-alert-yellow {
+  background: #ffc200;
+  color: #ffffff;
+}
 .custom-btn-yellow:hover {
   background: #474559;
   color: #ffffff !important;

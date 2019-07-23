@@ -111,6 +111,7 @@
 				</div>
 			</div>
 			<div class="row">
+			
 				<div class="col-lg-12">
 					<div class="content with-diagram m-3" id="js-drop-zone" style="border:1px solid black">
 						<div id="canvas" data-ng-init="attach()" style="height:500px;">
@@ -118,7 +119,8 @@
 					</div>
 				</div>
 			</div>
-
+	<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
+	</section>
 			<!-- Modal download -->
 			<div id="modalDownload" class="modal fade" role="dialog">
 				<div class="modal-dialog">
@@ -143,88 +145,89 @@
 			</div>
 			<!-- end modal download -->
 
-			<!-- Modal message -->
- <div class="modal fade" id="msgParticipant">
-   <div class="modal-dialog">
-     <div class="modal-content">
-     CICCIO
-       <!-- Modal Header -->
- </div>
- </div>
- </div>
-<!-- end modal message -->
 
-			<!-- Modal message -->
+<!-- Modal message -->
  <div class="modal fade" id="msg">
-   <div class="modal-dialog">
+   <div class="modal-dialog modal-lg">
      <div class="modal-content">
-     <form>
-       <!-- Modal Header -->
-       <div class="modal-header">
-         <h4 class="modal-title">Set message</h4>
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-       </div>
        <!-- Modal body -->
+       <form>
+       
        <div class="modal-body">	
-       <div class="card" ng-hide="paymentCheck">    
-
-			 	<div class="card-body">
-				  	<h5 class="card-title">Select the name of the message</h5>
-			        <div class="form-group">
-					    <input type="text" class="form-control" id="msgName" ng-model="messageName">
-					    <small id="msgHelp" class="form-text text-muted">This is the name of the message.</small>
-				    </div>
-				  </div>
-		</div>	  
-				    <div class="custom-control custom-checkbox" ng-hide="paymentCheck">
-						    <input class="custom-control-input" id="participantCheck" ng-model="participantCheck" type="checkbox">
-						    <label class="custom-control-label" for="participantCheck">Check this box if you want to set participant or task</label>
-						  </div>
+       <div class="card">    
+			<div class="card-body">
+				<div class="form-group">
+					Message top
+					<div ng-hide="paymentCheckTop">
+						<div class="input-group">
+							<input type="text" id="msgtop" name="msgtop" class="form-control" placeholder="function name"/>
+								<div class="dropdown">
+									<select class="browser-default custom-select" name="typet">
+								      <option value="" disabled selected>Set parameter type</option>
+								      <option value="uint" class="dropdown-item" >uint</option>
+									  <option value="bool" class="dropdown-item" >boolean</option>
+									  <option value="string" class="dropdown-item" >string</option>
+									  <option value="address" class="dropdown-item" >address</option>
+								    </select>
+								</div>
+							<input type="text" class="form-control" name="vart" placeholder="var name">
 							
-						  <div class="custom-control custom-checkbox" ng-hide="participantCheck">
-						    <input class="custom-control-input" id="paymentCheck" ng-model="paymentCheck" type="checkbox">
-						    <label class="custom-control-label" for="paymentCheck">Check this box if the message is a payment function</label>
-						  </div>
-
-	        	
-       	
-
-<div class="card" ng-hide="participantCheck || paymentCheck">
-<div class="card-body">
-      <h5 class="card-title">Set parameters </h5>
-
-
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-  <div class="dropdown">
-    <select class="browser-default custom-select" style="width:200px;" ng-model="paramType" aria-labelledby="dropdownMenu1" ng-model-options="paramType">
-      <option value="" disabled selected>Set parameter type</option>
-      <option value="uint" class="dropdown-item" >uint</option>
-	  <option value="bool" class="dropdown-item" >boolean</option>
-	  <option value="string" class="dropdown-item" >string</option>
-    </select>
- </div>
-
-  <input type="text" class="form-control" id="msgParam" ng-model="messageParam">
-
-
-</div>
-<small id="msgHelp" class="form-text text-muted">This is the type and the name of the parameter.</small>				
-	</div>
-</div>
-</div>
+						</div>
+					 </div>
+					<div class="custom-control custom-checkbox">
+					    <input class="custom-control-input" id="paymentCheckTop" type="checkbox" name="payt" ng-model="paymentCheckTop" value="true" >
+					    <label class="custom-control-label" for="paymentCheckTop">Check this box if the message is a payment function</label>
+				  	</div>
+				</div>
+				<div class="form-group">
+					Participant top
+					<input type="text" id="parttop" name="parttop" class="form-control"/>
+				</div>
+				<div class="form-group">
+					Task name
+					<input type="text" id="task" name="task" class="form-control"/>
+				</div>
+				<div class="form-group">
+					Participant bottom
+					<input type="text" id="partbottom" name="partbottom" class="form-control"/>
+				</div>
+				<div class="form-group">
+					Message bottom
+					<div ng-hide="paymentCheckBottom">
+						<div class="input-group">
+							<input type="text" id="msgbottom" name="msgbottom" class="form-control" placeholder="function name"/>
+							<div class="dropdown">
+								<select class="browser-default custom-select" name="typeb">
+							      <option value="" disabled selected>Set parameter type</option>
+							      <option value="uint" class="dropdown-item" >uint</option>
+								  <option value="bool" class="dropdown-item" >boolean</option>
+								  <option value="string" class="dropdown-item" >string</option>
+								  <option value="address" class="dropdown-item" >address</option>
+							    </select>
+						    </div>
+							<input type="text" class="form-control" name="varb" placeholder="var name">
+						</div>
+					 </div>
+					<div class="custom-control custom-checkbox">
+					    <input class="custom-control-input" id="paymentCheckBottom" ng-model="paymentCheckBottom" type="checkbox" name="payb">
+					    <label class="custom-control-label" for="paymentCheckBottom">Check this box if the message is a payment function</label>
+				  	</div>
+				</div>
+			  </div>
+		</div>	  
        <!-- Modal footer -->
       <div class="modal-footer">
-		<button type="submit" class="btn btn-success btn-sm" ng-click="addMessage(messageName,messageParam,paramType)" data-dismiss="modal">Add message</button>	</div>
+      	<input type="submit" class="btn btn-success"  
+      		onclick="submitform(msgtop.value, typet.value, vart.value, parttop.value, task.value, partbottom.value, msgbottom.value, typeb.value, varb.value)"
+      		data-dismiss="modal" />
       </div>
-</form>
       </div>
+	</form>
      </div>
+   </div>
 </div>
-
 <!-- end modal message -->
-			<button type="button" class="modelNameTrigger" id="js-save" style="display:none"></button>
-	</section>
+
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -242,6 +245,30 @@
 </body>
 
 <script>
+var taskid;
+	function submitform(mt, typet, vart, pt, t, pb, mb, typeb, varb){
+		var paytop = document.getElementById('paymentCheckTop').checked;
+		var messagetop = "";
+		if(paytop == true){
+			messagetop = "payment(address payable to)";
+		} else {
+			if(mt != ""){
+				messagetop = mt+"("+typet+" "+vart+")";
+			}
+		}
+
+		var paybottom = document.getElementById('paymentCheckBottom').checked;
+		var messagebottom = "";
+		if(paybottom == true){
+			messagebottom = "payment(address payable to)";
+		} else {
+			if(mb != ""){
+				messagebottom = mb+"("+typeb+" "+varb+")";
+			}
+		}
+		testingfunction(taskid, messagetop, pt, t, pb, messagebottom);
+	}
+	
 	function saveModel() {
 
 		var specialCharacters = /^[a-zA-Z]*$/;
@@ -316,9 +343,8 @@
 	}
 	
 	var accountInterval = setInterval(function () {
-		
-		$('.djs-direct-editing-content').dblclick(function () {
-			//console.log(document.querySelector('.djs-direct-editing-parent').parentNode.getAttribute("element-data-id"))
+		$('.djs-group').dblclick(function(e){
+			taskid = e.currentTarget.childNodes[0].dataset.elementId;
 			$('#msg').modal('show');
 		});
 	}, 100);
