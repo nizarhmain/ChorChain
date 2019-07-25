@@ -339,7 +339,7 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-		  BigInteger GAS_PRICE = BigInteger.valueOf(9_500_000_000L);
+		  BigInteger GAS_PRICE = BigInteger.valueOf(9_600_000_000L);
 		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
