@@ -160,12 +160,15 @@
                       instance</button>
                     <button data-toggle="modal" data-target="#modalPreview" class="btn btn-success">See
                       model preview</button>
-                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
-                      Search for role
-                    </button>
-                    <div class="dropdown-menu" ng-cloak>
-                      <a class="dropdown-item" ng-repeat="role in model.roles track by $index" href="#">{{role}}</a>
-                    </div>
+                  
+                    <form>
+	                    <!-- <select class="custom-select" ng-model="searchRole">
+	                        <option ng-repeat="role in model.roles track by $index" value="{{role}}">{{role}}
+	                        </option>
+	                      </select>--->
+	                      <input type="text" class="form-control" ng-model="searchRole" id="searchRole" name="role">
+                     </form>
+                 
                   </div>
                 </div>
               </div>
@@ -180,7 +183,7 @@
             <div class="alert custom-alert-yellow mt-3" ng-if="model.instances.length == 0">
             There are no instances for this model
 			 </div>
-			 <div ng-repeat="instance in model.instances">
+			 <div ng-repeat="instance in model.instances | filter:searchRole">
                 <div class="card  my-2"
                   ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
                   <h5 class="card-header ">n° {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
@@ -220,7 +223,7 @@
                     </div>
                   </div>
                   <div ng-if="instance.done==true" class="card-body">
-                    <div class="alert alert-light" role="alert">
+                    <div class="alert alert-light" role="alert" ng-if="instance.freeRolesOptional.length > 0">
                       <h5 class="alert-heading">Instance already deployed</h5>
                       <p>Want to subscribe? Insert one optional role: <span
                           ng-repeat="r in instance.freeRolesOptional">{{r}} </span></p>
