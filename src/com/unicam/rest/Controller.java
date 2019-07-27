@@ -373,7 +373,7 @@ public class Controller {
 		//System.out.println("tm status after subscribe" + tm.getStatus());
 
 		System.out.println(loggedUser);
-		return "Subscribe went wrong";
+		return "Subscribed successfully";
 
 	}
 	

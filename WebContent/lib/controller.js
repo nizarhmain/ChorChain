@@ -46,9 +46,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					}
 				
 				$scope.addMessage = function(messageName,messageParam,paramType) {
-					
-					
-					
 					   if(messageParam == null & paramType == undefined)
 						   {  
 						   	$scope.str = messageName;

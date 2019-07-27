@@ -111,7 +111,9 @@ background:black;
 													<form class="mt-3" ng-if="msg.show==1 && actualContract.participants[currentRole] == user.id">
 														<div class="form-group">
 															<input type="text" class="form-control" placeholder="Function input" ng-model="param" >
-															<input ng-if="payment == true" type="text" class="form-control" placeholder="Amount to send" ng-model="amount" >
+															<div ng-show="payment == true" >
+															<input type="text" class="form-control" placeholder="Amount to send" ng-model="amount" >
+															</div>
 														</div>
 														<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id, param, amount)" id="submitbtn">
 													</form>
@@ -199,7 +201,8 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
 
 $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	$( "#submitbtn" ).prop("disabled",true);
-		console.log(amount);
+	var am = amount;
+
 		var params = parameter;
 		var name = $scope.actualContract.tasks[$index];
 		console.log(name);
