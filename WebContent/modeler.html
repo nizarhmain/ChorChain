@@ -246,11 +246,13 @@
 
 <script>
 var taskid;
+var payCount = 0;
 	function submitform(mt, typet, vart, pt, t, pb, mb, typeb, varb){
 		var paytop = document.getElementById('paymentCheckTop').checked;
 		var messagetop = "";
 		if(paytop == true){
-			messagetop = "payment(address payable to)";
+			messagetop = "payment"+payCount+"(address payable to)";
+			payCount += 1;
 		} else {
 			if(mt != ""){
 				messagetop = mt+"("+typet+" "+vart+")";
@@ -260,7 +262,8 @@ var taskid;
 		var paybottom = document.getElementById('paymentCheckBottom').checked;
 		var messagebottom = "";
 		if(paybottom == true){
-			messagebottom = "payment(address payable to)";
+			messagebottom = "payment"+payCount+"(address payable to)";
+			payCount += 1;
 		} else {
 			if(mb != ""){
 				messagebottom = mb+"("+typeb+" "+varb+")";

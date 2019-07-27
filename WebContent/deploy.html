@@ -117,6 +117,7 @@ background:black;
 														</div>
 														<input type="submit" class="btn btn-primary" value="Submit" ng-click="launch(msg.ID, $index, contract.id, param, amount)" id="submitbtn">
 													</form>
+													<div ng-if="msg.show==1 && actualContract.participants[currentRole] != user.id">Waiting for the incoming message</div>
 												</li>
 												<!--<li class="list-group-item my-2">
 												<b>Subscribe as a participant</b>
@@ -207,18 +208,18 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		var name = $scope.actualContract.tasks[$index];
 		console.log(name);
 		if(name.includes("payment")){
-			console.log(amount);
+	
 			var complete = task + '(address)';
 			var replaced = complete.replace(/-/g,'_');
 			//console.log($scope.myContract.methods);
 			
 			var parArray = [];
-			//parArray.push(parameter);
-			var cicciopizzinofizzo = web3.utils.fromWei(parameter, 'ether');
-			console.log(cicciopizzinofizzo);
+			parArray.push(parameter);
+			var newAmount = web3.utils.toWei(amount, 'ether');
+			console.log("AMOUNT NUOVO: " + newAmount);
 			$scope.myContract.methods[replaced].apply(this, parArray).send({
 				from : $scope.user.address,
-				value: amount,
+				value: newAmount,
 				gas: 200000,
 			}).then(function(error, receipt){
 				$scope.payment = false;
