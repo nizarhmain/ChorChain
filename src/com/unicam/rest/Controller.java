@@ -382,13 +382,14 @@ public class Controller {
 	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") String cookieId,
 			@PathParam("instanceID") String instanceId) throws Exception {
 		ContractObject contractReturn = new ContractObject();
-		tm.begin();
-		EntityManager em = emf.createEntityManager();
+		//tm.begin();
+
 		try {
+			EntityManager em = emf.createEntityManager();
 			loggedUser = em.find(User.class, cookieId);
 
 			Instance instanceForDeploy = em.find(Instance.class, instanceId);
-
+			em.close();
 			
 
 			String path = ContractFunctions.projectPath + File.separator + "resources" + File.separator;//modificare compiled con resources
@@ -400,14 +401,14 @@ public class Controller {
 			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
 			System.out.println("Starting to compile...");
-			// Thread.sleep(5000);
+			
 			contract.compile(instanceForDeploy.getName());
 			System.out.println("Compiled");
-			// Thread.sleep(10000);
+			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
 			String cAddress = contract.deploy(instanceForDeploy.getName());
 			if(cAddress.equals("ERROR")) {
-				tm.rollback();
+				//tm.rollback();
 				return null;
 			}
 
@@ -420,10 +421,13 @@ public class Controller {
 			// instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDone(true);
-			em.persist(contractReturn);
-			em.merge(instanceForDeploy);
+			
+			tm.begin();
+			EntityManager em2 = emf.createEntityManager();
+			em2.persist(contractReturn);
+			em2.merge(instanceForDeploy);
 			tm.commit();
-			em.close();
+			em2.close();
 			
 			
 			
