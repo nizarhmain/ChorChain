@@ -99,9 +99,7 @@ public class Choreography {
 
 	public void mergeMap(String id, String role) {
 		taskIdAndRole.put(id, role);
-		System.out.println("mergeMap---->  " + taskIdAndRole);
-		System.out.println(id);
-		System.out.println(role);
+		
 
 	}
 
@@ -316,8 +314,7 @@ public class Choreography {
 	private static String getPrameters(String messageName) {
 		// System.out.println("GETPARAM: " + messageName);
 		String[] parsedMsgName = messageName.split("\\(");
-		System.err.println(parsedMsgName[0]);
-		System.err.println(parsedMsgName[1]);
+		
 
 		return "(" + parsedMsgName[1];
 	}
@@ -549,6 +546,7 @@ public class Choreography {
 
 				// da cambiare se funziona, levare 'if-else
 				if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
+					System.out.println("Task è 1 way");
 					taskNull = false;
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 
@@ -571,34 +569,57 @@ public class Choreography {
 					// roleFortask.add(participantName);
 
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
-					
-					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
-					System.err.println("the request is: -->" + request + "<---");
+					taskNull = false;
+					System.out.println("Task è 2 way");
 
-					System.err.println(request.isEmpty());
-					System.err.println(request.length());
+					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
+					
 					if (!request.isEmpty()) {
-						taskNull = false;
-						System.err.println(request);
-						descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
-								+ " public " + pName + "){\n";
-						descr += "	require(elements[position[\"" + getNextId(node, false)
-								+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-								+ "	enable(\"" + getNextId(node, true) + "\");\n" + addToMemory(request) + eventBlock
-								+ "}\n";
-						addGlobal(request);
+						System.out.println("RICHIESTA NON VUOTA");
+						if (request.contains("payment")) {
+							System.out.println(request);
+							System.out.println("RICHIESTA CONTIENE PAGAMENTO");
+							taskNull = false;
+							descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+							+ " public payable " + pName + ") {\n";
+					descr += "	require(elements[position[\"" + getNextId(node, false)
+							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
+							+ createTransaction(request) + "\n" + eventBlock + "}\n";
+						} else {
+							taskNull = false;
+
+							descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+									+ " public " + pName + "){\n";
+							descr += "	require(elements[position[\"" + getNextId(node, false)
+									+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false)
+									+ "\");\n" + "	enable(\"" + getNextId(node, true) + "\");\n" + addToMemory(request)
+									+ eventBlock + "}\n";
+							addGlobal(request);
+						}
 					} else {
 						taskNull = true;
 					}
 
 					if (!response.isEmpty()) {
-						taskNull = false;
-						pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
-						descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
-								+ " public " + pName + "){\n" + "	require(elements[position[\""
-								+ getNextId(node, true) + "\"]].status==State.ENABLED);\n" + "	done(\""
-								+ getNextId(node, true) + "\");\n" + addToMemory(response) + eventBlock;
-						addGlobal(response);
+						System.out.println("RISPOSTA NON VUOTA");
+						if (request.contains("payment")) {
+							System.out.println(response);
+							System.out.println("RISPOSTA CONTIENE PAGAMENTO");
+							taskNull = false;
+							descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
+							+ " public payable " + pName + ") {\n";
+					descr += "	require(elements[position[\"" + getNextId(node, true)
+							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, true) + "\");\n"
+							+ createTransaction(request) + "\n" + eventBlock;
+						} else {
+							taskNull = false;
+							pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
+							descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
+									+ " public " + pName + "){\n" + "	require(elements[position[\""
+									+ getNextId(node, true) + "\"]].status==State.ENABLED);\n" + "	done(\""
+									+ getNextId(node, true) + "\");\n" + addToMemory(response) + eventBlock;
+							addGlobal(response);
+						}
 					} else {
 						taskNull = true;
 					}
@@ -607,7 +628,9 @@ public class Choreography {
 				choreographyFile += descr;
 				descr = "";
 				// checking the outgoing elements from the task
+				System.out.println("TASK NULL è : " + taskNull);
 				if (taskNull == false) {
+					
 					for (SequenceFlow out : task.getOutgoing()) {
 						ModelElementInstance nextElement = modelInstance
 								.getModelElementById(out.getAttributeValue("targetRef"));
@@ -703,8 +726,7 @@ public class Choreography {
 				mergeMap(requestMessage.getId(), participantName);
 			}
 			if (responseMessage.getAttributeValue("name") != null) {
-				System.out.println("CI SONO ENTRMABE:->" + requestMessage.getAttributeValue("name") + "<-e->"
-						+ responseMessage.getAttributeValue("name"));
+				
 				elementsID.add(responseMessage.getId());
 				response = responseMessage.getAttributeValue("name");
 				tasks.add(response);
@@ -745,14 +767,17 @@ public class Choreography {
 				&& !(nextNode instanceof EventBasedGateway) && !(nextNode instanceof StartEvent)) {
 			ChoreographyTask task = new ChoreographyTask((ModelElementInstanceImpl) nextNode, modelInstance);
 			if (task.getRequest() != null && msg == false) {
+				System.out.println("SONO DENTRO GETrEQUEST != NULL");
 				MessageFlow requestMessageFlowRef = task.getRequest();
 				MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
 				// System.out.println("MESSAGAE FLOW REF ID:" + requestMessageFlowRef.getId());
 				Message requestMessage = modelInstance
 						.getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
 				if (requestMessage.getName() != null) {
+					System.out.println("SONO DENTRO REQUEST.GETNAME != NULL");
 					id = requestMessage.getAttributeValue("id");
 				} else {
+					System.out.println("SONO DENTRO LA RISPOSTA PERCHè REQUEST.GETNAME è NULL");
 					MessageFlow responseMessageFlowRef = task.getResponse();
 					MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
 					Message responseMessage = modelInstance
@@ -768,7 +793,7 @@ public class Choreography {
 				// System.out.println(requestMessage.getName());
 
 			} else if (task.getRequest() == null && msg == false || task.getResponse() != null && msg == true) {
-
+				System.out.println("SONO DENTRO GETREQUEST == NULL");
 				MessageFlow responseMessageFlowRef = task.getResponse();
 				MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
 				Message responseMessage = modelInstance
@@ -786,6 +811,7 @@ public class Choreography {
 		} else {
 			id = nextNode.getAttributeValue("id");
 		}
+		System.out.println("GET ID RETURNS: " + id);
 		return id;
 	}
 
