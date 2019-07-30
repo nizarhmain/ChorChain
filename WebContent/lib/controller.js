@@ -21,14 +21,78 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.modelName = "";
 			$scope.myContract = {};
 			$scope.selectedRoles = [];
+			$scope.task = {};
 			$scope.visibleAtFields = [
 			        {}
 			    ];
 			$scope.parametersArray = [
 		        {}
 		    ];
-		
+			$scope.forms = [
+			        {}
+			    ];
 			
+			$scope.forms2 = [
+		        {}
+		    ];
+		
+			$scope.submitform = function(){
+				console.log($scope.task);
+				var paytop = document.getElementById('paymentCheckTop').checked;
+				var messagetop = "";
+				if(paytop == true){
+					messagetop = "payment"+payCount+"(address payable to)";
+					payCount += 1;
+				} else {
+					if($scope.task.fnametop != ""){
+						messagetop = $scope.task.fnametop+"(";
+						for(var i in $scope.forms){
+							messagetop += $scope.forms[i].type + " " + $scope.forms[i].vari;
+
+							if(i != ($scope.forms.length-1)){
+								messagetop += ", ";
+							}
+							else{
+								messagetop += ")";
+							}
+						}
+						//messagetop = mt+"("+typet+" "+vart+")";
+						console.log(messagetop);
+					}
+				}
+
+				var paybottom = document.getElementById('paymentCheckBottom').checked;
+				var messagebottom = "";
+				if(paybottom == true){
+					messagebottom = "payment"+payCount+"(address payable to)";
+					payCount += 1;
+				} else {
+					if($scope.task.fnamebot != ""){
+						messagebottom = $scope.task.fnamebot+"(";
+						for(var i in $scope.forms2){
+							messagebottom += $scope.forms2[i].type + " " + $scope.forms2[i].vari;
+
+							if(i != ($scope.forms2.length-1)){
+								messagebottom += ", ";
+							}
+							else{
+								messagebottom += ")";
+							}
+						}
+					}
+				}
+				testingfunction(taskid, messagetop, $scope.task.parttop, $scope.task.tname, $scope.task.partbot, messagebottom);
+			}
+			
+			
+			$scope.addParameter = function() {
+			       var newParam = {};
+			       $scope.forms.push(newParam);
+				}
+			$scope.addParameter2 = function() {
+			       var newParam2 = {};
+			       $scope.forms2.push(newParam2);
+				}
 			 //add parameters modal + message
 			$scope.addParam = function() {
 			       var newUser = {};

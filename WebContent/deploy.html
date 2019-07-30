@@ -216,7 +216,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			var parArray = [];
 			parArray.push(parameter);
 			var newAmount = web3.utils.toWei(amount, 'ether');
-			console.log("AMOUNT NUOVO: " + newAmount);
+			
 			$scope.myContract.methods[replaced].apply(this, parArray).send({
 				from : $scope.user.address,
 				value: newAmount,
@@ -233,9 +233,9 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			var n1 = name.split('\(');
 			//var n2 = n1.split(',');
 			var n3 = n1[1].split(' ');
-			console.log(n3);
+	
 			var complete = task + '(';
-			console.log(complete);
+
 			for(var i in n3){
 	
 				if(n3[i] == 'uint' || n3[i] == 'string' || n3[i] == 'bool'){
@@ -243,14 +243,14 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 						n3[i] = 'uint256';
 					}
 					complete += n3[i] + ' , ';
-					console.log(complete);
+				
 				}
 			}
 			var addPar = complete.split(' ');
-		 	console.log(addPar);
+		 	
 			addPar.pop();
 			addPar.pop();
-			console.log(addPar);
+			
 			complete = "";
 			for(i in addPar){
 				complete += addPar[i];

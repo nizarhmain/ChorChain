@@ -159,20 +159,23 @@
 				<div class="form-group">
 					Message top
 					<div ng-hide="paymentCheckTop">
-						<div class="input-group">
-							<input type="text" id="msgtop" name="msgtop" class="form-control" placeholder="function name"/>
-								<div class="dropdown">
-									<select class="browser-default custom-select" name="typet">
-								      <option value="" disabled selected>Set parameter type</option>
-								      <option value="uint" class="dropdown-item" >uint</option>
-									  <option value="bool" class="dropdown-item" >boolean</option>
-									  <option value="string" class="dropdown-item" >string</option>
-									  <option value="address" class="dropdown-item" >address</option>
-								    </select>
+						<div class="input-group" >
+							<input type="text" id="msgtop" name="msgtop" class="form-control" ng-model="task.fnametop" placeholder="function name"/>
+								<div class="input-group" ng-repeat="form in forms">
+									<div class="dropdown">
+										<select id="ciccio" class="browser-default custom-select" name="typet" ng-model="form.type">
+									      <option value="" disabled selected>Set parameter type</option>
+									      <option value="uint" class="dropdown-item" >uint</option>
+										  <option value="bool" class="dropdown-item" >boolean</option>
+										  <option value="string" class="dropdown-item" >string</option>
+										  <option value="address" class="dropdown-item" >address</option>
+									    </select>
+									</div>
+									<input type="text" class="form-control" name="vart" placeholder="var name" ng-model="form.vari">
 								</div>
-							<input type="text" class="form-control" name="vart" placeholder="var name">
-							
+								<button class="btn custom-btn-dark btn-sm" ng-click="addParameter()">Add param</button>
 						</div>
+						
 					 </div>
 					<div class="custom-control custom-checkbox">
 					    <input class="custom-control-input" id="paymentCheckTop" type="checkbox" name="payt" ng-model="paymentCheckTop" value="true" >
@@ -181,31 +184,34 @@
 				</div>
 				<div class="form-group">
 					Participant top
-					<input type="text" id="parttop" name="parttop" class="form-control"/>
+					<input type="text" id="parttop" name="parttop" ng-model="task.parttop" class="form-control"/>
 				</div>
 				<div class="form-group">
 					Task name
-					<input type="text" id="task" name="task" class="form-control"/>
+					<input type="text" id="task" name="task" ng-model="task.tname" class="form-control"/>
 				</div>
 				<div class="form-group">
 					Participant bottom
-					<input type="text" id="partbottom" name="partbottom" class="form-control"/>
+					<input type="text" id="partbottom" name="partbottom" ng-model="task.partbot" class="form-control"/>
 				</div>
 				<div class="form-group">
 					Message bottom
 					<div ng-hide="paymentCheckBottom">
 						<div class="input-group">
-							<input type="text" id="msgbottom" name="msgbottom" class="form-control" placeholder="function name"/>
-							<div class="dropdown">
-								<select class="browser-default custom-select" name="typeb">
-							      <option value="" disabled selected>Set parameter type</option>
-							      <option value="uint" class="dropdown-item" >uint</option>
-								  <option value="bool" class="dropdown-item" >boolean</option>
-								  <option value="string" class="dropdown-item" >string</option>
-								  <option value="address" class="dropdown-item" >address</option>
-							    </select>
-						    </div>
-							<input type="text" class="form-control" name="varb" placeholder="var name">
+							<input type="text" id="msgbottom" name="msgbottom" class="form-control" ng-model="task.fnamebot" placeholder="function name"/>
+							<div class="input-group 2" ng-repeat="form in forms2">
+								<div class="dropdown">
+									<select class="browser-default custom-select" name="typeb" ng-model="form.type">
+								      <option value="" disabled selected>Set parameter type</option>
+								      <option value="uint" class="dropdown-item" >uint</option>
+									  <option value="bool" class="dropdown-item" >boolean</option>
+									  <option value="string" class="dropdown-item" >string</option>
+									  <option value="address" class="dropdown-item" >address</option>
+								    </select>
+							    </div>
+								<input type="text" class="form-control" name="varb" placeholder="var name" ng-model="form.vari">
+							</div>
+							<button class="btn custom-btn-dark btn-sm" ng-click="addParameter2()">Add param</button>
 						</div>
 					 </div>
 					<div class="custom-control custom-checkbox">
@@ -218,7 +224,7 @@
        <!-- Modal footer -->
       <div class="modal-footer">
       	<input type="submit" class="btn btn-success"  
-      		onclick="submitform(msgtop.value, typet.value, vart.value, parttop.value, task.value, partbottom.value, msgbottom.value, typeb.value, varb.value)"
+      		ng-click="submitform()"
       		data-dismiss="modal" />
       </div>
       </div>
@@ -247,7 +253,10 @@
 <script>
 var taskid;
 var payCount = 0;
-	function submitform(mt, typet, vart, pt, t, pb, mb, typeb, varb){
+
+	
+
+	function submitformsar(mt, typet, vart, pt, t, pb, mb, typeb, varb){
 		var paytop = document.getElementById('paymentCheckTop').checked;
 		var messagetop = "";
 		if(paytop == true){
