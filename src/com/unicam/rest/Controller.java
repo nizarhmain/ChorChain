@@ -149,12 +149,18 @@ public class Controller {
 	public User retrieveUser(String id) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		User user = em.find(User.class, id);
-		tm.commit();
-		em.clear();
-		em.close();
-		
-		return user;
+		try {
+			User user = em.find(User.class, id);
+			tm.commit();
+			return user;
+		}catch(Exception e) {
+			tm.rollback();
+			return null;
+		}finally {
+			em.clear();
+			em.close();
+		}
+			
 	}
 
 	@POST
@@ -188,7 +194,7 @@ public class Controller {
 		try {
 			loggedUser = retrieveUser(cookieId);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			return null;
 		}
 		String filepath = ContractFunctions.projectPath + "/bpmn/" + fileDetail.getFileName();
 
@@ -483,7 +489,7 @@ public class Controller {
 	}
 
 	
-
+/*
 	@POST
 	@Path("/getUserInfo/{cookieId}")
 	public User getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
@@ -491,7 +497,7 @@ public class Controller {
 		//System.out.println(loggedUser);
 		return loggedUser;
 	}
-
+*/
 
 	
 	@POST

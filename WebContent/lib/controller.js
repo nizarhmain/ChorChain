@@ -67,7 +67,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					messagebottom = "payment"+payCount+"(address payable to)";
 					payCount += 1;
 				} else {
-					console.log($scope.task.fnamebot);
 					if($scope.task.fnamebot != "" && $scope.task.fnamebot != undefined){
 						messagebottom = $scope.task.fnamebot+"(";
 						for(var i in $scope.forms2){
