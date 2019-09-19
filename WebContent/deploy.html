@@ -164,7 +164,7 @@ $(document).on("click", ".nav-link", function() {
 });
 
 function setTabActive(contractid){
-	console.log(contractid);
+	//console.log(contractid);
 	tablinks = document.getElementsByClassName("list-group-item");
 	  for (i = 0; i < tablinks.length; i++) {
 	    tablinks[i].className = tablinks[i].className.replace("bg-grey", "");
@@ -206,7 +206,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 		var params = parameter;
 		var name = $scope.actualContract.tasks[$index];
-		console.log(name);
+		//console.log(name);
 		if(name.includes("payment")){
 	
 			var complete = task + '(address)';
@@ -256,11 +256,11 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				complete += addPar[i];
 			}
 			complete += ')';
-			console.log(complete);
+			//console.log(complete);
 			var replaced = complete.replace(/-/g,'_');
-			console.log(replaced);
+			//console.log(replaced);
 			for(var method in $scope.myContract.methods){
-				console.log(method);
+				//console.log(method);
 				if(method == replaced){
 					//await unlock();
 					var parArray = [];
@@ -271,11 +271,11 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 					else{
 						parArray.push(parameter);
 					}
-					console.log(parArray);
+					//console.log(parArray);
 					
 					try {
 						
-							console.log("no payment");
+							//console.log("no payment");
 							$scope.myContract.methods[method].apply(this, parArray).send({
 								from : $scope.user.address,
 								gas: 200000,
@@ -309,14 +309,14 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		
 		$http.post("rest/getCont/" + $cookies.get('UserId')).then(function(response){
 			$scope.contracts = response.data;
-			console.log($scope.contracts);
+			//console.log($scope.contracts);
 		});
 	}
 	
 	$scope.getSingleMem = function(){
-		for(var i in $scope.memory){
+		//for(var i in $scope.memory){
 		//console.log(i);
-		}
+		//}
 		
 		$scope.singleMemory = $scope.memory[$scope.index];
 		//console.log($scope.singleMemory);
@@ -327,7 +327,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		//id è l'id dell instance
 		//qui prendo i participants
 		$http.post("rest/getPart/" + id).then(function(response){
-			console.log(response);
+			//console.log(response);
 			$scope.actualContract.participants = response.data;
 		});
 		
@@ -354,7 +354,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			$scope.$apply(function(recepit){
 				$scope.msgs = receipt[0];
 				$scope.memory = receipt[1];
-				console.log($scope.msgs);
+				//console.log($scope.msgs);
 				$scope.setRoleActive();
 				sub(id);
 			});
@@ -375,20 +375,20 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	}
 	
 	async function unlock(){
-		console.log($scope.user);
+		//console.log($scope.user);
 		//TODO java method. optional: rimettere psw quando tento di sbloccare account $scope.user.address
 		/*$http.post("rest/getUserInfo/").then(function(response){
 			 web3.eth.personal.unlockAccount(
 					response.data.address, response.data.privateKey)
 					.then(console.log('Account unlocked'));
-		});*/console.log($scope.user.address);
+		});*///console.log($scope.user.address);
 		await web3.eth.personal.unlockAccount($scope.user.address
 					, $scope.user.privateKey, 10000)
 					.then(console.log('Account unlocked'));
 	}
 	
 		function sub1(refresh){
-			console.log("i'm the sub starting");
+			//console.log("i'm the sub starting");
 		for(var type in $scope.abi){
 			if($scope.abi[type].name=="stateChanged"){
 				$scope.inputs = $scope.abi[type].inputs;
@@ -399,9 +399,9 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		    address : $scope.actualContract.address,
 		    topics: ['0x8fd8f487a1d703cca2ded1250c8e7c8c1ae6f0b6cdc81883a282e0863a6d7283']//prendere da bytecode
 		}, function(error, result){
-			console.log("inside sub on callback");
+			//console.log("inside sub on callback");
 			 if (!error) {
-				 	console.log("inside sub on good");
+				 	//console.log("inside sub on good");
 			        const eventObj = web3.eth.abi.decodeLog(
 			            $scope.inputs,
 			            result.data,
@@ -425,9 +425,9 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		myContract.getPastEvents('allEvents', {
 		    fromBlock: 0,
 		    toBlock: 'latest'
-		}, (error, events) => { console.log(events); })
+		}, (error, events) => { })
 		.then((events) => {
-		    console.log(events) 
+		    //console.log(events) 
 		});
 	}
 	
@@ -447,7 +447,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				//console.log("dentro i" + $scope.activeSid);
 				//console.log("dentro set role active: "+ $scope.actualContract.taskIdAndRole[activeSid]);
 				$scope.currentRole = $scope.actualContract.taskIdAndRole[activeSid];
-				console.log($scope.actualContract.tasks[i]);
+				//console.log($scope.actualContract.tasks[i]);
 				
 			}
 			else if($scope.msgs[i].status == 0){
@@ -478,7 +478,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		$window.addEventListener("load", function() {
 		    if (typeof web3 !== "undefined") {
 		     web3 = new Web3(web3.currentProvider);
-		     console.log(web3);
+		     //console.log(web3);
 		      //web3.eth.getAccounts().then(console.log);
 		    } else {
 		      console.log("No web3? You should consider trying MetaMask!");
@@ -495,7 +495,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				$scope.inputs = $scope.abi[type].inputs;
 			}
 		}
-		console.log("dentro il sub");
+		//console.log("dentro il sub");
 		$scope.myContract.events.stateChanged((error, result) => {
 			const eventObj = web3.eth.abi.decodeLog(
 		            $scope.inputs,
@@ -531,7 +531,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	$scope.getXml = function(filename){
 		$http.post("rest/getXml/" + filename).then(function(response){
 			$scope.model = response.data;
-			console.log($scope.model);
+			//console.log($scope.model);
 		});
 	}
 	

@@ -87,7 +87,7 @@ public class Choreography {
 			choreographyFile += choreography.lastFunctions();
 			finalContract = new ContractObject(null, tasks, null, null, gatewayGuards, taskIdAndRole);
 			choreography.fileAll(bpmnFile.getName());
-			System.out.println("Contract creation done");
+			//System.out.println("Contract creation done");
 			// System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
 			return true;
 		} catch (Exception e) {
@@ -129,7 +129,7 @@ public class Choreography {
 	}
 
 	public void readFile(File bpFile) throws IOException {
-		System.out.println("You chose to open this file: " + bpFile.getName());
+		//System.out.println("You chose to open this file: " + bpFile.getName());
 		modelInstance = Bpmn.readModelFromFile(bpFile);
 		allNodes = modelInstance.getModelElementsByType(FlowNode.class);
 	}
@@ -255,7 +255,7 @@ public class Choreography {
 		bChor.write(choreographyFile);
 		bChor.flush();
 		bChor.close();
-		System.out.println("Solidity contract created.");
+		//System.out.println("Solidity contract created.");
 
 	}
 
@@ -546,11 +546,12 @@ public class Choreography {
 
 				// da cambiare se funziona, levare 'if-else
 				if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
-					System.out.println("Task è 1 way");
+					//System.out.println("Task è 1 way");
 					taskNull = false;
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 
 					if (request.contains("payment")) {
+						//System.out.println("nome richiesta: " + request);
 						descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
 								+ " public payable " + pName + ") {\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false)
@@ -570,15 +571,15 @@ public class Choreography {
 
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
 					taskNull = false;
-					System.out.println("Task è 2 way");
+					//System.out.println("Task è 2 way");
 
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 					
 					if (!request.isEmpty()) {
-						System.out.println("RICHIESTA NON VUOTA");
+						//System.out.println("RICHIESTA NON VUOTA");
 						if (request.contains("payment")) {
-							System.out.println(request);
-							System.out.println("RICHIESTA CONTIENE PAGAMENTO");
+							//System.out.println(request);
+							//System.out.println("RICHIESTA CONTIENE PAGAMENTO");
 							taskNull = false;
 							descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
 							+ " public payable " + pName + ") {\n";
@@ -601,16 +602,16 @@ public class Choreography {
 					}
 
 					if (!response.isEmpty()) {
-						System.out.println("RISPOSTA NON VUOTA");
-						if (request.contains("payment")) {
-							System.out.println(response);
-							System.out.println("RISPOSTA CONTIENE PAGAMENTO");
+						//System.out.println("RISPOSTA NON VUOTA");
+						if (response.contains("payment")) {
+							//System.out.println(response);
+							//System.out.println("RISPOSTA CONTIENE PAGAMENTO");
 							taskNull = false;
 							descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, true)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, true) + "\");\n"
-							+ createTransaction(request) + "\n" + eventBlock;
+							+ createTransaction(response) + "\n" + eventBlock;
 						} else {
 							taskNull = false;
 							pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
@@ -628,7 +629,7 @@ public class Choreography {
 				choreographyFile += descr;
 				descr = "";
 				// checking the outgoing elements from the task
-				System.out.println("TASK NULL è : " + taskNull);
+				//System.out.println("TASK NULL è : " + taskNull);
 				if (taskNull == false) {
 					
 					for (SequenceFlow out : task.getOutgoing()) {
@@ -767,17 +768,17 @@ public class Choreography {
 				&& !(nextNode instanceof EventBasedGateway) && !(nextNode instanceof StartEvent)) {
 			ChoreographyTask task = new ChoreographyTask((ModelElementInstanceImpl) nextNode, modelInstance);
 			if (task.getRequest() != null && msg == false) {
-				System.out.println("SONO DENTRO GETrEQUEST != NULL");
+				//System.out.println("SONO DENTRO GETrEQUEST != NULL");
 				MessageFlow requestMessageFlowRef = task.getRequest();
 				MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
-				// System.out.println("MESSAGAE FLOW REF ID:" + requestMessageFlowRef.getId());
+				// //System.out.println("MESSAGAE FLOW REF ID:" + requestMessageFlowRef.getId());
 				Message requestMessage = modelInstance
 						.getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
 				if (requestMessage.getName() != null) {
-					System.out.println("SONO DENTRO REQUEST.GETNAME != NULL");
+					//System.out.println("SONO DENTRO REQUEST.GETNAME != NULL");
 					id = requestMessage.getAttributeValue("id");
 				} else {
-					System.out.println("SONO DENTRO LA RISPOSTA PERCHè REQUEST.GETNAME è NULL");
+					//System.out.println("SONO DENTRO LA RISPOSTA PERCHè REQUEST.GETNAME è NULL");
 					MessageFlow responseMessageFlowRef = task.getResponse();
 					MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
 					Message responseMessage = modelInstance
@@ -793,7 +794,7 @@ public class Choreography {
 				// System.out.println(requestMessage.getName());
 
 			} else if (task.getRequest() == null && msg == false || task.getResponse() != null && msg == true) {
-				System.out.println("SONO DENTRO GETREQUEST == NULL");
+				//System.out.println("SONO DENTRO GETREQUEST == NULL");
 				MessageFlow responseMessageFlowRef = task.getResponse();
 				MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
 				Message responseMessage = modelInstance
@@ -811,7 +812,7 @@ public class Choreography {
 		} else {
 			id = nextNode.getAttributeValue("id");
 		}
-		System.out.println("GET ID RETURNS: " + id);
+		//System.out.println("GET ID RETURNS: " + id);
 		return id;
 	}
 

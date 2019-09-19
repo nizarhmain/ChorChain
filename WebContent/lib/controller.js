@@ -37,14 +37,14 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 		    ];
 		
 			$scope.submitform = function(){
-				console.log($scope.task);
+				//console.log($scope.task);
 				var paytop = document.getElementById('paymentCheckTop').checked;
 				var messagetop = "";
 				if(paytop == true){
 					messagetop = "payment"+payCount+"(address payable to)";
 					payCount += 1;
 				} else {
-					if($scope.task.fnametop != ""){
+					if($scope.task.fnametop != "" && $scope.task.fnametop !=undefined){
 						messagetop = $scope.task.fnametop+"(";
 						for(var i in $scope.forms){
 							messagetop += $scope.forms[i].type + " " + $scope.forms[i].vari;
@@ -57,7 +57,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 							}
 						}
 						//messagetop = mt+"("+typet+" "+vart+")";
-						console.log(messagetop);
+						//console.log(messagetop);
 					}
 				}
 
@@ -67,7 +67,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					messagebottom = "payment"+payCount+"(address payable to)";
 					payCount += 1;
 				} else {
-					if($scope.task.fnamebot != ""){
+					console.log($scope.task.fnamebot);
+					if($scope.task.fnamebot != "" && $scope.task.fnamebot != undefined){
 						messagebottom = $scope.task.fnamebot+"(";
 						for(var i in $scope.forms2){
 							messagebottom += $scope.forms2[i].type + " " + $scope.forms2[i].vari;
@@ -82,6 +83,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					}
 				}
 				testingfunction(taskid, messagetop, $scope.task.parttop, $scope.task.tname, $scope.task.partbot, messagebottom);
+				paytop = false;
+				paybottom = false;
+				document.getElementById('paymentCheckBottom').checked = false;
+				$scope.removeParameters();
+				$scope.task.fnamebot = "";
+				$scope.task.fnametop="";
 			}
 			
 			
@@ -93,6 +100,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			       var newParam2 = {};
 			       $scope.forms2.push(newParam2);
 				}
+			$scope.removeParameters = function(){
+				$scope.forms = [
+			        {}
+			    ];
+			
+			$scope.forms2 = [
+		        {}
+		    ];
+			}
 			 //add parameters modal + message
 			$scope.addParam = function() {
 			       var newUser = {};
@@ -176,13 +192,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.loginUser = function(){
 				service.loginUser($scope.user).then(function(response){
 					if(!response.data){
-						console.log("Negative response");
+						//console.log("Negative response");
 					}
 					else{
-						console.log("logged");
+						//console.log("logged");
 						$cookies.put('UserId', response.data);
 						$scope.cookieId = response.data;
-						console.log($scope.cookieId);
+						//console.log($scope.cookieId);
 						window.location.href = 'http://193.205.92.133:8080/ChorChain/homePage.html';
 					}
 					
@@ -193,17 +209,17 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			    $scope.cookieId = $cookies.get('UserId');
 				service.getModels().then(function(response){
 					$scope.models = response.data;
-					console.log("Models: ");
-					console.log($scope.models);
+					//console.log("Models: ");
+					//console.log($scope.models);
 				});
 			}
 			
 			$scope.subscribe = function(model, instanceId,roletosub){
-				console.log(instanceId);
+				//console.log(instanceId);
 				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
 					service.getInstances(model).then(function(response){
-						console.log(response);
+						//console.log(response);
 						$scope.instances = response.data;
 						$scope.present = true;
 						$scope.getInstances(model);
@@ -215,13 +231,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.getInstances = function(model){
 				service.getInstances(model).then(function(response){
 					$scope.model.instances = response.data;
-					console.log(response.data);
+					//console.log(response.data);
 					$scope.present = true;
 				});
 			}
 			
 			 $scope.createInstance = function(model, visibleAt){
-				 console.log(visibleAt);
+				 //console.log(visibleAt);
 				 var visibleAtArray = [];
 				 for(var i = 0; i< visibleAt.length; i++){
 					 if(visibleAt[i].address){
@@ -254,16 +270,16 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			$scope.deploy = function(model, instanceId){
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
-					console.log(response.data);
+					//console.log(response.data);
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
 					$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
 				});
 			}
 			
 			$scope.getContracts = function(){
-				console.log("COOKIE: " + $cookies.get('UserId'));
+				//console.log("COOKIE: " + $cookies.get('UserId'));
 				service.getContracts($cookies.get('UserId')).then(function(response){
-					console.log(response.data);
+					//console.log(response.data);
 					$scope.contracts = response.data;
 				})
 			}
@@ -271,7 +287,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.getXml = function(filename){
 				service.getXml(filename).then(function(response){
 					$scope.model = response.data;
-					console.log($scope.model);
+					//console.log($scope.model);
 				});
 			}
 			
@@ -279,12 +295,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					
 				
 				service.getContractFromInstance(instanceId).then(function(response){
-					console.log(response.data.abi);
-					console.log(response.data.address);
+					//console.log(response.data.abi);
+					//console.log(response.data.address);
 				//	$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
 					
 					service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
-						console.log("yeee");
+						//console.log("yeee");
 					});
 				/*	$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
 						from : $scope.user.address,
@@ -309,9 +325,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 							from : $scope.user.address,
 							gas: 200000,
 						}).then(function(receipt){
-							console.log(receipt);
+							//console.log(receipt);
 							service.newSubscribe(instanceId, roletosubscribe, $cookies.get('UserId')).then(function(receipt){
-								console.log("yeee");
+								//console.log("yeee");
 								
 							});
 						});
@@ -323,7 +339,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				$window.addEventListener("load", function() {
 				    if (typeof web3 !== "undefined") {
 				     web3 = new Web3(web3.currentProvider);
-				     console.log(web3);
+				     //console.log(web3);
 				      //web3.eth.getAccounts().then(console.log);
 				    } else {
 				      console.log("No web3? You should consider trying MetaMask!");
@@ -336,7 +352,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				var userId = $cookies.get('UserId');
 				service.setUser(userId).then(function(response){
 					$scope.user = response.data;
-					console.log($scope.user);
+					//console.log($scope.user);
 				});
 			}
 			

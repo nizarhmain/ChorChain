@@ -115,7 +115,7 @@ public class Controller {
 				return "Some error occurred";
 		}
 		finally {
-			System.out.println("finito reg");
+			//System.out.println("finito reg");
 			tm.commit();
 			em.clear();
 			em.close();
@@ -197,7 +197,7 @@ public class Controller {
 		try {
 			byte[] bytes = new byte[1024];
 			File to = new File(filepath);
-			System.out.println(to.getPath());
+			//System.out.println(to.getPath());
 			to.createNewFile();
 			outputStream = new FileOutputStream(to);
 			while ((read = uploadedInputStream.read(bytes)) != -1) {
@@ -313,10 +313,10 @@ public class Controller {
 			
 			EntityManager em = emf.createEntityManager();
 			Model model = em.find(Model.class, m.getID());
-			System.out.println(model.toString());
+			//System.out.println(model.toString());
 			allInstances = model.getInstances();
 			
-			System.out.println(allInstances);
+			//System.out.println(allInstances);
 			em.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -343,8 +343,8 @@ public class Controller {
 			
 			int max = instanceToSub.getMaxNumber();
 			int actual = instanceToSub.getActualNumber();
-			System.out.println(max);
-			System.out.println(actual);
+			//System.out.println(max);
+			//System.out.println(actual);
 			if (max >= actual + 1) {
 				instanceToSub.setActualNumber(actual + 1);
 				List<String> freeRoles = instanceToSub.getFreeRoles();
@@ -358,7 +358,7 @@ public class Controller {
 				loggedUser.setInstances(userInstances);
 				
 				tm.commit();
-				System.out.println(instanceToSub.toStringInstance());
+				//System.out.println(instanceToSub.toStringInstance());
 			}
 			
 		} catch (Exception e) {
@@ -400,18 +400,19 @@ public class Controller {
 
 			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
-			System.out.println("Starting to compile...");
+			//System.out.println("Starting to compile...");
 			
 			contract.compile(instanceForDeploy.getName());
-			System.out.println("Compiled");
+			//System.out.println("Compiled");
 			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
+			
 			String cAddress = contract.deploy(instanceForDeploy.getName());
 			if(cAddress.equals("ERROR")) {
 				//tm.rollback();
 				return null;
 			}
-
+			//String cAddress = "0x2347947ec40b38dee1cf9f716ba1e1dc407c0dff";
 			contractReturn.setAddress(cAddress);
 
 			contractReturn.setAbi(
@@ -487,7 +488,7 @@ public class Controller {
 	@Path("/getUserInfo/{cookieId}")
 	public User getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
 		loggedUser = retrieveUser(cookieId);
-		System.out.println(loggedUser);
+		//System.out.println(loggedUser);
 		return loggedUser;
 	}
 
@@ -564,7 +565,7 @@ public class Controller {
 			 @PathParam("modelId") String modelId) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		System.out.println(optionalRole + instanceId);
+		//System.out.println(optionalRole + instanceId);
 		try {
 			Instance actualInstance = em.find(Instance.class, instanceId);
 			List<String> mandatory = actualInstance.getFreeRoles();
@@ -641,12 +642,12 @@ public class Controller {
 		}
 		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
-		System.out.println(parameters.getParamsAndValue());
-		for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
-			System.out.println("chiave: " + azz.getKey());
-			System.out.println("valore: " + azz.getValue());
-		}
-		System.out.println("PRIVATA: " + parameters.getPrivateKey());
+		//System.out.println(parameters.getParamsAndValue());
+		//for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
+			//System.out.println("chiave: " + azz.getKey());
+			//System.out.println("valore: " + azz.getValue());
+	//	}
+		//System.out.println("PRIVATA: " + parameters.getPrivateKey());
 		con.signOffline(parameters, contract, account, functionName);
 		
 		
