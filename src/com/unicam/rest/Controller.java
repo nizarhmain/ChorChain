@@ -489,7 +489,7 @@ public class Controller {
 	}
 
 	
-/*
+
 	@POST
 	@Path("/getUserInfo/{cookieId}")
 	public User getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
@@ -497,7 +497,7 @@ public class Controller {
 		//System.out.println(loggedUser);
 		return loggedUser;
 	}
-*/
+
 
 	
 	@POST
