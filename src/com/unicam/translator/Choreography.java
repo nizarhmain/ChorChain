@@ -546,7 +546,7 @@ public class Choreography {
 
 				// da cambiare se funziona, levare 'if-else
 				if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
-					//System.out.println("Task è 1 way");
+					//System.out.println("Task ï¿½ 1 way");
 					taskNull = false;
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 
@@ -571,7 +571,7 @@ public class Choreography {
 
 				} else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
 					taskNull = false;
-					//System.out.println("Task è 2 way");
+					//System.out.println("Task ï¿½ 2 way");
 
 					String pName = getRole(participantName, optionalRoles, mandatoryRoles);
 					
@@ -629,7 +629,7 @@ public class Choreography {
 				choreographyFile += descr;
 				descr = "";
 				// checking the outgoing elements from the task
-				//System.out.println("TASK NULL è : " + taskNull);
+				//System.out.println("TASK NULL ï¿½ : " + taskNull);
 				if (taskNull == false) {
 					
 					for (SequenceFlow out : task.getOutgoing()) {
@@ -778,7 +778,7 @@ public class Choreography {
 					//System.out.println("SONO DENTRO REQUEST.GETNAME != NULL");
 					id = requestMessage.getAttributeValue("id");
 				} else {
-					//System.out.println("SONO DENTRO LA RISPOSTA PERCHè REQUEST.GETNAME è NULL");
+					//System.out.println("SONO DENTRO LA RISPOSTA PERCHï¿½ REQUEST.GETNAME ï¿½ NULL");
 					MessageFlow responseMessageFlowRef = task.getResponse();
 					MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
 					Message responseMessage = modelInstance
@@ -815,7 +815,7 @@ public class Choreography {
 		//System.out.println("GET ID RETURNS: " + id);
 		return id;
 	}
-
+//
 	private boolean checkTaskPresence(String sid) {
 		// System.out.println(sid);
 		boolean isPresent = false;
