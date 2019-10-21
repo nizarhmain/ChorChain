@@ -803,7 +803,7 @@ public class Choreography {
 					id = responseMessage.getAttributeValue("id");
 				}
 
-			}
+			}//
 			/*
 			 * else if(task.getResponse()!= null && msg == true) { MessageFlow
 			 * responseMessageFlowRef = task.getResponse(); id =
