@@ -47,7 +47,7 @@ background:black;
 </style>
 
 </head>
-<body ng-app="monitor" ng-controller="monitorCtrl" ng-cloak>
+<body id="controllerBody" ng-app="monitor" ng-controller="monitorCtrl" ng-cloak>
 <!-- MENU -->
   <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
     <div class="container">
@@ -84,7 +84,7 @@ background:black;
 	            	<h6>Model File List</h6>
 		              <ul class="list-group ">
 		                <li class="list-group-item" ng-repeat="contract in contracts track by $index">
-		                  <a ng-click="getTask(contract.id);" class="nav-link" id="{{contract.id}}" style="cursor:pointer">{{contract.name}}
+		                  <a ng-click="getTask(contract.id); getPast()" class="nav-link" id="{{contract.id}}" style="cursor:pointer">{{contract.name}}
 		                  <small class="text-muted">{{contract.id}}</small></a>
 		                </li>
 		              </ul>
@@ -95,6 +95,7 @@ background:black;
 			<div class="col-lg-9">
 			<div class="card">
 			<div class="card-body" ng-cloak>
+
 			 <h5>{{actualContract.name}}</h5>
 				<div class="col-12">
 						<div id="canvas" style="height: 400px;"></div>		
@@ -131,22 +132,62 @@ background:black;
 												</li>--->
 											</ul>
 										</div>
-										<div class="col-3">
+										<!---<div class="col-3">
 											<ul class="list-group">
 												<li class="list-group-item" ng-repeat="data in memory track by $index">{{valueNames[$index]}}: {{data}}</li>
 											</ul>
-										</div>
+										</div>--->
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
+		<div class="col-lg-12">
+			<div class="table-responsive">
+				<table class="table">
+					<thread>
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">Transaction Hash</th>
+							<th scope="col">Sent from</th>
+							<th scope="col">Gas limit</th>
+							<th scope="col">Gas price</th>
+							<th scope="col">Transaction time</th>
+						</tr>
+					</thread>
+					<tbody>
+					<tr ng-repeat="transaction in transactionHistory track by $index">
+						<th scope="row">{{$index + 1}} </th>
+						<td>{{transaction.hash}}</td>
+						<td>{{transaction.from}}</td>
+						<td>{{transaction.gas}}</td>
+						<td>{{transaction.gasPrice}}</td>
+						<td>{{transaction.time}}</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 				</div>
 			</div>
 			</div>
-			</div>
+
+	  </div>
+
+
 		</div>
 	</section>
+	<div class="modal fade" role="dialog" id="auditing">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+				<ul class="list-group">
+					<li class="list-group-item" ng-repeat="msg in msgToShow track by $index">{{msg.name}} : {{msg.value}}</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	</div>
 	<script src="lib/app.js"></script>
 	<script src="lib/controller.js"></script>
 	<script src="lib/service.js"></script>
@@ -160,9 +201,17 @@ background:black;
 
 <script>
 $(document).on("click", ".nav-link", function() {
-	$( "#js-preview" ).trigger( "click" );	
-
+	$( "#js-preview" ).trigger( "click" );
 });
+
+var accountInterval = setInterval(function () {
+	$('.djs-group').dblclick(function(e){
+		taskid = e.currentTarget.childNodes[0].dataset.elementId;
+		var task = e.currentTarget.childNodes[0].dataset.elementId;
+		$('#auditing').modal('show');
+		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(task);
+	});
+}, 100);
 
 function setTabActive(contractid){
 	//console.log(contractid);
@@ -172,6 +221,7 @@ function setTabActive(contractid){
 	  }
 	  document.getElementById(contractid).parentNode.classList.add('bg-grey');
 }
+
 var app = angular.module('monitor', ['ngCookies']);
 
 app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
@@ -194,12 +244,13 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
  	$scope.currentRole = "";
  	$scope.activeSid ="";
     $scope.payment = false;
-	//var abiContract = JSON.parse(sessionStorage.getItem('contract'));
-	
-	//$scope.params = $scope.contract.tasks[0].params[0].split(",");
+    $scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:""}];
+	$scope.msgToShow = [{name:"", value:""}];
 	
 
 	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
+
+
 
 $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	$( "#submitbtn" ).prop("disabled",true);
@@ -270,6 +321,12 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 						parArray = parameter.split('\,');
 					}
 					else{
+						if(parameter.includes("true")){
+							parameter = true;
+							//console.log(typeof parameter);
+						}else if(parameter.includes("false")){
+							parameter = false;
+						}
 						parArray.push(parameter);
 					}
 					//console.log(parArray);
@@ -324,6 +381,8 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	}
 	
 	$scope.getTask = function(id){
+		//$scope.transactionHistory = {};
+
 		setTabActive(id);
 		//id è l'id dell instance
 		//qui prendo i participants
@@ -343,14 +402,14 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				
 				$scope.tasks = $scope.actualContract.tasks;
 				$scope.valueNames = $scope.actualContract.varNames;
+
 				break;
 			}
 		}
 		$scope.abi = JSON.parse($scope.actualContract.abi);
 		$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
-		//console.log($scope.myContract);
-		
-		//console.log($scope.myContract);
+		//
+
 		$scope.myContract.methods.getCurrentState().call().then(function(receipt){
 			$scope.$apply(function(recepit){
 				$scope.msgs = receipt[0];
@@ -362,8 +421,6 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 			
 		});
-		
-		
 	}
 	
 	
@@ -421,16 +478,93 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		}
 		
 	
-	
+
 	$scope.getPast = function(){
-		myContract.getPastEvents('allEvents', {
+		$scope.transactionHistory = [{}];
+		$scope.myContract.getPastEvents('allEvents', {
 		    fromBlock: 0,
 		    toBlock: 'latest'
-		}, (error, events) => { })
-		.then((events) => {
-		    //console.log(events) 
-		});
+		}, (error, result) => { })
+		.then((result) => {
+			var events = result;
+
+			for(var ev in events){
+		    	var hash = events[ev].transactionHash;
+				web3.eth.getTransaction(hash).then(function(resultTransaction){
+					console.log(resultTransaction);
+					var transac = {hash:resultTransaction.hash,
+						from:resultTransaction.from, gas:resultTransaction.gas, gasPrice:resultTransaction.gasPrice,
+						time:"", blockNumber: resultTransaction.blockNumber};
+					web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
+						var time = result.timestamp;
+						var date = new Date(time * 1000);
+						transac.time = date;
+						$scope.$apply(function(receipt){
+							$scope.transactionHistory.push(transac);
+						});
+					});
+				});
+			}
+			$scope.transactionHistory.shift();
+	});
 	}
+
+	/*$scope.getTransactionTime = function(){
+		$scope.transactionHistory.pop();
+		for(var i in $scope.transactionHistory) {
+				web3.eth.getBlock($scope.transactionHistory[i].blockNumber).then(function (result) {
+					console.log(result);
+					var time = result.timestamp;
+					var date = new Date(time);
+						$scope.transactionHistory[i].time = date;
+				});
+		}
+	}*/
+
+	$scope.selectTransactionToShow = function(messageName){
+		$scope.msgToShow = [{}];
+		for(var i in $scope.msgs){
+			if( $scope.msgs[i].ID == messageName){
+
+				var functionParams = $scope.actualContract.tasks[i];
+
+				var parSplit = functionParams.split("(");
+				var noPar = parSplit[1].replace('\)', '');
+
+				if(noPar.includes(",")){
+					var virgSplit = noPar.split(',');
+					for(var i in virgSplit){
+						var onlyName = [];
+						var index = virgSplit[i];
+
+						onlyName = index.split(" ");
+						for(var e in onlyName){
+							if(onlyName[e] == ""){
+								onlyName.splice(e, 1);
+							}
+						}
+						$scope.$apply(function(scop){
+							var completeToShow = {"name": index, "value" : $scope.memory[onlyName[1]]};
+							$scope.msgToShow.push(completeToShow);
+						});
+
+					}
+				}else {
+					var onlyName = noPar.split(" ");
+					$scope.$apply(function(scop){
+						var completeToShow = {"name": noPar, "value" : $scope.memory[onlyName[1]]};
+						$scope.msgToShow.push(completeToShow);
+					});
+				}
+				$scope.$apply(function(scop){
+					$scope.msgToShow.shift();
+				});
+
+			}
+		}
+
+	}
+
 	
 	$scope.setRoleActive = function(){
 		$scope.payment = false;
@@ -458,20 +592,6 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				$scope.msgs[i].status = "Done";
 			}
 		}
-
-		/*for(var i in $scope.actualContract.tasksID){
-			
-			if($scope.actualContract.tasksID[i] == activeSid){
-				/*console.log("ecco il sid del contratto:" + $scope.actualContract.tasksID[i]);
-				console.log("con nome: " + $scope.actualContract.tasks[i]);
-				console.log("e role: " +  $scope.actualContract.taskRoles[i])
-				/*for(var r in $scope.user.userRoles[r]){
-					if(){
-						hyzh
-					}
-				}
-			}
-		}*/
 	
 	}
 	
@@ -506,22 +626,13 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		        $scope.actualContract =  null;
 				$scope.tasks = null;
 				$scope.valueNames = null;
-		        $scope.getTask(refresh);	
+		        $scope.getTask(refresh);
 		});
-		
+
 			}
-	
-	/*function subscribe(){
-		$scope.myContract.methods.subscribe_as_participant($scope.sendParams.par).send({
-			from : $scope.user.address,
-			gas: 200000,
-		}).then(function(receipt){
-			$http.post("rest/newSubscribe/" + $cookies.get('UserId')).then(function(response){
-				console.log(response);
-			});
-		});
-	}*/
-	
+
+
+
 	
 	
 	$scope.addMeta();
