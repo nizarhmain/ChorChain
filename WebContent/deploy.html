@@ -182,8 +182,13 @@ background:black;
 		<div class="modal-content">
 			<div class="modal-body">
 				<ul class="list-group">
-					<li class="list-group-item" ng-repeat="msg in msgToShow track by $index">{{msg.name}} : {{msg.value}}</li>
+					<li class="list-group-item" ng-repeat="msg in msgToShow track by $index">{{msg.name}} : {{msg.value}} <br></li>
 				</ul>
+                Transaction hash : {{transactionToShow.hash}} <br>
+                Sent from : {{transactionToShow.from}} <br>
+                Transaction gas limit : {{transactionToShow.gas}} <br>
+                Transaction gas price : {{transactionToShow.gasPrice}} <br>
+                Block mine time :{{transactionToShow.time}}
 			</div>
 		</div>
 	</div>
@@ -244,8 +249,9 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
  	$scope.currentRole = "";
  	$scope.activeSid ="";
     $scope.payment = false;
-    $scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:""}];
+    $scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
 	$scope.msgToShow = [{name:"", value:""}];
+	$scope.transactionToShow = {};
 	
 
 	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
@@ -481,27 +487,34 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 	$scope.getPast = function(){
 		$scope.transactionHistory = [{}];
-		$scope.myContract.getPastEvents('allEvents', {
+		$scope.myContract.getPastEvents('functionDone', {
 		    fromBlock: 0,
 		    toBlock: 'latest'
 		}, (error, result) => { })
 		.then((result) => {
 			var events = result;
-
+            var eventSid = [];
+            var callBackCount = 0;
 			for(var ev in events){
-		    	var hash = events[ev].transactionHash;
+              eventSid.push(events[ev].returnValues[0]);
+                var hash = events[ev].transactionHash;
 				web3.eth.getTransaction(hash).then(function(resultTransaction){
-					console.log(resultTransaction);
+					//console.log(resultTransaction);
 					var transac = {hash:resultTransaction.hash,
 						from:resultTransaction.from, gas:resultTransaction.gas, gasPrice:resultTransaction.gasPrice,
-						time:"", blockNumber: resultTransaction.blockNumber};
-					web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
+						time:"", blockNumber: resultTransaction.blockNumber, sid: ""};
+                    //console.log(transac);
+                    web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
 						var time = result.timestamp;
 						var date = new Date(time * 1000);
 						transac.time = date;
-						$scope.$apply(function(receipt){
+						transac.sid = eventSid[callBackCount];
+						callBackCount++;
+                        console.log(callBackCount);
+                        $scope.$apply(function(receipt){
 							$scope.transactionHistory.push(transac);
-						});
+                            console.log($scope.transactionHistory);
+                        });
 					});
 				});
 			}
@@ -521,22 +534,24 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		}
 	}*/
 
-	$scope.selectTransactionToShow = function(messageName){
+	//First part takes the clicked object id and shows the sent variable
+	$scope.selectTransactionToShow = function(messageId){
 		$scope.msgToShow = [{}];
+        $scope.transactionToShow = {};
 		for(var i in $scope.msgs){
-			if( $scope.msgs[i].ID == messageName){
-
+			if( $scope.msgs[i].ID == messageId){
 				var functionParams = $scope.actualContract.tasks[i];
 
-				var parSplit = functionParams.split("(");
+                if(!functionParams.includes("(")){
+                    break;
+                }
+                var parSplit = functionParams.split("(");
 				var noPar = parSplit[1].replace('\)', '');
-
 				if(noPar.includes(",")){
 					var virgSplit = noPar.split(',');
 					for(var i in virgSplit){
 						var onlyName = [];
 						var index = virgSplit[i];
-
 						onlyName = index.split(" ");
 						for(var e in onlyName){
 							if(onlyName[e] == ""){
@@ -544,16 +559,45 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 							}
 						}
 						$scope.$apply(function(scop){
-							var completeToShow = {"name": index, "value" : $scope.memory[onlyName[1]]};
+							var completeToShow = {"name": index, "value" : $scope.memory[onlyName[1]], "tData":{}};
 							$scope.msgToShow.push(completeToShow);
-						});
 
+                            /*for(var id in $scope.transactionHistory) {
+
+                                if ($scope.transactionHistory[id].sid == messageId) {
+                                    $scope.$apply(function(scop){
+                                        console.log("entro?");
+                                        //$scope.msgToShow.push(completeToShow);
+                                        completeToShow.tData =  $scope.transactionHistory[id];
+                                        $scope.msgToShow.push(completeToShow);
+                                      //  $scope.msgToShow.tData = $scope.transactionHistory[id];
+                                        console.log($scope.msgToShow);
+                                    });
+
+                                    break;
+                                }
+                            }*/
+						});
 					}
 				}else {
 					var onlyName = noPar.split(" ");
 					$scope.$apply(function(scop){
-						var completeToShow = {"name": noPar, "value" : $scope.memory[onlyName[1]]};
+						var completeToShow = {"name": noPar, "value" : $scope.memory[onlyName[1]], "tData":{}};
 						$scope.msgToShow.push(completeToShow);
+                       /* for(var id in $scope.transactionHistory) {
+
+                            if ($scope.transactionHistory[id].sid == messageId) {
+                                $scope.$apply(function(scop){
+                                    console.log("entro?");
+                                    completeToShow.tData = $scope.transactionHistory[id];
+                                  //  $scope.msgToShow.tData = $scope.transactionHistory[id];
+                                    $scope.msgToShow.push(completeToShow);
+                                    console.log($scope.msgToShow);
+                                });
+
+                                break;
+                            }
+                        }*/
 					});
 				}
 				$scope.$apply(function(scop){
@@ -562,8 +606,18 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 			}
 		}
+		for(var id in $scope.transactionHistory) {
 
+            if ($scope.transactionHistory[id].sid == messageId) {
+                $scope.$apply(function(scop){
+                    $scope.transactionToShow = $scope.transactionHistory[id];
+                });
+
+                break;
+            }
+        }
 	}
+
 
 	
 	$scope.setRoleActive = function(){
@@ -627,6 +681,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 				$scope.tasks = null;
 				$scope.valueNames = null;
 		        $scope.getTask(refresh);
+		        $scope.getPast();
 		});
 
 			}

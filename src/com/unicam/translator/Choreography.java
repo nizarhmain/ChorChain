@@ -146,7 +146,9 @@ public class Choreography {
 			List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
 				+ ContractFunctions.parseName(filename, "") + "{\n" + "		uint counter;\r\n"
-				+ "	event stateChanged(uint);  \n" + "	mapping (string=>uint) position;\n"
+				+ "	event stateChanged(uint);  \n"
+				+ "	event functionDone(string);\n"
+				+ "	mapping (string=>uint) position;\n"
 				+ "\n	enum State {DISABLED, ENABLED, DONE} State s; \n" + "	mapping(string => string) operator; \n"
 				+ "	struct Element{\n	string ID;\n	State status;\n}\n" + "	struct StateMemory{\n	";
 		for (String guard : gatewayGuards) {
@@ -223,7 +225,9 @@ public class Choreography {
 				+ "       	     if(roles[roleList[i]]==0x0000000000000000000000000000000000000000){\r\n"
 				+ "                result=false;\r\n" + "                break;\r\n" + "            }\r\n"
 				+ "       	}\r\n" + "       	if(result){\r\n" + "       	    enable(\"" + startEventAdd + "\");\r\n"
-				+ "				" + parseSid(startEventAdd) + "();\r\n" + "       	}\r\n" + "   }\r\n"
+				+ "				" + parseSid(startEventAdd) + "();\r\n" + "       	}\r\n"
+				+ "			emit functionDone(\"Contract creation\"); \n "
+				+ "  }\r\n"
 				+ "\nfunction subscribe_as_participant(string memory _role) public {\r\n"
 				+ "        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n"
 				+ "          optionalRoles[_role]=msg.sender;\r\n" + "        }\r\n" + "    }\n"
@@ -237,7 +241,9 @@ public class Choreography {
 				+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
 				+ "    function disable(string memory _taskID) internal { elements[position[_taskID]].status=State.DISABLED; }\r\n"
 				+ "\r\n"
-				+ "    function done(string memory _taskID) internal { elements[position[_taskID]].status=State.DONE; } \r\n"
+				+ "    function done(string memory _taskID) internal { elements[position[_taskID]].status=State.DONE; " +
+				"			emit functionDone(_taskID);\n" +
+				"		 }\r\n"
 				+ "   \r\n"
 				+ "    function getCurrentState()public view  returns(Element[] memory, StateMemory memory){\r\n"
 				+ "        // emit stateChanged(elements, currentMemory);\r\n"
