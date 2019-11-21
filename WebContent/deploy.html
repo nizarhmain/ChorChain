@@ -199,10 +199,12 @@ background:black;
                     <li class="list-group-item" ng-repeat="transaction in transactionHistory track by $index" ng-if="transaction.sid == actualSid">
 
                         {{$index + 1}}
-                        Transaction hash : {{transaction.hash}} <br>
+                        Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
                         Sent from : {{transaction.from}} <br>
                         Transaction gas limit : {{transaction.gas}} <br>
                         Transaction gas price : {{transaction.gasPrice}} <br>
+                        Gas used by the transaction : {{transaction.gasUsed}} <br>
+
                         Block mine time :{{transaction.time}}
                     </li>
                 </ul>
@@ -238,6 +240,7 @@ var accountInterval = setInterval(function () {
 		$('#auditing').modal('show');
 
 		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(task);
+        angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
 	});
 }, 100);
 
@@ -274,10 +277,13 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
  	$scope.currentRole = "";
  	$scope.activeSid ="";
     $scope.payment = false;
-    $scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
+    //$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
+    $scope.transactionHistory = [{}];
 	$scope.msgToShow = [{name:"", value:""}];
 	$scope.transactionToShow = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
 	$scope.actualSid = "";
+    $scope.totalGas = [];
+
 	
 
 	//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
@@ -522,7 +528,9 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	
 
 	$scope.getPast = function(){
-		$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
+		//$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
+        $scope.transactionHistory = [{}];
+        $scope.totalGas = [];
 		$scope.myContract.getPastEvents('functionDone', {
 		    fromBlock: 0,
 		    toBlock: 'latest'
@@ -534,29 +542,43 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			for(var ev in events){
               eventSid.push(events[ev].returnValues[0]);
                 var hash = events[ev].transactionHash;
-				web3.eth.getTransaction(hash).then(function(resultTransaction){
-					//console.log(resultTransaction);
-					var transac = {hash:resultTransaction.hash,
-						from:resultTransaction.from, gas:resultTransaction.gas, gasPrice:resultTransaction.gasPrice,
-						time:"", blockNumber: resultTransaction.blockNumber, sid: ""};
-                    //console.log(transac);
-                    web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
-						var time = result.timestamp;
-						var date = new Date(time * 1000);
-						transac.time = date;
-						transac.sid = eventSid[callBackCount];
-						callBackCount++;
-                        console.log(callBackCount);
-                        $scope.$apply(function(receipt){
-							$scope.transactionHistory.push(transac);
-                            console.log($scope.transactionHistory);
+                    web3.eth.getTransaction(hash).then(function(resultTransaction){
+                        var transac = {hash:resultTransaction.hash,
+                            from:resultTransaction.from, gas:resultTransaction.gas, gasUsed:0, gasPrice:resultTransaction.gasPrice,
+                            time:"", blockNumber: resultTransaction.blockNumber, sid: ""};
+                        console.log(transac);
+                        web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
+                            var time = result.timestamp;
+                            var date = new Date(time * 1000);
+                            transac.time = date;
+                            transac.sid = eventSid[callBackCount];
+                            callBackCount++;
+                            $scope.$apply(function(receipt){
+                                $scope.transactionHistory.push(transac);
+                               // console.log(transac);
+                                //console.log(eventSid);
+                            });
                         });
-					});
-				});
+                    });
+                    web3.eth.getTransactionReceipt(hash).then(function(receipt){
+                        $scope.totalGas.push(receipt.gasUsed);
+                        console.log($scope.totalGas);
+                        console.log($scope.transactionHistory);
+                    });
 			}
 			$scope.transactionHistory.shift();
 	});
 	}
+
+	$scope.gasCalculation = function(){
+        for(var t in $scope.transactionHistory){
+            console.log($scope.transactionHistory[t]);
+            console.log($scope.totalGas[t]);
+            $scope.transactionHistory[t].gasUsed = $scope.totalGas[t];
+            console.log($scope.transactionHistory);
+        }
+    }
+
 
 	/*$scope.getTransactionTime = function(){
 		$scope.transactionHistory.pop();
@@ -650,7 +672,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			}
 		}
 
-		for(var id in $scope.transactionHistory) {
+		/*for(var id in $scope.transactionHistory) {
             if ($scope.transactionHistory[id].sid == messageId) {
                 console.log("sono uguali: ");
                 console.log(messageId);
@@ -661,7 +683,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
                 });
             }
             $scope.transactionToShow.shift();
-        }
+        }*/
 
 	}
 
