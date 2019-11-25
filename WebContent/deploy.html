@@ -44,6 +44,42 @@ display: none;
 .set-active {
 background:black;
 }
+
+
+.slidecontainer {
+	width: 100%;
+}
+
+.slider {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 25px;
+	background: #d3d3d3;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+}
+
+.slider:hover {
+	opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 25px;
+	height: 25px;
+	background: blue;
+	cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+	width: 25px;
+	height: 25px;
+	background: blue;
+	cursor: pointer;
+}
 </style>
 
 </head>
@@ -102,6 +138,9 @@ background:black;
 				</div>
 									<div class="row">
 										<div class="col-9" ng-cloak>
+											<div class="slidecontainer">
+												<input class="slider" id="transactionSlider" type="range" class="no-border" value="0" min="0" max="{{transactionHistory.length - 1}}" />
+											</div>
 								 			<button type="button" style="display: none"  id="js-preview" data-value="{{actualContract.name}}"></button> 
 											<div>Contract deployed:  {{actualContract.address}}  visible at: <a href="https://rinkeby.etherscan.io/address/{{actualContract.address}}"> etherscan.io</a></div>
 											<ul class="list-group">
@@ -121,28 +160,43 @@ background:black;
 													</form>
 													<div ng-if="msg.show==1 && actualContract.participants[currentRole] != user.id">Waiting for the incoming message</div>
 												</li>
-												<!--<li class="list-group-item my-2">
-												<b>Subscribe as a participant</b>
-												<form class="mt-3">
-													<div class="form-group">
-														<input type="text" class="form-control" placeholder="Role to sub" ng-model="sendParams.par" >
-													</div>
-													<input type="submit" class="btn btn-primary" value="Submit" ng-click="subscribe()" id="submitbtn">
-												</form>
-												</li>--->
+
 											</ul>
 										</div>
-										<!---<div class="col-3">
+										<div class="col-3">
 											<ul class="list-group">
-												<li class="list-group-item" ng-repeat="data in memory track by $index">{{valueNames[$index]}}: {{data}}</li>
+												<li class="list-group-item" ng-repeat="msg in msgToShow track by $index" ng-if="msg">{{msg.name}} : {{msg.value}} <br></li>
 											</ul>
-										</div>--->
+											<ul class="list-group">
+												<li class="list-group-item" ng-repeat="transaction in transactionHistory track by $index" ng-if="transaction.sid == actualSid || $index == actualSid">
+													<div ng-repeat="creation in transactionHistory" ng-if="transaction.sid.includes('Start') && creation.sid.includes('Contract creation')">
+														Contract Creation (event {{$index + 1}})<br>
+														Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
+														Sent from : {{creation.from}} <br>
+														Transaction gas limit : {{creation.gas}} <br>
+														Transaction gas price : {{creation.gasPrice}} <br>
+														Gas used by the transaction : {{creation.gasUsed}} <br>
+														Block mine time :{{creation.time}}
+													</div>
+													<br>
+													Event {{$index + 1}} <br>
+													Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
+													Sent from : {{transaction.from}} <br>
+													Transaction gas limit : {{transaction.gas}} <br>
+													Transaction gas price : {{transaction.gasPrice}} <br>
+													Gas used by the transaction : {{transaction.gasUsed}} <br>
+													Block mine time :{{transaction.time}}
+												</li>
+											</ul>
+										</div>
+
 									</div>
 								</div>
+
 							</div>
 						</div>
 					</div>
-		<div class="col-lg-12">
+		<!---<div class="col-lg-12">
 			<div class="table-responsive">
 				<table class="table">
 					<thread>
@@ -167,7 +221,7 @@ background:black;
 					</tbody>
 				</table>
 			</div>
-		</div>
+		</div>-->
 				</div>
 			</div>
 			</div>
@@ -178,37 +232,33 @@ background:black;
 		</div>
 	</section>
 	<div class="modal fade" role="dialog" id="auditing">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-body">
 				<ul class="list-group">
 					<li class="list-group-item" ng-repeat="msg in msgToShow track by $index">{{msg.name}} : {{msg.value}} <br></li>
 				</ul>
-               <!--- <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="transaction in transactionToShow track by $index"">
-                            {{$index + 1}}
-                        Transaction hash : {{transaction.hash}} <br>
-                        Sent from : {{transaction.from}} <br>
-                        Transaction gas limit : {{transaction.gas}} <br>
-                        Transaction gas price : {{transaction.gasPrice}} <br>
-                        Block mine time :{{transaction.time}}
-                    </li>
-                </ul>--->
                 <ul class="list-group">
-
-                    <li class="list-group-item" ng-repeat="transaction in transactionHistory track by $index" ng-if="transaction.sid == actualSid">
-
-                        {{$index + 1}}
+                    <li class="list-group-item" ng-repeat="transaction in transactionHistory track by $index" ng-if="transaction.sid == actualSid || $index == actualSid">
+                      <div ng-repeat="creation in transactionHistory" ng-if="transaction.sid.includes('Start') && creation.sid.includes('Contract creation')">
+						  Contract Creation (event {{$index + 1}})<br>
+						  Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
+						  Sent from : {{creation.from}} <br>
+						  Transaction gas limit : {{creation.gas}} <br>
+						  Transaction gas price : {{creation.gasPrice}} <br>
+						  Gas used by the transaction : {{creation.gasUsed}} <br>
+						  Block mine time :{{creation.time}}
+					  </div>
+						<br>
+                        Event {{$index + 1}} <br>
                         Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
                         Sent from : {{transaction.from}} <br>
                         Transaction gas limit : {{transaction.gas}} <br>
                         Transaction gas price : {{transaction.gasPrice}} <br>
                         Gas used by the transaction : {{transaction.gasUsed}} <br>
-
                         Block mine time :{{transaction.time}}
                     </li>
                 </ul>
-
 			</div>
 		</div>
 	</div>
@@ -237,7 +287,7 @@ var accountInterval = setInterval(function () {
 
 		taskid = e.currentTarget.childNodes[0].dataset.elementId;
 		var task = e.currentTarget.childNodes[0].dataset.elementId;
-		$('#auditing').modal('show');
+		//$('#auditing').modal('show');
 
 		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(task);
         angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
@@ -253,6 +303,14 @@ function setTabActive(contractid){
 	    tablinks[i].className = tablinks[i].className.replace("bg-grey", "");
 	  }
 	  document.getElementById(contractid).parentNode.classList.add('bg-grey');
+}
+
+var slider = document.getElementById("transactionSlider");
+
+slider.oninput = function() {
+	//$('#auditing').modal('show');
+	angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(slider.value);
+	angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
 }
 
 var app = angular.module('monitor', ['ngCookies']);
@@ -279,7 +337,7 @@ app.controller("monitorCtrl",function($scope, $http, $cookies, $window) {
     $scope.payment = false;
     //$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
     $scope.transactionHistory = [{}];
-	$scope.msgToShow = [{name:"", value:""}];
+	$scope.msgToShow = [{}];
 	$scope.transactionToShow = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
 	$scope.actualSid = "";
     $scope.totalGas = [];
@@ -572,10 +630,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 	$scope.gasCalculation = function(){
         for(var t in $scope.transactionHistory){
-            console.log($scope.transactionHistory[t]);
-            console.log($scope.totalGas[t]);
             $scope.transactionHistory[t].gasUsed = $scope.totalGas[t];
-            console.log($scope.transactionHistory);
         }
     }
 
@@ -599,8 +654,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
             $scope.actualSid = messageId;
             console.log(messageId);
         });
-
-		$scope.msgToShow = [{}];
+		$scope.msgToShow = [{name:"", value:""}];
         $scope.transactionToShow = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
 
 		for(var i in $scope.msgs){
@@ -665,12 +719,14 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
                         }*/
 					});
 				}
-				$scope.$apply(function(scop){
-					$scope.msgToShow.shift();
-				});
+
 
 			}
 		}
+		$scope.$apply(function(scop){
+			$scope.msgToShow.shift();
+			console.log($scope.msgToShow);
+		});
 
 		/*for(var id in $scope.transactionHistory) {
             if ($scope.transactionHistory[id].sid == messageId) {
