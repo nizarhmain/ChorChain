@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Chorchain | Query</title>
+    <script src="lib/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- graphics -->
+    <link rel="stylesheet" href="css/unicons.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <!-- MAIN STYLE -->
+    <link rel="stylesheet" href="css/tooplate-style.css">
+
+    <link rel="stylesheet" href="css/querying.css">
+
+</head>
+
+<body ng-app="querying" ng-controller="queryingController" ng-cloak>
+
+    <!-- MENU -->
+    <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+        <div class="container">
+
+            <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChain logo">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a href="homePage.html" class="nav-link"><span data-hover="Home Page">Home Page</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="deploy.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="querying.html" class="nav-link active"><span data-hover="Querying">Querying</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container-fluid" style="margin-top: 16px;">
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <div class="card card-body">
+                    <h5>Select an entity</h5>
+                    <label ng-repeat="entity in entities">
+                        <input type="radio" name="radio-entity" ng-model="$parent.selectedEntity" ng-value="entity"
+                            ng-change='onEntitySelectionChanged()' /> {{entity}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-body">
+                    <h5>Filtering rules</h5>
+                    <div class="container">
+                        <div ng-repeat="rule in rules" class="row top-spacing">
+                            <select ng-model="rule.Property" class="form-control col" ng-disabled="rule.Mandatory">
+                                <option ng-repeat="prop in fields" value="{{prop}}">{{prop}}</option>
+                            </select>
+                            <select ng-model="rule.Operator" class="form-control col-md-2" ng-disabled="rule.Mandatory"
+                                style="margin-left: 8px;">
+                                <option ng-repeat="op in operators" value="{{op}}">{{op}}</option>
+                            </select>
+                            <input type="text" ng-model="rule.Value" class="form-control col"
+                                style="margin-left: 8px;" />
+                            <select ng-model="rule.LogicalOperator" class="form-control col-md-2" ng-disabled="rule.Mandatory"
+                                ng-if="rule.LogicalOperator" style="margin-left: 8px;">
+                                <option ng-repeat="op in logicalOperators" value="{{op}}">{{op}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-body">
+                    <h5>Projection fields</h5>
+                    <label ng-repeat="field in fields">
+                        <input type="checkbox" ng-model="$parent.selectedFields[field]"/> {{field}}
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary query-btn" ng-disabled="!canStartQueryExecution" ng-click="executeQuery()">
+        Execute query
+    </button>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+        </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+        </script>
+
+    <script src="lib/querying/graphql-client-service.js"></script>
+    <script src="lib/querying/querying-controller.js"></script>
+
+</body>
+
+</html>

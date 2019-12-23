@@ -106,7 +106,10 @@ background:black;
           </li>
           <li class="nav-item">
             <a href="deploy.html" class="nav-link active"><span data-hover="Personal Page">Personal Page</span></a>
-          </li>
+		  </li>
+		  <li class="nav-item">
+			<a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
+			</li>
         </ul>
       </div>
     </div>
@@ -490,7 +493,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 		//$scope.transactionHistory = {};
 
 		setTabActive(id);
-		//id è l'id dell instance
+		//id ï¿½ l'id dell instance
 		//qui prendo i participants
 		$http.post("rest/getPart/" + id).then(function(response){
 			//console.log(response);
