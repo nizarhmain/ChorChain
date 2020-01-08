@@ -61,7 +61,7 @@
 
         <div class="row">
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card card-body">
                     <h5>Select an entity</h5>
                     <label ng-repeat="entity in entities">
@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card card-body">
                     <h5>Filtering rules</h5>
                     <div class="container">
@@ -83,10 +83,10 @@
                                 style="margin-left: 8px;">
                                 <option ng-repeat="op in operators" value="{{op}}">{{op}}</option>
                             </select>
-                            <input type="text" ng-model="rule.Value" class="form-control col"
-                                style="margin-left: 8px;" />
-                            <select ng-model="rule.LogicalOperator" class="form-control col-md-2" ng-disabled="rule.Mandatory"
-                                ng-if="rule.LogicalOperator" style="margin-left: 8px;">
+                            <input type="text" ng-model="rule.Value" class="form-control col" style="margin-left: 8px;"
+                                ng-change="onRuleValueChanged()" />
+                            <select ng-model="rule.LogicalOperator" class="form-control col-md-2"
+                                ng-disabled="rule.Mandatory" ng-if="rule.LogicalOperator" style="margin-left: 8px;">
                                 <option ng-repeat="op in logicalOperators" value="{{op}}">{{op}}</option>
                             </select>
                         </div>
@@ -94,11 +94,12 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card card-body">
                     <h5>Projection fields</h5>
                     <label ng-repeat="field in fields">
-                        <input type="checkbox" ng-model="$parent.selectedFields[field]"/> {{field}}
+                        <input type="checkbox" ng-model="$parent.selectedFields[field]"
+                            ng-change="onFieldsSelectionChanged()" /> {{field}}
                     </label>
                 </div>
             </div>
@@ -107,10 +108,63 @@
 
     </div>
 
+
+
+    <div class="spinner-container" ng-if="isQuerying">
+        <div class="spinner"></div>
+        <div>Executing query...</div>
+    </div>
+
+    <div class="dialog-container" ng-if="queryExecutionErrorOccurred">
+        <div class="dialog">
+            <div class="dialog-title">Warning</div>
+            <div class="dialog-content">{{queryExecutionErrorMessage}}</div>
+            <div class="dialog-actions">
+                <button class="btn btn-secondary" ng-click="closeErrorDialog()">Cancel</button>
+                <button class="btn btn-primary" ng-click="closeErrorDialog()">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dialog-container" ng-if="queryResult || queryResults || stringQueryResults">
+        <div class="dialog expandable-dialog">
+            <div class="dialog-title">Query results</div>
+            <div class="dialog-content table-responsive">
+                <div ng-if="stringQueryResults && !queryResult && !queryResults">{{stringQueryResults}}</div>
+
+                <table ng-if="queryResults && !queryResult && !stringQueryResults"
+                    class="table table-bordered table-hover table-striped">
+                    <tr>
+                        <th ng-repeat="(key, _) in queryResults[0]">{{key}}</th>
+                    </tr>
+                    <tr ng-repeat="item in queryResults">
+                        <td ng-repeat="(_, value) in item">
+                            {{value}}
+                        </td>
+                    </tr>
+                </table>
+
+                <table ng-if="queryResult && !queryResults && !stringQueryResults"
+                    class="table table-bordered table-hover table-striped">
+                    <tr>
+                        <th ng-repeat="(key, _) in queryResult">{{key}}</th>
+                    </tr>
+                    <tr>
+                        <td ng-repeat="(_, value) in queryResult">
+                            {{value}}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="dialog-actions">
+                <button class="btn btn-primary" ng-click="closeResultsDialog()">Ok</button>
+            </div>
+        </div>
+    </div>
+
     <button class="btn btn-primary query-btn" ng-disabled="!canStartQueryExecution" ng-click="executeQuery()">
         Execute query
     </button>
-
 
 
 
