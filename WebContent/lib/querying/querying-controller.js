@@ -139,4 +139,16 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         }
     }
 
+
+    // TODO: only as examples, to remove later
+    async function testUtilityMethod1() {
+        const transaction = await graphqlClientService.getTransactionData('0x21d5d464cd474b7a58f5d5bf75ba11a287fb07455f8a4fd01e6eee44d95e4dbe')
+        console.log(transaction);
+    }
+
+    async function testUtilityMethod2() {
+        const transactions = await graphqlClientService.getContractTransactions('0x21d5d464cd474b7a58f5d5bf75ba11a287fb07455f8a4fd01e6eee44d95e4dbe')
+        console.log(transactions);
+    }
+
 }]);
