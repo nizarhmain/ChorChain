@@ -10,15 +10,11 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
     this.availableLogicalOperator = ['and', 'or'];
 
     this.getEntityFields = function (entity) {
-        if (entity == 'block' || entity == 'blocks') {
-            return ['number', 'hash', 'nonce', 'transactionsRoot', 'transactionCount',
-                'receiptsRoot', 'stateRoot', 'extraData', 'gasLimit', 'gasUsed', 'timestamp',
-                'logsBloom', 'mixHash', 'difficulty', 'totalDifficulty'];
-        }
+        if (entity == 'block' || entity == 'blocks')
+            return getBlockFields();
 
-        if (entity == 'transaction' || entity == 'transactions') {
+        if (entity == 'transaction' || entity == 'transactions')
             return getTransactionFields();
-        }
 
         return [];
     }
@@ -93,6 +89,12 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         return extractTransactionFromResponse(response);
     }
 
+    this.getBlockData = async function (number) {
+        const query = buildBlockDataQuery(number);
+        const response = await this.executeQuery(query);
+        return extractBlockFromResponse(response);
+    }
+
     this.getContractTransactions = async function (creationHash) {
         const query = buildLimitsQuery(creationHash);
         const limitsResponse = await this.executeQuery(query);
@@ -115,12 +117,23 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
             const transactions = extractTransactionsFromLimitedResponse(response);
             contractTransactions = contractTransactions.concat(transactions);
             limits.start += Math.min(1000, limits.end - limits.start);
-        } while (limits.start < limits.end) ;
+        } while (limits.start < limits.end);
 
 
         return new Promise((resolve, reject) => { resolve(contractTransactions) });
     }
 
+
+    function getTransactionFields() {
+        return ['hash', 'nonce', 'index', 'from', 'to', 'value', 'gas', 'gasPrice', 'gasUsed',
+            'cumulativeGasUsed', 'inputData', 'blockNumber', 'blockHash', 'status'];
+    }
+
+    function getBlockFields() {
+        return ['number', 'hash', 'nonce', 'transactionsRoot', 'transactionCount',
+            'receiptsRoot', 'stateRoot', 'extraData', 'gasLimit', 'gasUsed', 'timestamp',
+            'logsBloom', 'mixHash', 'difficulty', 'totalDifficulty'];
+    }
 
     function buildJsonQueryFilter(filteringRules) {
         if (!Array.isArray(filteringRules) || filteringRules.length <= 0)
@@ -130,7 +143,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         const mandatoryRules = filteringRules.filter(r => r.Mandatory);
         for (const rule of mandatoryRules) {
             const property = getFilteringRulePropertyName(rule);
-            if (property == 'number')
+            if (property == 'number' || property == 'from' || property == 'to')
                 filterExpression += `${property}: ${rule.Value},`;
             else
                 filterExpression += `${property}: "${rule.Value}",`;
@@ -161,6 +174,22 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         for (const field in projectionFields) {
             if (!projectionFields[field])
                 continue;
+            
+            if (field == 'blockNumber') {
+                filterExpression += `\n\t\tblock { number }`;
+                continue;
+            }
+            
+            if (field == 'blockHash') {
+                filterExpression += `\n\t\tblock { hash }`;
+                continue;
+            }
+
+            if (field == 'from' || field == 'to') {
+                filterExpression += `\n\t\t${field} { address }`;
+                continue;
+            }
+
             filterExpression += `\n\t\t${field}`;
         }
 
@@ -170,6 +199,12 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
     function buildTransactionDataQuery(hash) {
         const filterExpr = `transaction(hash:\"${hash}\")`;
         const projectionExpr = buildTransactionFilterExpression();
+        return `{\n\t${filterExpr} ${projectionExpr}\n}`;
+    }
+
+    function buildBlockDataQuery(number) {
+        const filterExpr = `block(number:${number})`;
+        const projectionExpr = buildBlockFilterExpression();
         return `{\n\t${filterExpr} ${projectionExpr}\n}`;
     }
 
@@ -199,9 +234,11 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         return projectionExpr;
     }
 
-    function getTransactionFields() {
-        return ['hash', 'nonce', 'index', 'from', 'to', 'value', 'gas', 'gasPrice', 'gasUsed',
-            'cumulativeGasUsed', 'inputData', 'blockNumber', 'blockHash', 'status'];
+    function buildBlockFilterExpression() {
+        const fields = getBlockFields();
+        let projectionExpr = '{';
+        for (const field of fields) { projectionExpr += `\n\t\t${field}`; }
+        return projectionExpr + '\n\t}';
     }
 
     function buildLimitsQuery(hash) {
@@ -239,25 +276,30 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
     }
 
     function extractTransactionsFromLimitedResponse(response) {
-        if (!response || !response['data'] || !response['data']['data'])
+        const blocks = extractObjectFromResponse(response, 'blocks');
+        if (!Array.isArray(blocks))
             return [];
 
-        const result = response['data']['data'];
-        if (!Array.isArray(result.blocks))
-            return [];
-
-        return result.blocks.map(b => b.transactions.map(t => t.hash)).flat();
+        return blocks.map(b => b.transactions.map(t => t.hash)).flat();
     }
 
     function extractTransactionFromResponse(response) {
+        return extractObjectFromResponse(response, 'transaction');
+    }
+
+    function extractBlockFromResponse(response) {
+        return extractObjectFromResponse(response, 'block');
+    }
+
+    function extractObjectFromResponse(response, objectName) {
         if (!response || !response['data'] || !response['data']['data'])
             return null;
 
         const result = response['data']['data'];
-        if (!result.transaction)
+        if (!result[objectName])
             return null;
 
-        return result.transaction;
+        return result[objectName];
     }
 
 });

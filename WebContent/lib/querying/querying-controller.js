@@ -42,7 +42,7 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         updateUI();
     }
 
-    $scope.onFieldsSelectionChanged = function () { updateUI(); }
+    $scope.onFieldsSelectionChanged = function () {  updateUI(); }
 
     $scope.onRuleValueChanged = function () { updateUI(); }
 
@@ -149,6 +149,11 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
     async function testUtilityMethod2() {
         const transactions = await graphqlClientService.getContractTransactions('0x21d5d464cd474b7a58f5d5bf75ba11a287fb07455f8a4fd01e6eee44d95e4dbe')
         console.log(transactions);
+    }
+
+    async function testUtilityMethod3() {
+        const block = await graphqlClientService.getBlockData(4131251);
+        console.log(block);
     }
 
 }]);
