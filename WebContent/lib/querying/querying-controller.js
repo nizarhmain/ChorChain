@@ -42,7 +42,7 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         updateUI();
     }
 
-    $scope.onFieldsSelectionChanged = function () {  updateUI(); }
+    $scope.onFieldsSelectionChanged = function () { updateUI(); }
 
     $scope.onRuleValueChanged = function () { updateUI(); }
 
@@ -63,6 +63,20 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         $scope.queryResults = null;
         $scope.queryResult = null;
         $scope.stringQueryResults = null;
+    }
+
+    $scope.exportResults = function () {
+        let data = '';
+        if (this.stringQueryResults)
+            data = this.stringQueryResults;
+        else if (this.queryResult)
+            data = this.queryResult
+        else if (this.queryResults)
+            data = this.queryResults
+
+        const fileContent = JSON.stringify(data);
+        const uri = encodeURI("data:application/json;charset=utf-8," + fileContent);
+        startFileDownload(uri);
     }
 
     function updateUI() {
@@ -137,6 +151,15 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         } else {
             $scope.queryResult = value;
         }
+    }
+
+    function startFileDownload(encodedUri) {
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", 'chorchain-query-results.json');
+        link.hidden = true;
+        document.body.appendChild(link); // Required for FF
+        link.click();
     }
 
 
