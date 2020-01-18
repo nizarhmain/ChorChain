@@ -100,7 +100,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         const limitsResponse = await this.executeQuery(query);
         const limits = extractLimitsFromResponse(limitsResponse);
         if (!limits || isNaN(limits.start) || isNaN(limits.end))
-            return;
+            return null;
 
         // If the range is small make all in one query
         if (limits.end - limits.start <= 25000) {
@@ -120,7 +120,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         } while (limits.start < limits.end);
 
 
-        return new Promise((resolve, reject) => { resolve(contractTransactions) });
+        return contractTransactions;
     }
 
 
@@ -308,6 +308,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 // 193.205.92.133:8547
 
 // Transactions
+// 0xde231da3b01de517f9356c89430d71e16613e7b5ee6b378e199401013d6cf458 ...very recent
 // 0x21d5d464cd474b7a58f5d5bf75ba11a287fb07455f8a4fd01e6eee44d95e4dbe ...recent
-// 0x2fd47a3cc677cd43a12838a4a603b59ab0c2de182f233f53e987fb4bfe9ead7f ...old
 // 0xcfb12ffb489b66deb000f06f399e76a186207802303c9901de1f2a9c0f133384 ...medium
+// 0x2fd47a3cc677cd43a12838a4a603b59ab0c2de182f233f53e987fb4bfe9ead7f ...old

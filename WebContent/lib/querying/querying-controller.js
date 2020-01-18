@@ -24,10 +24,14 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
 
     $scope.isQuerying = false;
 
+    $scope.contractsQueryTransaction = null;
+
 
     $scope.queryResult = null;
 
     $scope.queryResults = null;
+
+    $scope.contractTransactionsResult = null;
 
     $scope.stringQueryResults = null;
 
@@ -54,12 +58,20 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
             .catch(errorExecutingQuery);
     }
 
+    $scope.executeContractTransactionsQuery = function () {
+        $scope.isQuerying = true;
+        graphqlClientService.getContractTransactions($scope.contractsQueryTransaction)
+            .then(transactionsQueryExecuted)
+            .catch(errorExecutingQuery);
+    }
+
     $scope.closeErrorDialog = function () {
         $scope.queryExecutionErrorOccurred = false;
         $scope.queryExecutionErrorMessage = null;
     }
 
     $scope.closeResultsDialog = function () {
+        $scope.contractTransactionsResult = null;
         $scope.queryResults = null;
         $scope.queryResult = null;
         $scope.stringQueryResults = null;
@@ -73,6 +85,8 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
             data = this.queryResult
         else if (this.queryResults)
             data = this.queryResults
+        else if (this.contractTransactionsResult)
+            data = this.contractTransactionsResult;
 
         const fileContent = JSON.stringify(data);
         const uri = encodeURI("data:application/json;charset=utf-8," + fileContent);
@@ -124,6 +138,13 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         } else {
             showTableResults(value);
         }
+    }
+
+    function transactionsQueryExecuted(transactions) {
+        $scope.$apply(function() {
+            $scope.isQuerying = false;
+            $scope.contractTransactionsResult = transactions;
+        })
     }
 
     function errorExecutingQuery(_) {

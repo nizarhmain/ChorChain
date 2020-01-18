@@ -61,6 +61,21 @@
 
         <div class="row">
 
+            <div class="card card-body" style="margin: 15px;">
+                <h5>Download all the transactions of a contract</h5>
+                <div class="row" style="margin: 0;">
+                    <input type="text" class="form-control col-md-11" placeholder="Contract's creation transaction hash"
+                        ng-model="contractsQueryTransaction" />
+                    <button class="btn btn-primary col-md-1"
+                        ng-click="executeContractTransactionsQuery()">Query</button>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
             <div class="col-md-3">
                 <div class="card card-body">
                     <h5>Select an entity</h5>
@@ -109,12 +124,13 @@
     </div>
 
 
-
+    <!-- Spinner overlay -->
     <div class="spinner-container" ng-if="isQuerying">
         <div class="spinner"></div>
         <div>Executing query...</div>
     </div>
 
+    <!-- Error dialog -->
     <div class="dialog-container" ng-if="queryExecutionErrorOccurred">
         <div class="dialog">
             <div class="dialog-title">Warning</div>
@@ -126,7 +142,13 @@
         </div>
     </div>
 
-    <div class="dialog-container" ng-if="queryResult || queryResults || stringQueryResults">
+
+    <!-- <div style="position: absolute; width: 100px; height: 100px; background-color: red; x: 100;" ng-if="contractTransactionsResult != null">
+    </div> -->
+
+    <!-- Results dialog -->
+    <div class="dialog-container"
+        ng-if="contractTransactionsResult || queryResult || queryResults || stringQueryResults">
         <div class="dialog expandable-dialog">
             <div class="dialog-title">Query results</div>
             <div class="dialog-content table-responsive">
@@ -152,6 +174,18 @@
                     <tr>
                         <td ng-repeat="(_, value) in queryResult">
                             {{value}}
+                        </td>
+                    </tr>
+                </table>
+
+                <table ng-if="contractTransactionsResult && !queryResult && !queryResults && !stringQueryResults"
+                    class="table table-bordered table-hover table-striped">
+                    <tr>
+                        <th>Transaction hash</th>
+                    </tr>
+                    <tr ng-repeat="transaction in contractTransactionsResult">
+                        <td>
+                            {{transaction}}
                         </td>
                     </tr>
                 </table>
