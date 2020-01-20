@@ -1,0 +1,1001 @@
+package com.unicam.translator;
+
+import java.io.BufferedWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import org.camunda.bpm.model.bpmn.Bpmn;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.impl.instance.EndEventImpl;
+import org.camunda.bpm.model.bpmn.impl.instance.EventBasedGatewayImpl;
+import org.camunda.bpm.model.bpmn.impl.instance.ExclusiveGatewayImpl;
+import org.camunda.bpm.model.bpmn.impl.instance.ParallelGatewayImpl;
+import org.camunda.bpm.model.bpmn.instance.Message;
+import org.camunda.bpm.model.bpmn.instance.MessageFlow;
+import org.camunda.bpm.model.bpmn.instance.ParallelGateway;
+import org.camunda.bpm.model.bpmn.instance.Participant;
+import org.camunda.bpm.model.bpmn.instance.FlowNode;
+import org.camunda.bpm.model.bpmn.instance.Gateway;
+import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
+import org.camunda.bpm.model.bpmn.instance.StartEvent;
+import org.camunda.bpm.model.xml.impl.instance.ModelElementInstanceImpl;
+import org.camunda.bpm.model.xml.instance.DomElement;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+
+import com.unicam.model.ContractObject;
+import com.unicam.model.User;
+import com.unicam.rest.ContractFunctions;
+
+import org.camunda.bpm.model.bpmn.instance.EndEvent;
+import org.camunda.bpm.model.bpmn.instance.EventBasedGateway;
+import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
+
+public class Choreography2{
+    public static int startint;
+    private static BpmnModelInstance modelInstance;
+    public static ArrayList<String> participantsWithoutDuplicates;
+    public static ArrayList<String> partecipants;
+    public static ArrayList<String> functions;
+    public static Collection<FlowNode> allNodes;
+    private int startCounter;
+    private int xorCounter;
+    private int parallelCounter;
+    private int eventBasedCounter;
+    private int endEventCounter;
+    public static String choreographyFile;
+    public ArrayList<DomElement> participantsTask;
+    public ArrayList<DomElement> msgTask;
+    public ArrayList<SequenceFlow> taskIncoming, taskOutgoing;
+    public static ArrayList<String> nodeSet;
+    public static String request;
+    public static String response;
+    //public static ArrayList<String> gatewayGuards;
+    public static ArrayList<String> toBlock;
+    public static List<String> tasks;
+    public static ContractObject finalContract;
+    public static List<String> elementsID;
+    private static String startEventAdd;
+    private static List<String> roleFortask;
+    private static LinkedHashMap<String, String> taskIdAndRole;
+    private Map<String, String> participantsAndContracts;
+    private Map<String, String> participantsAndVariables;
+    // static String projectPath = System.getProperty("user.dir")+ "/workspace";
+
+    public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles,
+                         List<String> mandatoryRoles) throws Exception {
+        try {
+            Choreography choreography2 = new Choreography();
+            choreography2.readFile(bpmnFile);
+            choreography2.getParticipants();
+            choreography2.FlowNodeSearch(optionalRoles, mandatoryRoles);
+            choreographyFile = choreography2.initial(bpmnFile.getName(), participants, optionalRoles, mandatoryRoles)
+                    + choreographyFile;
+            choreographyFile += choreography2.lastFunctions();
+            //TODO
+            // finalContract = new ContractObject(null, null, tasks, null, null, gatewayGuards, taskIdAndRole);
+            choreography2.fileAll(bpmnFile.getName());
+            //System.out.println("Contract creation done");
+            // System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private void mergeMap(String id, String role) {
+        taskIdAndRole.put(id, role);
+
+
+    }
+
+    public Choreography2() {
+        roleFortask = new ArrayList<String>();
+        elementsID = new ArrayList<String>();
+        tasks = new ArrayList<String>();
+        //gatewayGuards = new ArrayList<String>();
+        partecipants = new ArrayList<String>();
+        startint = 0;
+        startCounter = 0;
+        xorCounter = 0;
+        eventBasedCounter = 0;
+        parallelCounter = 0;
+        endEventCounter = 0;
+        choreographyFile = "";
+        this.participantsTask = new ArrayList<DomElement>();
+        this.msgTask = new ArrayList<DomElement>();
+        this.taskIncoming = new ArrayList<SequenceFlow>();
+        this.taskOutgoing = new ArrayList<SequenceFlow>();
+        nodeSet = new ArrayList<>();
+        request = "";
+        response = "";
+        startEventAdd = "";
+        taskIdAndRole = new LinkedHashMap<String, String>();
+        participantsAndContracts = new HashMap<>();
+        participantsAndVariables = new HashMap<>();
+    }
+
+    public void readFile(File bpFile) throws IOException {
+        //System.out.println("You chose to open this file: " + bpFile.getName());
+        modelInstance = Bpmn.readModelFromFile(bpFile);
+        allNodes = modelInstance.getModelElementsByType(FlowNode.class);
+    }
+
+    public void getParticipants() {
+        Collection<Participant> parti = modelInstance.getModelElementsByType(Participant.class);
+        for (Participant p : parti) {
+            partecipants.add(p.getName());
+        }
+        participantsWithoutDuplicates = new ArrayList<>(new HashSet<>(partecipants));
+    }
+
+    /*private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
+                                  List<String> mandatoryRoles) {
+        String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
+                + ContractFunctions.parseName(filename, "") + "{\n" + "		uint counter;\r\n"
+                + "	event stateChanged(uint);  \n"
+                + "	event functionDone(string);\n"
+                + "	mapping (string=>uint) position;\n"
+                + "\n	enum State {DISABLED, ENABLED, DONE} State s; \n" + "	mapping(string => string) operator; \n"
+                + "	struct Element{\n	string ID;\n	State status;\n}\n" + "	struct StateMemory{\n	";
+        for (String guard : gatewayGuards) {
+            intro += guard + ";\n";
+        }
+        intro += "}\n" + "	Element[] elements;\n	  StateMemory currentMemory;\n" + "	string[] elementsID = [";
+        for (String elID : elementsID) {
+            // System.out.println();
+            if (elID.equals(elementsID.get(elementsID.size() - 1))) {
+                // System.out.println("sono uguale: " + elID + " e: " +
+                // elementsID.get(elementsID.size()-1));
+                intro += "\"" + elID + "\"];\n";
+            } else
+                intro += "\"" + elID + "\", ";
+
+        }
+
+        intro += "	string[] roleList = [ ";
+
+        for (int i = 0; i < mandatoryRoles.size(); i++) {
+            intro += "\"" + mandatoryRoles.get(i) + "\"";
+            if ((i + 1) < mandatoryRoles.size())
+                intro += ", ";
+        }
+        intro += " ]; \n";
+        intro += "	string[] optionalList = [";
+        if (optionalRoles.isEmpty()) {
+            intro += "\"\"";
+        } else {
+            for (int i = 0; i < optionalRoles.size(); i++) {
+                intro += "\"" + optionalRoles.get(i) + "\"";
+                if ((i + 1) < optionalRoles.size())
+                    intro += ", ";
+            }
+        }
+
+        intro += " ]; \n" + "	mapping(string=>address) roles; \r\n"
+                + "	mapping(string=>address) optionalRoles; \r\n";
+        String constr = "constructor() public{\r\n" + "    //struct instantiation\r\n"
+                + "    for (uint i = 0; i < elementsID.length; i ++) {\r\n"
+                + "        elements.push(Element(elementsID[i], State.DISABLED));\r\n"
+                + "        position[elementsID[i]]=i;\r\n" + "    }\r\n" + "         \r\n"
+                + "         //roles definition\r\n" + "         //mettere address utenti in base ai ruoli\r\n";
+        int i = 0;
+        for (Map.Entry<String, User> sub : participants.entrySet()) {
+
+            constr += "	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getAddress() + ";\n";
+            i++;
+        }
+        for (String optional : optionalRoles) {
+            constr += "	optionalRoles[\"" + optional + "\"] = 0x0000000000000000000000000000000000000000;";
+        }
+
+        constr += "         \r\n" + "         //enable the start process\r\n" + "         init();\r\n" + "    }\r\n"
+                + "    ";
+
+        String other = "modifier checkMand(string storage role) \n"
+                + "{ \n\trequire(msg.sender == roles[role]); \n\t_; }" + "modifier checkOpt(string storage role) \n"
+                + "{ \n\trequire(msg.sender == optionalRoles[role]); \n\t_; }" + "modifier Owner(string memory task) \n"
+                + "{ \n\trequire(elements[position[task]].status==State.ENABLED);\n\t_;\n}\n"
+                + "function init() internal{\r\n" + "       bool result=true;\r\n"
+                + "       	for(uint i=0; i<roleList.length;i++){\r\n"
+                + "       	     if(roles[roleList[i]]==0x0000000000000000000000000000000000000000){\r\n"
+                + "                result=false;\r\n" + "                break;\r\n" + "            }\r\n"
+                + "       	}\r\n" + "       	if(result){\r\n" + "       	    enable(\"" + startEventAdd + "\");\r\n"
+                + "				" + parseSid(startEventAdd) + "();\r\n" + "       	}\r\n"
+                + "			emit functionDone(\"Contract creation\"); \n "
+                + "  }\r\n"
+                + "\nfunction subscribe_as_participant(string memory _role) public {\r\n"
+                + "        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n"
+                + "          optionalRoles[_role]=msg.sender;\r\n" + "        }\r\n" + "    }\n"
+                + "function() external payable{\r\n" + "    \r\n" + "}";
+
+        return intro + constr + other;
+    }*/
+
+    /*private String lastFunctions() {
+        String descr = " function enable(string memory _taskID) internal { elements[position[_taskID]].status=State.ENABLED; "
+                + "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
+                + "    function disable(string memory _taskID) internal { elements[position[_taskID]].status=State.DISABLED; }\r\n"
+                + "\r\n"
+                + "    function done(string memory _taskID) internal { elements[position[_taskID]].status=State.DONE; " +
+                "			emit functionDone(_taskID);\n" +
+                "		 }\r\n"
+                + "   \r\n"
+                + "    function getCurrentState()public view  returns(Element[] memory, StateMemory memory){\r\n"
+                + "        // emit stateChanged(elements, currentMemory);\r\n"
+                + "        return (elements, currentMemory);\r\n" + "    }\r\n" + "    \r\n"
+                + "    function compareStrings (string memory a, string memory b) internal pure returns (bool) { \r\n"
+                + "        return keccak256(abi.encode(a)) == keccak256(abi.encode(b)); \r\n" + "    }\n}";
+
+        return descr;
+    }*/
+
+
+    //Method for the creation of the contract associated to the role of the user
+    //For each participant in the model, a new string containing his contract is created
+    //the created contract (as a string) is putted in the hashmap and associated to the participant
+    //TODO Create the function for the adding of the initial contract declaration and for adding the memory
+    private void createParticipantContract(){
+        for(String participant : participantsWithoutDuplicates){
+            /*String participantContract = "contract " + participant + " is genericParticipant{\n" +
+                    "string id;\n";*/
+            String participantContract = "";
+            participantsAndContracts.put(participant, participantContract);
+        }
+    }
+
+    /*Method for the creation of the first part of the contact, compreso setAddressesAndId function
+      it cycles the participants of the model and create the contract named as the actual participant.
+      When it has to create the struct containing the variables of the user it cycles the hashmap, taking all
+      the variables having the same participant(of the current contract) as key.
+      Finally it creates the function for setting and retrieving the instance of the other participant's contract,
+      here the list containing all the other participants is cycled and each user (different from the current) is
+      added in the function.
+    */
+    private void addContractStarting(){
+        for (Map.Entry<String, String> partAndCont : participantsAndContracts.entrySet()) {
+            String actualParticipant = partAndCont.getKey();
+            String initialContract = "contract " + actualParticipant + " is genericParticipant{\n" +
+                    "string id;\n" +
+                    "struct StateMemory{\n";
+            for(Map.Entry<String, String> partAndValue : participantsAndVariables.entrySet()){
+                if(partAndValue.getKey().equals(actualParticipant)){
+                    initialContract += "    " + partAndValue.getValue() + ";\n";
+                }
+            }
+            initialContract += "    }\n" +
+                    "   " + actualParticipant + " " + actualParticipant.toLowerCase() + ";\n" +
+                    "   StateMemory currentMemory;\n\n" +
+                    "   function setAddressesAndId(string memory _id, address choAdd) public{\n" +
+                    "       id = _id;\n" +
+                    "       c = ChoreographyManager(choAdd);\n";
+            for(String otherPart : participantsWithoutDuplicates){
+                if(!actualParticipant.equals(otherPart)){
+                    initialContract += "    " + otherPart.toLowerCase() + " = " + otherPart + " c.getInstanceAddress(id,\"" + otherPart + "\"));\n";
+                }
+            }
+            initialContract += "    }\n";
+            String finalContract = partAndCont.getValue();
+            finalContract = initialContract + finalContract;
+        }
+    }
+
+    //TODO
+    private static void fileAll(String fileName) throws IOException, Exception {
+        FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath + File.separator + "resources"
+                + File.separator + ContractFunctions.parseName(fileName, ".sol")));
+        BufferedWriter bChor = new BufferedWriter(wChor);
+        bChor.write(choreographyFile);
+        bChor.flush();
+        bChor.close();
+        //System.out.println("Solidity contract created.");
+
+    }
+
+    //TODO
+    private static String typeParse(String toParse) {
+        String n = toParse.replace("string", "").replace("uint", "").replace("bool", "");
+        // String[] tokens = n.split(" ");
+        return n;
+    }
+
+    private static String addMemory(String toParse) {
+        // System.out.println(toParse);
+        String n = toParse.replace("string ", "string memory ");
+        // String[] tokens = n.split(" ");
+        return n;
+    }
+
+    //TODO
+    private static String addToMemory(String msg) {
+
+        String add = "";
+        String n = msg.replace("string", "").replace("uint", "").replace("bool", "").replace(" ", "");
+        String r = n.replace(")", "");
+        String[] t = r.split("\\(");
+        String[] m = t[1].split(",");
+
+        for (String value : m) {
+
+            add += "currentMemory." + value + "=" + value + ";\n";
+        }
+
+        return add;
+    }
+
+    //TODO
+    private static String createTransaction(String msg) {
+        String ret = "";
+        String n = msg.replace("address", "").replace("payable", "");
+        String r = n.replace(")", "");
+        String[] t = r.split("\\(");
+        ret = t[1] + ".transfer(msg.value);";
+
+        return ret;
+    }
+
+    //TODO
+    private String addGlobal(String name, String participant) {
+        String r = name.replace(")", "");
+        String[] t = r.split("\\(");
+        String[] m = t[1].split(",");
+        for (String param : m) {
+            participantsAndVariables.put(participant, param);
+        }
+        return "";
+    }
+
+    // Function for getting the par7
+    // ameters of a function,
+    // without the name of the choreography message
+    private static String getPrameters(String messageName) {
+        // System.out.println("GETPARAM: " + messageName);
+        String[] parsedMsgName = messageName.split("\\(");
+
+
+        return "(" + parsedMsgName[1];
+    }
+
+    // If the guard is a string (ex. var=="value") result is compare
+    // string(currentMemory.var, "value")
+    // if is var==var result is currentMemory.var, var
+    private static String addCompareString(ModelElementInstance outgoing) {
+        String guards = outgoing.getAttributeValue("name");
+        String[] guardValue = guards.split("==");
+        String res = "";
+
+        if (guards.contains("\"")) {
+
+            res = "compareStrings(currentMemory." + guardValue[0] + ", " + guardValue[1] + ")==true";
+        } else {
+            res = "currentMemory." + outgoing.getAttributeValue("name");
+        }
+
+        // System.out.println("RESULTT: " + res);
+        return res;
+    }
+
+    private static String parseSid(String sid) {
+        return sid.replace("-", "_");
+    }
+    //method for adding the element sid with the role that has to active it
+
+
+    public void FlowNodeSearch(List<String> optionalRoles, List<String> mandatoryRoles) {
+        // check for all SequenceFlow elements in the BPMN model
+        for (SequenceFlow flow : modelInstance.getModelElementsByType(SequenceFlow.class)) {
+            // node to be processed, created by the target reference of the sequence flow
+            ModelElementInstance node = modelInstance.getModelElementById(flow.getAttributeValue("targetRef"));
+
+            // node containing the source of the flow, useful to get the start element
+            ModelElementInstance start = modelInstance.getModelElementById(flow.getAttributeValue("sourceRef"));
+            if (start instanceof StartEvent) {
+                // checking and processing all the outgoing nodes
+                for (SequenceFlow outgoing : ((StartEvent) start).getOutgoing()) {
+                    ModelElementInstance nextNode = modelInstance
+                            .getModelElementById(outgoing.getAttributeValue("targetRef"));
+
+                    start.setAttributeValue("name", "startEvent_" + startCounter);
+                    startCounter++;
+                    nodeSet.add(start.getAttributeValue("id"));
+                    mergeMap(start.getAttributeValue("id"), "internal");
+
+                    elementsID.add(start.getAttributeValue("id"));
+                    roleFortask.add("internal");
+                    tasks.add(start.getAttributeValue("name"));
+
+                    startEventAdd = start.getAttributeValue("id");
+                    //
+
+                    // nextNode = checkType(nextNode);
+
+                    // System.out.println("NEXT NODE ID AFTER CHECK TYPE: " +
+                    // nextNode.getAttributeValue("id"));
+                    // id = getNextId(nextNode);
+                    String descr = "function " + parseSid(getNextId(start, false)) + "() private {\n"
+                            + "	require(elements[position[\"" + start.getAttributeValue("id")
+                            + "\"]].status==State.ENABLED);\n" + "	done(\"" + start.getAttributeValue("id") + "\");\n"
+                            + "\tenable(\"" + getNextId(nextNode, false) + "\");  \n\t";
+                    if (nextNode instanceof Gateway)
+                        descr += parseSid(nextNode.getAttributeValue("id")) + " (); \n}\n\n";
+                    else
+                        descr += "\n}\n\n";
+                    choreographyFile += descr;
+                }
+            }
+            if (node instanceof ExclusiveGateway && !nodeSet.contains(getNextId(node, false))) {
+                if (node.getAttributeValue("name") == null) {
+                    node.setAttributeValue("name", "exclusiveGateway_" + xorCounter);
+                    xorCounter++;
+                }
+
+                nodeSet.add(getNextId(node, false));
+                elementsID.add(getNextId(node, false));
+
+
+                roleFortask.add("internal");
+                mergeMap(getNextId(node, false), "internal");
+                tasks.add(node.getAttributeValue("name"));
+                String descr = "function " + parseSid(getNextId(node, false)) + "() private {\n"
+                        + "	require(elements[position[\"" + node.getAttributeValue("id")
+                        + "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");\n";
+                for (SequenceFlow outgoing : ((ExclusiveGateway) node).getOutgoing()) {
+                    ModelElementInstance nextElement = modelInstance
+                            .getModelElementById(outgoing.getAttributeValue("targetRef"));
+                    // checking if there are conditions on the next element, conditions are setted
+                    // in the name of the sequence flow
+                    if (outgoing.getAttributeValue("name") != null) {
+
+                        descr += "if(" + addCompareString(outgoing) + "){" + "enable(\"" + getNextId(nextElement, false)
+                                + "\"); \n ";
+                        if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
+                            descr += parseSid(getNextId(nextElement, false)) + "(); \n";
+                        }
+                        descr += "}\n";
+                    } else {
+                        descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";
+                        if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
+                            descr += parseSid(getNextId(nextElement, false)) + "(); \n";
+                        }
+                    }
+
+                }
+                descr += "}\n\n";
+                choreographyFile += descr;
+            } else if (node instanceof EventBasedGateway && !nodeSet.contains(getNextId(node, false))) {
+
+                if (node.getAttributeValue("name") == null) {
+                    node.setAttributeValue("name", "eventBasedGateway_" + eventBasedCounter);
+                    eventBasedCounter++;
+                }
+                nodeSet.add(getNextId(node, false));
+                elementsID.add(getNextId(node, false));
+                //elementsID.put(getNextId(node, false), "");
+                roleFortask.add("internal");
+                mergeMap(getNextId(node, false), "internal");
+                tasks.add(node.getAttributeValue("name"));
+                String descr = "function " + parseSid(getNextId(node, false)) + "() private {\n"
+                        + "	require(elements[position[\"" + node.getAttributeValue("id")
+                        + "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");\n";
+                for (SequenceFlow outgoing : ((EventBasedGateway) node).getOutgoing()) {
+                    ModelElementInstance nextElement = modelInstance
+                            .getModelElementById(outgoing.getAttributeValue("targetRef"));
+                    descr += "\tenable(\"" + getNextId(nextElement, false) + "\"); \n";
+                }
+                descr += "}\n\n";
+                choreographyFile += descr;
+            } else if (node instanceof ParallelGateway && !nodeSet.contains(getNextId(node, false))) {
+
+                if (node.getAttributeValue("name") == null) {
+                    node.setAttributeValue("name", "parallelGateway_" + parallelCounter);
+                    parallelCounter++;
+                }
+                nodeSet.add(getNextId(node, false));
+                elementsID.add(getNextId(node, false));
+
+                roleFortask.add("internal");
+                mergeMap(getNextId(node, false), "internal");
+                tasks.add(node.getAttributeValue("name"));
+                String descr = "function " + parseSid(getNextId(node, false)) + "() private { \n"
+                        + "	require(elements[position[\"" + node.getAttributeValue("id")
+                        + "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");\n";
+                // if the size of incoming nodes is 1 -> flows split
+                if (((ParallelGateway) node).getIncoming().size() == 1) {
+                    for (SequenceFlow outgoing : ((ParallelGateway) node).getOutgoing()) {
+                        ModelElementInstance nextElement = modelInstance
+                                .getModelElementById(outgoing.getAttributeValue("targetRef"));
+                        descr += "\tenable(\"" + getNextId(nextElement, false) + "\"); \n";
+                    }
+                    descr += "}\n\n";
+                    choreographyFile += descr;
+                    // if the size of the outgoing nodes is 1 -> flows converging
+                } else if (((ParallelGateway) node).getOutgoing().size() == 1) {
+                    descr += "\tif( ";
+                    int lastCounter = 0;
+                    for (SequenceFlow incoming : ((ParallelGateway) node).getIncoming()) {
+                        lastCounter++;
+                        ModelElementInstance prevElement = modelInstance
+                                .getModelElementById(incoming.getAttributeValue("sourceRef"));
+                        descr += "elements[position[\"" + getNextId(prevElement, false) + "\"]].status==State.DONE ";
+
+                        if (lastCounter == ((ParallelGateway) node).getIncoming().size()) {
+                            descr += "";
+                        } else {
+                            descr += "&& ";
+                        }
+
+                    }
+                    descr += ") { \n";
+                    for (SequenceFlow outgoing : ((ParallelGateway) node).getOutgoing()) {
+                        ModelElementInstance nextElement = modelInstance
+                                .getModelElementById(outgoing.getAttributeValue("targetRef"));
+                        descr += "\tenable(\"" + getNextId(nextElement, false) + "\"); \n";
+                        if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
+                            descr += parseSid(getNextId(nextElement, false)) + "(); \n";
+                        }
+                        descr += "}} \n\n";
+                        choreographyFile += descr;
+                    }
+                }
+            } else if (node instanceof EndEvent && !nodeSet.contains(getNextId(node, false))) {
+                if (node.getAttributeValue("name") == null) {
+                    node.setAttributeValue("name", "endEvent_" + endEventCounter);
+                    endEventCounter++;
+                }
+                nodeSet.add(getNextId(node, false));
+                elementsID.add(getNextId(node, false));
+
+                roleFortask.add("internal");
+                mergeMap(getNextId(node, false), "internal");
+                tasks.add(node.getAttributeValue("name"));
+                String descr = "function " + parseSid(getNextId(node, false)) + "() private {\n"
+                        + "	require(elements[position[\"" + node.getAttributeValue("id")
+                        + "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");  }\n\n";
+                choreographyFile += descr;
+            } else if (node instanceof ModelElementInstanceImpl && !(node instanceof EndEvent)
+                    && !(node instanceof ParallelGateway) && !(node instanceof ExclusiveGateway)
+                    && !(node instanceof EventBasedGateway) && (checkTaskPresence(getNextId(node, false)) == false)) {
+
+                boolean taskNull = false;
+                nodeSet.add(getNextId(node, false));
+
+                request = "";
+                response = "";
+
+                String descr = "";
+                Participant participant = null;
+                String participantName = "";
+                ChoreographyTask task = new ChoreographyTask((ModelElementInstanceImpl) node, modelInstance);
+                getRequestAndResponse(task);
+
+                participant = modelInstance.getModelElementById(task.getInitialParticipant().getId());
+
+                participantName = participant.getAttributeValue("name");
+
+                String[] req = response.split(" ");
+                // String res = typeParse(request);
+                String ret = "";
+                String call = "";
+                String eventBlock = "";
+
+                if (start instanceof EventBasedGateway) {
+                    for (SequenceFlow block : ((EventBasedGateway) start).getOutgoing()) {
+                        ModelElementInstance nextElement = modelInstance
+                                .getModelElementById(block.getAttributeValue("targetRef"));
+                        if (!(getNextId(nextElement, false).equals(getNextId(node, false)))) {
+                            eventBlock += "disable(\"" + getNextId(nextElement, false) + "\");\n";
+                        }
+                    }
+                }
+                // if there isn't a response the function created is void
+
+                // da cambiare se funziona, levare 'if-else
+                if (task.getType() == ChoreographyTask.TaskType.ONEWAY) {
+                    //System.out.println("Task � 1 way");
+                    taskNull = false;
+                    String pName = getRole(participantName, optionalRoles, mandatoryRoles);
+
+                    if (request.contains("payment")) {
+                        //System.out.println("nome richiesta: " + request);
+                        descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+                                + " public payable " + pName + ") {\n";
+                        descr += "	require(elements[position[\"" + getNextId(node, false)
+                                + "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
+                                + createTransaction(request) + "\n" + eventBlock;
+                    } else {
+
+                        descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+                                + " public " + pName + ") {\n";
+                        descr += "	require(elements[position[\"" + getNextId(node, false)
+                                + "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
+                                + addToMemory(request) + eventBlock;
+
+                        addGlobal(request, participantName);
+                    }
+                    // roleFortask.add(participantName);
+
+                } else if (task.getType() == ChoreographyTask.TaskType.TWOWAY) {
+                    taskNull = false;
+                    //System.out.println("Task � 2 way");
+
+                    String pName = getRole(participantName, optionalRoles, mandatoryRoles);
+
+                    if (!request.isEmpty()) {
+                        //System.out.println("RICHIESTA NON VUOTA");
+                        if (request.contains("payment")) {
+                            //System.out.println(request);
+                            //System.out.println("RICHIESTA CONTIENE PAGAMENTO");
+                            taskNull = false;
+                            descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+                                    + " public payable " + pName + ") {\n";
+                            descr += "	require(elements[position[\"" + getNextId(node, false)
+                                    + "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
+                                    + createTransaction(request) + "\n" + eventBlock + "}\n";
+                        } else {
+                            taskNull = false;
+
+                            descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
+                                    + " public " + pName + "){\n";
+                            descr += "	require(elements[position[\"" + getNextId(node, false)
+                                    + "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false)
+                                    + "\");\n" + "	enable(\"" + getNextId(node, true) + "\");\n" + addToMemory(request)
+                                    + eventBlock + "}\n";
+                            addGlobal(request, participantName);
+                        }
+                    } else {
+                        taskNull = true;
+                    }
+
+                    if (!response.isEmpty()) {
+                        //System.out.println("RISPOSTA NON VUOTA");
+                        if (response.contains("payment")) {
+                            //System.out.println(response);
+                            //System.out.println("RISPOSTA CONTIENE PAGAMENTO");
+                            taskNull = false;
+                            descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
+                                    + " public payable " + pName + ") {\n";
+                            descr += "	require(elements[position[\"" + getNextId(node, true)
+                                    + "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, true) + "\");\n"
+                                    + createTransaction(response) + "\n" + eventBlock;
+                        } else {
+                            taskNull = false;
+                            pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
+                            descr += "function " + parseSid(getNextId(node, true)) + addMemory(getPrameters(response))
+                                    + " public " + pName + "){\n" + "	require(elements[position[\""
+                                    + getNextId(node, true) + "\"]].status==State.ENABLED);\n" + "	done(\""
+                                    + getNextId(node, true) + "\");\n" + addToMemory(response) + eventBlock;
+                            addGlobal(response, task.getParticipantRef().getName());
+                        }
+                    } else {
+                        taskNull = true;
+                    }
+
+                }
+                choreographyFile += descr;
+                descr = "";
+                // checking the outgoing elements from the task
+                //System.out.println("TASK NULL � : " + taskNull);
+                if (taskNull == false) {
+
+                    for (SequenceFlow out : task.getOutgoing()) {
+                        ModelElementInstance nextElement = modelInstance
+                                .getModelElementById(out.getAttributeValue("targetRef"));
+                        descr += "\tenable(\"" + getNextId(nextElement, false) + "\");\n";
+                        if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
+                            // nextElement = checkType(nextElement);
+                            // creates the call to the next function
+                            descr += parseSid(getNextId(nextElement, false)) + "(); \n";
+
+                        }
+                        descr += ret;
+                        descr += "}\n\n";
+                        choreographyFile += descr;
+
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    public String getRole(String part, List<String> optionalRoles, List<String> mandatoryRoles) {
+        String res = "";
+        for (int i = 0; i < mandatoryRoles.size(); i++) {
+
+            if ((mandatoryRoles.get(i)).equals(part)) {
+                res = "checkMand(roleList[" + i + "]";
+                return res;
+            }
+        }
+        for (int o = 0; o < optionalRoles.size(); o++) {
+            if ((optionalRoles.get(o)).equals(part)) {
+                res = "checkOpt(optionalList[" + o + "]";
+                return res;
+            }
+        }
+
+        return res;
+    }
+
+    public void getRequestAndResponse(ChoreographyTask task) {
+        // if there is only the response
+        Participant participant = modelInstance.getModelElementById(task.getInitialParticipant().getId());
+        String participantName = participant.getAttributeValue("name");
+
+        if (task.getRequest() == null && task.getResponse() != null) {
+            // System.out.println("task.getRequest() = null: " + task.getRequest());
+            MessageFlow responseMessageFlowRef = task.getResponse();
+            MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
+            Message responseMessage = modelInstance
+                    .getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
+
+            if (!responseMessage.getAttributeValue("name").isEmpty()) {
+                elementsID.add(responseMessage.getId());
+                response = responseMessage.getAttributeValue("name");
+                tasks.add(response);
+                roleFortask.add(task.getParticipantRef().getName());
+                mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+            }
+
+        }
+        // if there is only the request
+        else if (task.getRequest() != null && task.getResponse() == null) {
+            MessageFlow requestMessageFlowRef = task.getRequest();
+            MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
+            Message requestMessage = modelInstance
+                    .getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
+            if (!requestMessage.getAttributeValue("name").isEmpty()) {
+                elementsID.add(requestMessage.getId());
+                request = requestMessage.getAttributeValue("name");
+                tasks.add(request);
+                roleFortask.add(participantName);
+                mergeMap(requestMessage.getId(), participantName);
+            }
+
+        }
+        // if there are both
+        else {
+            MessageFlow requestMessageFlowRef = task.getRequest();
+            MessageFlow responseMessageFlowRef = task.getResponse();
+            MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
+            MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
+            Message requestMessage = modelInstance
+                    .getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
+            Message responseMessage = modelInstance
+                    .getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
+            if (requestMessage.getAttributeValue("name") != null) {
+                elementsID.add(requestMessage.getId());
+                request = requestMessage.getAttributeValue("name");
+                tasks.add(request);
+                roleFortask.add(participantName);
+                mergeMap(requestMessage.getId(), participantName);
+            }
+            if (responseMessage.getAttributeValue("name") != null) {
+
+                elementsID.add(responseMessage.getId());
+                response = responseMessage.getAttributeValue("name");
+                tasks.add(response);
+                roleFortask.add(task.getParticipantRef().getName());
+                mergeMap(responseMessage.getId(), task.getParticipantRef().getName());
+            }
+
+        }
+
+    }
+
+    // Controller for the node type, if gateway it sets the next function name and
+    // the counter
+    private ModelElementInstance checkType(ModelElementInstance nextNode) {
+        if (nextNode instanceof ExclusiveGatewayImpl && !nodeSet.contains(getNextId(nextNode, false))) {
+            nextNode.setAttributeValue("name", "exclusiveGateway_" + xorCounter);
+            xorCounter++;
+        } else if (nextNode instanceof EventBasedGatewayImpl && !nodeSet.contains(getNextId(nextNode, false))) {
+            nextNode.setAttributeValue("name", "eventBasedGateway_" + eventBasedCounter);
+            eventBasedCounter++;
+        } else if (nextNode instanceof ParallelGatewayImpl && !nodeSet.contains(getNextId(nextNode, false))) {
+            nextNode.setAttributeValue("name", "parallelGateway_" + parallelCounter);
+            parallelCounter++;
+        } else if (nextNode instanceof EndEventImpl && !nodeSet.contains(getNextId(nextNode, false))) {
+            nextNode.setAttributeValue("name", "endEvent_" + endEventCounter);
+            endEventCounter++;
+        }
+        return nextNode;
+    }
+
+    // return the next node id, useful to retrieve the first message id in case of
+    // Choreography task
+    private static String getNextId(ModelElementInstance nextNode, boolean msg) {
+        String id = "";
+        // System.out.println(nextNode.getClass());
+        if (nextNode instanceof ModelElementInstanceImpl && !(nextNode instanceof EndEvent)
+                && !(nextNode instanceof ParallelGateway) && !(nextNode instanceof ExclusiveGateway)
+                && !(nextNode instanceof EventBasedGateway) && !(nextNode instanceof StartEvent)) {
+            ChoreographyTask task = new ChoreographyTask((ModelElementInstanceImpl) nextNode, modelInstance);
+            if (task.getRequest() != null && msg == false) {
+                //System.out.println("SONO DENTRO GETrEQUEST != NULL");
+                MessageFlow requestMessageFlowRef = task.getRequest();
+                MessageFlow requestMessageFlow = modelInstance.getModelElementById(requestMessageFlowRef.getId());
+                // //System.out.println("MESSAGAE FLOW REF ID:" + requestMessageFlowRef.getId());
+                Message requestMessage = modelInstance
+                        .getModelElementById(requestMessageFlow.getAttributeValue("messageRef"));
+                if (requestMessage.getName() != null) {
+                    //System.out.println("SONO DENTRO REQUEST.GETNAME != NULL");
+                    id = requestMessage.getAttributeValue("id");
+                } else {
+                    //System.out.println("SONO DENTRO LA RISPOSTA PERCH� REQUEST.GETNAME � NULL");
+                    MessageFlow responseMessageFlowRef = task.getResponse();
+                    MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
+                    Message responseMessage = modelInstance
+                            .getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
+                    // if(!responseMessage.getAttributeValue("name").isEmpty()) {
+                    id = responseMessage.getAttributeValue("id");
+                    // }
+
+                }
+
+                // System.out.println("ID MESSAGE REF: " + id + "uguale a?" +
+                // requestMessageFlow.getAttributeValue("messageRef"));
+                // System.out.println(requestMessage.getName());
+
+            } else if (task.getRequest() == null && msg == false || task.getResponse() != null && msg == true) {
+                //System.out.println("SONO DENTRO GETREQUEST == NULL");
+                MessageFlow responseMessageFlowRef = task.getResponse();
+                MessageFlow responseMessageFlow = modelInstance.getModelElementById(responseMessageFlowRef.getId());
+                Message responseMessage = modelInstance
+                        .getModelElementById(responseMessageFlow.getAttributeValue("messageRef"));
+                if (responseMessage.getName() != null) {
+                    id = responseMessage.getAttributeValue("id");
+                }
+
+            }//
+            /*
+             * else if(task.getResponse()!= null && msg == true) { MessageFlow
+             * responseMessageFlowRef = task.getResponse(); id =
+             * responseMessageFlowRef.getId(); }
+             */
+        } else {
+            id = nextNode.getAttributeValue("id");
+        }
+        //System.out.println("GET ID RETURNS: " + id);
+        return id;
+    }
+    //
+    private boolean checkTaskPresence(String sid) {
+        // System.out.println(sid);
+        boolean isPresent = false;
+        for (String id : elementsID) {
+            if (sid.equals(id)) {
+                isPresent = true;
+                return isPresent;
+            }
+        }
+        return isPresent;
+    }
+
+    //metodo per la creazione del manager
+    public String createChoManager(String choreographyId, String choreographyName){
+        String choreographyManager = "pragma solidity ^0.5.11;\n" +
+                "contract ChoreographyManager{\n" +
+                "	string id;\n" +
+                "	string name;\n" +
+                "	struct Instance{" +
+                "		string[] totalParticipants;\n" +
+                "		mapping(string => address) contracts;\n" +
+                "		mapping(string => address) participants;\n" +
+                "	}\n" +
+                "	Instance newInstance;\n" +
+                "	mapping(string => address) instances;\n" +
+                "	mapping(string => string) sidRoles;\n" +
+                "	address serverAddress = 0x0D49A19F4732184E03549a4A190684a316c725F7;\n\n" +
+                "	constructor() public{\n" +
+                "        sidRolesInit();\n" +
+                "    }\n\n" +
+                "	function sidRolesInit() internal{\n";
+        for (Map.Entry<String, String> task : taskIdAndRole.entrySet()) {
+
+            choreographyManager += "	sidRoles[\"" + task.getKey() + "\"] = " + task.getValue() + ";\n";
+        }
+        choreographyManager += "}\n\n" +
+                "	function getInstanceAddress(string memory _id, string memory role) public view returns(address){\n" +
+                "   	return instances[_id].contracts[role];\n" +
+                "   }\n\n" +
+                "	function getSidRole(string memory sid) public view returns(string memory){\n" +
+                "       return sidRoles[sid];\n" +
+                "   }\n\n" +
+                " 	function getParticipantAddress(string memory _id, string memory role) public view returns(address){\n" +
+                "   	return instances[_id].participants[role];\n" +
+                "   }\n\n" +
+                "	function createInstance(string memory _id, string[] memory _roles, address[] memory _participants) public{" +
+                "		require(msg.sender == serverAddress);\n";
+        for(String participant : participantsWithoutDuplicates){
+
+            choreographyManager += participant + participant.toLowerCase() + "= new " + participant + "();\n" +
+                    "newInstance.contracts[\"" + participant + "\"] = address(" + participant.toLowerCase() + ");\n" +
+                    participant.toLowerCase() + ".setAddressesAndId(_id, address(this));\n";
+        }
+        choreographyManager += "	for(uint x = 0; x < _roles.length; x++){\n" +
+                "		newInstance.participants[_roles[x]] = _participants[x];\n" +
+                "	}\n" +
+                "	instances[_id] = newInstance;\n" +
+                "}\n\n" +
+                " function subscribeAsOptional(string memory _id, string memory role) public{\n" +
+                "        instances[_id].participants[role] = msg.sender;\n" +
+                "    }\n" +
+                "}\n";
+        return "";
+    }
+
+    //metodo per la creazione del partecipante generico
+    public String createGenericParticipant(){
+        String genericParticipant = "pragma solidity ^0.5.11;\n" +
+                "pragma experimental ABIEncoderV2;\n" +
+                "contract genericParticipant{\n" +
+                "	uint counter;\n" +
+                "	event stateChanged(uint);\n" +
+                "	event functionDone(string);\n" +
+                "	enum State{DISABLED, ENABLED, DONE} State s;\n" +
+                "	struct Element{\n" +
+                "		string ID;\n" +
+                "    	State status;\n" +
+                "	}\n" +
+                "	ChoreographyManager c;\n" +
+                "	Element[] elements;\n" +
+                "	string[] elementsID = [";
+        for (String elID : elementsID) {
+            if (elID.equals(elementsID.get(elementsID.size() - 1))) {
+                genericParticipant += "\"" + elID + "\"];\n";
+            } else
+                genericParticipant += "\"" + elID + "\", ";
+        }
+        genericParticipant += "	mapping (string=>uint) position;\n" +
+                "	mapping(string=>address) instances;\n\n" +
+                "	constructor() public{\n" +
+                "		init();\n" +
+                "	}\n\n" +
+                "   modifier checkMand(address role){ \n" +
+                "   	require(msg.sender == role); \n" +
+                "    	_; }\n" +
+                "	modifier checkOpt(address role){ \n" +
+                "   	require(msg.sender == role); \n" +
+                "   	_; }\n" +
+                "	modifier gatewayModifier(address role){\n" +
+                "   	require(msg.sender == role); \n" +
+                "    	_; }\n\n" +
+                " function enable(string memory _taskID, string memory _instanceId) public{  \n" +
+                "        string memory sidRole = c.getSidRole(_taskID);\n" +
+                "        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender); \n" +
+                "        elements[position[_taskID]].status=State.ENABLED;  \n" +
+                "        emit stateChanged(counter++);\n" +
+                "    }\n" +
+                "	function disable(string memory _taskID, string memory _instanceId) public{ \n" +
+                "        string memory sidRole = c.getSidRole(_taskID);\n" +
+                "        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender);\n" +
+                "        elements[position[_taskID]].status=State.DISABLED; \n" +
+                "    }\n" +
+                "    function done(string memory _taskID, string memory _instanceId) public{ \n" +
+                "        string memory sidRole = c.getSidRole(_taskID);\n" +
+                "        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender);\n" +
+                "        elements[position[_taskID]].status=State.DONE; \n" +
+                "        emit functionDone(_taskID);    \n" +
+                "    }\n" +
+                "	function updateElementState(string memory _taskID, State _status) internal{\n" +
+                "   	elements[position[_taskID]].status= _status; \n" +
+                "   }\n" +
+                "	function init() internal{\n" +
+                "   	for (uint i = 0; i < elementsID.length; i ++) {\n" +
+                "       	elements.push(Element(elementsID[i], State.DISABLED));\n" +
+                "           position[elementsID[i]]=i;\n" +
+                "        }\n" +
+                "    }" +
+                "}";
+        return genericParticipant;
+    }
+
+
+}

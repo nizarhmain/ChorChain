@@ -5,12 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -134,8 +129,8 @@ public class Choreography {
 		participantsWithoutDuplicates = new ArrayList<>(new HashSet<>(partecipants));
 	}
 
-	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
-			List<String> mandatoryRoles) {
+	static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
+						  List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
 				+ ContractFunctions.parseName(filename, "") + "{\n" + "		uint counter;\r\n"
 				+ "	event stateChanged(uint);  \n"
@@ -228,7 +223,7 @@ public class Choreography {
 		return intro + constr + other;
 	}
 
-	private String lastFunctions() {
+	String lastFunctions() {
 		String descr = " function enable(string memory _taskID) internal { elements[position[_taskID]].status=State.ENABLED; "
 				+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
 				+ "    function disable(string memory _taskID) internal { elements[position[_taskID]].status=State.DISABLED; }\r\n"
@@ -246,7 +241,7 @@ public class Choreography {
 		return descr;
 	}
 
-	private static void fileAll(String fileName) throws IOException, Exception {
+	static void fileAll(String fileName) throws IOException, Exception {
 		FileWriter wChor = new FileWriter(new File(ContractFunctions.projectPath + File.separator + "resources"
 				+ File.separator + ContractFunctions.parseName(fileName, ".sol")));
 		BufferedWriter bChor = new BufferedWriter(wChor);
@@ -340,6 +335,7 @@ public class Choreography {
 		return sid.replace("-", "_");
 	}
 
+
 	public void FlowNodeSearch(List<String> optionalRoles, List<String> mandatoryRoles) {
 		// check for all SequenceFlow elements in the BPMN model
 		for (SequenceFlow flow : modelInstance.getModelElementsByType(SequenceFlow.class)) {
@@ -358,6 +354,7 @@ public class Choreography {
 					startCounter++;
 					nodeSet.add(start.getAttributeValue("id"));
 					mergeMap(start.getAttributeValue("id"), "internal");
+
 					elementsID.add(start.getAttributeValue("id"));
 					roleFortask.add("internal");
 					tasks.add(start.getAttributeValue("name"));
@@ -389,6 +386,8 @@ public class Choreography {
 
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
+
+
 				roleFortask.add("internal");
 				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
@@ -426,6 +425,7 @@ public class Choreography {
 				}
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
+				//elementsID.put(getNextId(node, false), "");
 				roleFortask.add("internal");
 				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
@@ -447,6 +447,7 @@ public class Choreography {
 				}
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
+
 				roleFortask.add("internal");
 				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
@@ -498,6 +499,7 @@ public class Choreography {
 				}
 				nodeSet.add(getNextId(node, false));
 				elementsID.add(getNextId(node, false));
+
 				roleFortask.add("internal");
 				mergeMap(getNextId(node, false), "internal");
 				tasks.add(node.getAttributeValue("name"));
@@ -825,5 +827,125 @@ public class Choreography {
 		}
 		return isPresent;
 	}
+
+	//metodo per la creazione del manager
+	public String createChoManager(String choreographyId, String choreographyName){
+		String choreographyManager = "pragma solidity ^0.5.11;\n" +
+				"contract ChoreographyManager{\n" +
+				"	string id;\n" +
+				"	string name;\n" +
+				"	struct Instance{" +
+				"		string[] totalParticipants;\n" +
+				"		mapping(string => address) contracts;\n" +
+				"		mapping(string => address) participants;\n" +
+				"	}\n" +
+				"	Instance newInstance;\n" +
+				"	mapping(string => address) instances;\n" +
+				"	mapping(string => string) sidRoles;\n" +
+				"	address serverAddress = 0x0D49A19F4732184E03549a4A190684a316c725F7;\n\n" +
+				"	constructor() public{\n" +
+				"        sidRolesInit();\n" +
+				"    }\n\n" +
+				"	function sidRolesInit() internal{\n";
+		for (Map.Entry<String, String> task : taskIdAndRole.entrySet()) {
+
+			choreographyManager += "	sidRoles[\"" + task.getKey() + "\"] = " + task.getValue() + ";\n";
+		}
+		choreographyManager += "}\n\n" +
+				"	function getInstanceAddress(string memory _id, string memory role) public view returns(address){\n" +
+				"   	return instances[_id].contracts[role];\n" +
+				"   }\n\n" +
+				"	function getSidRole(string memory sid) public view returns(string memory){\n" +
+				"       return sidRoles[sid];\n" +
+				"   }\n\n" +
+				" 	function getParticipantAddress(string memory _id, string memory role) public view returns(address){\n" +
+				"   	return instances[_id].participants[role];\n" +
+				"   }\n\n" +
+				"	function createInstance(string memory _id, string[] memory _roles, address[] memory _participants) public{" +
+				"		require(msg.sender == serverAddress);\n";
+		for(String participant : participantsWithoutDuplicates){
+
+			choreographyManager += participant + participant.toLowerCase() + "= new " + participant + "();\n" +
+					"newInstance.contracts[\"" + participant + "\"] = address(" + participant.toLowerCase() + ");\n" +
+					participant.toLowerCase() + ".setAddressesAndId(_id, address(this));\n";
+		}
+		choreographyManager += "	for(uint x = 0; x < _roles.length; x++){\n" +
+				"		newInstance.participants[_roles[x]] = _participants[x];\n" +
+				"	}\n" +
+				"	instances[_id] = newInstance;\n" +
+				"}\n\n" +
+				" function subscribeAsOptional(string memory _id, string memory role) public{\n" +
+				"        instances[_id].participants[role] = msg.sender;\n" +
+				"    }\n" +
+				"}\n";
+		return "";
+	}
+
+	//metodo per la creazione del partecipante generico
+	public String createGenericParticipant(){
+		String genericParticipant = "pragma solidity ^0.5.11;\n" +
+				"pragma experimental ABIEncoderV2;\n" +
+				"contract genericParticipant{\n" +
+				"	uint counter;\n" +
+				"	event stateChanged(uint);\n" +
+				"	event functionDone(string);\n" +
+				"	enum State{DISABLED, ENABLED, DONE} State s;\n" +
+				"	struct Element{\n" +
+				"		string ID;\n" +
+				"    	State status;\n" +
+				"	}\n" +
+				"	ChoreographyManager c;\n" +
+				"	Element[] elements;\n" +
+				"	string[] elementsID = [";
+		for (String elID : elementsID) {
+			if (elID.equals(elementsID.get(elementsID.size() - 1))) {
+				genericParticipant += "\"" + elID + "\"];\n";
+			} else
+				genericParticipant += "\"" + elID + "\", ";
+		}
+		genericParticipant += "	mapping (string=>uint) position;\n" +
+				"	mapping(string=>address) instances;\n\n" +
+				"	constructor() public{\n" +
+				"		init();\n" +
+				"	}\n\n" +
+				"   modifier checkMand(address role){ \n" +
+				"   	require(msg.sender == role); \n" +
+				"    	_; }\n" +
+				"	modifier checkOpt(address role){ \n" +
+				"   	require(msg.sender == role); \n" +
+				"   	_; }\n" +
+				"	modifier gatewayModifier(address role){\n" +
+				"   	require(msg.sender == role); \n" +
+				"    	_; }\n\n" +
+				" function enable(string memory _taskID, string memory _instanceId) public{  \n" +
+				"        string memory sidRole = c.getSidRole(_taskID);\n" +
+				"        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender); \n" +
+				"        elements[position[_taskID]].status=State.ENABLED;  \n" +
+				"        emit stateChanged(counter++);\n" +
+				"    }\n" +
+				"	function disable(string memory _taskID, string memory _instanceId) public{ \n" +
+				"        string memory sidRole = c.getSidRole(_taskID);\n" +
+				"        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender);\n" +
+				"        elements[position[_taskID]].status=State.DISABLED; \n" +
+				"    }\n" +
+				"    function done(string memory _taskID, string memory _instanceId) public{ \n" +
+				"        string memory sidRole = c.getSidRole(_taskID);\n" +
+				"        require(c.getInstanceAddress(_instanceId, sidRole) == msg.sender);\n" +
+				"        elements[position[_taskID]].status=State.DONE; \n" +
+				"        emit functionDone(_taskID);    \n" +
+				"    }\n" +
+				"	function updateElementState(string memory _taskID, State _status) internal{\n" +
+				"   	elements[position[_taskID]].status= _status; \n" +
+				"   }\n" +
+				"	function init() internal{\n" +
+				"   	for (uint i = 0; i < elementsID.length; i ++) {\n" +
+				"       	elements.push(Element(elementsID[i], State.DISABLED));\n" +
+				"           position[elementsID[i]]=i;\n" +
+				"        }\n" +
+				"    }" +
+				"}";
+		return genericParticipant;
+	}
+
 
 }
