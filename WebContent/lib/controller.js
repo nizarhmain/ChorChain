@@ -140,13 +140,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						   
 						   }
 					   if($('#paymentCheck').is(':checked'))
-					   {  
-						
+					   {
+
 						$scope.countPayment++;
 					   	$scope.str = "payment"+$scope.countPayment+"(address payable to)";
 					   	$('.djs-direct-editing-content').text($scope.str);
-					   	$('.djs-direct-editing-content').focus();					   
-					   	
+					   	$('.djs-direct-editing-content').focus();
+
 					   }
 					}
 			
@@ -358,5 +358,25 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			//$scope.setUser();
 			$scope.addMeta();
 			
-			
+			//---------------------------------------stats page ---------------------------------------------
+
+			$scope.getUserInstances = function () {
+				var userId = $cookies.get('UserId');
+				service.getUserInstances(userId).then(function (response) {
+					console.log(response.data);
+					$scope.instances = response.data;
+				});
+			}
+
+			$scope.getInstanceParticipants = function(instanceId){
+				service.getInstanceParticipants(instanceId).then(function (response) {
+					for(var i in $scope.instances){
+						if($scope.instances[i].id == instanceId){
+							$scope.instances[i].participants = response.data;
+						}
+					}
+					console.log($scope.instances);
+				});
+			}
+
    }]);

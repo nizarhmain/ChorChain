@@ -1,37 +1,24 @@
 package com.unicam.model;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @XmlRootElement
 @Entity
 @AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
 @AssociationDocumentStorage(AssociationDocumentStorageType.COLLECTION_PER_ASSOCIATION)
 public class Instance {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Type(type = "objectid")
@@ -42,7 +29,7 @@ public class Instance {
 	@JsonIgnore
 	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
 	@MapKeyColumn(name="role")
-	private Map<String, User> participants = new HashMap<String, User>();
+	private Map<String, User> participants = new HashMap<>();
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> freeRoles;
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -83,7 +70,7 @@ public class Instance {
 	public void setActualNumber(int actualNumber) {
 		this.actualNumber = actualNumber;
 	}
-	
+
 
 	public int getMaxNumber() {
 		return maxNumber;
@@ -158,7 +145,7 @@ public class Instance {
 	}
 
 	public Instance(String name, int actualNumber, int maxNumber, Map<String, User> participants, List<String> mandatoryRoles, List<String> optionalRoles,
-			List<String> freeRoles, List<String> freeRolesOptional, String createdBy, boolean done, List<String> visibleAt, 
+			List<String> freeRoles, List<String> freeRolesOptional, String createdBy, boolean done, List<String> visibleAt,
 			ContractObject deployedContract) {
 		super();
 		//_id = _id;

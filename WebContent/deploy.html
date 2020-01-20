@@ -250,6 +250,7 @@ background:black;
 						  Block mine time :{{creation.time}}
 					  </div>
 						<br>
+						<div ng-if="!transaction.sid.includes('Contract creation')">
                         Event {{$index + 1}} <br>
                         Transaction hash : <a href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}"> {{transaction.hash}} </a><br>
                         Sent from : {{transaction.from}} <br>
@@ -257,6 +258,7 @@ background:black;
                         Transaction gas price : {{transaction.gasPrice}} <br>
                         Gas used by the transaction : {{transaction.gasUsed}} <br>
                         Block mine time :{{transaction.time}}
+						</div>
                     </li>
                 </ul>
 			</div>
@@ -280,9 +282,11 @@ $(document).on("click", ".nav-link", function() {
 });
 
 var accountInterval = setInterval(function () {
-
+	//clearInterval(accountInterval);
 	$('.djs-group').dblclick(function(e){
+		console.log("prima dello stop propagation");
         e.stopPropagation();
+        console.log("dopo lo stop propagation");
         //event.stopPropagation()
 
 		taskid = e.currentTarget.childNodes[0].dataset.elementId;
@@ -291,8 +295,11 @@ var accountInterval = setInterval(function () {
 
 		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(task);
         angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
+
+
 	});
-}, 100);
+}, 2000);
+
 
 
 
@@ -587,8 +594,9 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 	$scope.getPast = function(){
 		//$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
-        $scope.transactionHistory = [{}];
-        $scope.totalGas = [];
+		$scope.transactionHistory = [{}];
+		$scope.totalGas = [];
+
 		$scope.myContract.getPastEvents('functionDone', {
 		    fromBlock: 0,
 		    toBlock: 'latest'
@@ -620,9 +628,8 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
                     });
                     web3.eth.getTransactionReceipt(hash).then(function(receipt){
                         $scope.totalGas.push(receipt.gasUsed);
-                        console.log($scope.totalGas);
-                        console.log($scope.transactionHistory);
-                    });
+						console.log("ciao");
+					});
 			}
 			$scope.transactionHistory.shift();
 	});
@@ -631,6 +638,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 	$scope.gasCalculation = function(){
         for(var t in $scope.transactionHistory){
             $scope.transactionHistory[t].gasUsed = $scope.totalGas[t];
+            console.log($scope.transactionHistory);
         }
     }
 
@@ -649,10 +657,20 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 
 	//First part takes the clicked object id and shows the sent variable
 	$scope.selectTransactionToShow = function(messageId){
-
+		//removehighlightmsg(messageId);
+		//highlightmsg(messageId);
+		for(var sid in $scope.transactionHistory){
+			console.log(sid);
+			console.log(messageId);
+			if(sid == messageId){
+				console.log("ciao");
+				removehighlightmsg($scope.transactionHistory[sid].sid);
+				highlightmsg($scope.transactionHistory[sid].sid);
+			}
+		}
 	    $scope.$apply(function(scop){
             $scope.actualSid = messageId;
-            console.log(messageId);
+            //console.log(messageId);
         });
 		$scope.msgToShow = [{name:"", value:""}];
         $scope.transactionToShow = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
@@ -680,22 +698,6 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 						$scope.$apply(function(scop){
 							var completeToShow = {"name": index, "value" : $scope.memory[onlyName[1]], "tData":{}};
 							$scope.msgToShow.push(completeToShow);
-
-                            /*for(var id in $scope.transactionHistory) {
-
-                                if ($scope.transactionHistory[id].sid == messageId) {
-                                    $scope.$apply(function(scop){
-                                        console.log("entro?");
-                                        //$scope.msgToShow.push(completeToShow);
-                                        completeToShow.tData =  $scope.transactionHistory[id];
-                                        $scope.msgToShow.push(completeToShow);
-                                      //  $scope.msgToShow.tData = $scope.transactionHistory[id];
-                                        console.log($scope.msgToShow);
-                                    });
-
-                                    break;
-                                }
-                            }*/
 						});
 					}
 				}else {
@@ -703,20 +705,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 					$scope.$apply(function(scop){
 						var completeToShow = {"name": noPar, "value" : $scope.memory[onlyName[1]], "tData":{}};
 						$scope.msgToShow.push(completeToShow);
-                       /* for(var id in $scope.transactionHistory) {
 
-                            if ($scope.transactionHistory[id].sid == messageId) {
-                                $scope.$apply(function(scop){
-                                    console.log("entro?");
-                                    completeToShow.tData = $scope.transactionHistory[id];
-                                  //  $scope.msgToShow.tData = $scope.transactionHistory[id];
-                                    $scope.msgToShow.push(completeToShow);
-                                    console.log($scope.msgToShow);
-                                });
-
-                                break;
-                            }
-                        }*/
 					});
 				}
 
@@ -728,19 +717,7 @@ $scope.launch =  async function(task, $index, refresh, parameter, amount){
 			console.log($scope.msgToShow);
 		});
 
-		/*for(var id in $scope.transactionHistory) {
-            if ($scope.transactionHistory[id].sid == messageId) {
-                console.log("sono uguali: ");
-                console.log(messageId);
-                console.log($scope.transactionHistory[id].sid);
-
-                $scope.$apply(function(scop){
-                    $scope.transactionToShow.push($scope.transactionHistory[id]);
-                });
-            }
-            $scope.transactionToShow.shift();
-        }*/
-
+		window.clearInterval(accountInterval);
 	}
 
 

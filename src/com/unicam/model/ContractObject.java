@@ -1,25 +1,15 @@
 package com.unicam.model;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-
-import org.bson.types.ObjectId;
 import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
-import org.json.JSONObject;
+
+import javax.persistence.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 
 @Entity
 @AssociationStorage(AssociationStorageType.ASSOCIATION_DOCUMENT)
@@ -30,17 +20,13 @@ public class ContractObject {
     @Type(type = "objectid")
     private String id;
 	private String address;
-	//@ElementCollection(fetch = FetchType.EAGER)
-	//private List<String> tasksID;
+	private String ContractCreationHash;
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> tasks;
-	//@ElementCollection(fetch = FetchType.EAGER)
-	//private List<String> taskRoles;
 	private String abi;
 	private String bin;
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> varNames;
-	//@ElementCollection(fetch = FetchType.EAGER)
 	@Lob
 	private LinkedHashMap<String, String> taskIdAndRole = new LinkedHashMap<String, String>();
 
@@ -51,43 +37,44 @@ public class ContractObject {
 	public void setTaskIdAndRole(LinkedHashMap<String, String> taskIdAndRole) {
 		this.taskIdAndRole = taskIdAndRole;
 	}
-	/*public List<String> getTaskRoles() {
-		return taskRoles;
-	}
-	public void setTaskRoles(List<String> taskRoles) {
-		this.taskRoles = taskRoles;
-	}*/
+
 	public String getID() {
 		return id;
 	}
 	public void setID(String ID) {
 		this.id = ID;
 	}
+
 	public String getAddress() {
 		return address;
 	}
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	/*
-	public List<String> getTasksID() {
-		return tasksID;
-	}
-	public void setTasksID(List<String> tasksID) {
-		this.tasksID = tasksID;
-	}*/
-	public List<String> getTasks() {
+
+
+    public String getContractCreationHash() {
+        return ContractCreationHash;
+    }
+
+    public void setContractCreationHash(String contractCreationHash) {
+        this.ContractCreationHash = contractCreationHash;
+    }
+
+    public List<String> getTasks() {
 		return tasks;
 	}
 	public void setTasks(List<String> tasks) {
 		this.tasks = tasks;
 	}
+
 	public String getAbi() {
 		return abi;
 	}
 	public void setAbi(String abi) {
 		this.abi = abi;
 	}
+
 	public String getBin() {
 		return bin;
 	}
@@ -102,11 +89,12 @@ public class ContractObject {
 		this.varNames = varNames;
 	}
 	
-	public ContractObject(String address, List<String> tasks, String abi, String bin, List<String> varNames,
-			LinkedHashMap<String, String> taskIdAndRole) {
+	public ContractObject(String address, String contractCreationHash, List<String> tasks, String abi, String bin, List<String> varNames,
+                          LinkedHashMap<String, String> taskIdAndRole) {
 		super();
 		this.address = address;
-		this.tasks = tasks;
+        this.ContractCreationHash = contractCreationHash;
+        this.tasks = tasks;
 		this.abi = abi;
 		this.bin = bin;
 		this.varNames = varNames;

@@ -1,72 +1,27 @@
 package com.unicam.rest;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.mongodb.MongoWriteException;
+import com.unicam.model.*;
+import com.unicam.translator.Choreography;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
-import javax.ws.rs.Consumes;
-
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.json.JSONObject;
-import org.web3j.crypto.CipherException;
-import org.web3j.protocol.core.filters.Filter;
-import org.web3j.protocol.http.HttpService;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoWriteException;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.unicam.model.ContractObject;
-import com.unicam.model.Instance;
-import com.unicam.model.Model;
-import com.unicam.model.Parameters;
-import com.unicam.model.TaskObject;
-import com.unicam.model.User;
-import com.unicam.translator.Choreography;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Path("/")
 public class Controller {
@@ -80,19 +35,19 @@ public class Controller {
 
 	// build the EntityManagerFactory as you would build in in Hibernate ORM
 	EntityManagerFactory emf = Persistence.createEntityManagerFactory("OGMPU");
-	
+
 
 	// now id is autoincremental, useless function.
 	/*
 	 * public int getLastId(String collection) { MongoCollection<Document> d =
 	 * db.getCollection(collection);
-	 * 
+	 *
 	 * FindIterable<Document> allElements = d.find(); int finalId = 0; if
 	 * (allElements != null) { for (Document docUser : allElements) { finalId =
 	 * docUser.getInteger("ID"); } }
-	 * 
+	 *
 	 * return finalId;
-	 * 
+	 *
 	 * }
 	 */
 
@@ -102,10 +57,10 @@ public class Controller {
 		String result;
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+
 		try {
 			em.persist(user);
-			
+
 			return "Registered";
 		} catch (MongoWriteException e) {
 			tm.rollback();
@@ -120,7 +75,7 @@ public class Controller {
 			em.clear();
 			em.close();
 		}
-		
+
 	}
 
 	@GET
@@ -160,7 +115,7 @@ public class Controller {
 			em.clear();
 			em.close();
 		}
-			
+
 	}
 
 	@POST
@@ -168,7 +123,7 @@ public class Controller {
 	public String login(User user) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+
 		TypedQuery<User> query = em.createNamedQuery("User.findByAddress", User.class);
 		try {
 			query.setParameter("address", user.getAddress());
@@ -187,8 +142,8 @@ public class Controller {
 	@POST
 	@Path("/upload")
 	public String upload(@FormDataParam("cookieId") String cookieId,
-			@FormDataParam("fileName") InputStream uploadedInputStream,
-			@FormDataParam("fileName") FormDataContentDisposition fileDetail) throws Exception {
+						 @FormDataParam("fileName") InputStream uploadedInputStream,
+						 @FormDataParam("fileName") FormDataContentDisposition fileDetail) throws Exception {
 		//tm.begin();
 
 		try {
@@ -221,13 +176,13 @@ public class Controller {
 		Model modelUploaded = new Model(fileDetail.getFileName(), loggedUser.getAddress(), roles, new ArrayList<Instance>());
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+
 		em.persist(modelUploaded);
 		tm.commit();
-		
+
 		em.close();
 		//em.flush();
-		
+
 		return "<meta http-equiv=\"refresh\" content=\"0; url=http://193.205.92.133:8080/ChorChain/homePage.html\">";
 	}
 
@@ -239,35 +194,35 @@ public class Controller {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		try {
-			
+
 			TypedQuery<Model> query = em.createNamedQuery("Model.findAll", Model.class);
 			allModels = query.getResultList();
 			tm.commit();
 		}catch(Exception e) {
 			tm.rollback();
 		}finally {
-			
+
 			em.close();
 		}
 		return allModels;
-		
+
 	}
-	
+
 	@POST
 	@Path("/createInstance/{cookieId}")
 	public void createInstance(Map alldata, @PathParam("cookieId") String cookieId) throws Exception {
-		
+
 		String m = (String) alldata.get("modelID");
 		List<String> visibleAt = (List<String>) alldata.get("visibleAt");
 		List<String> mandatoryRoles = (List<String>) alldata.get("mandatory");
 		List<String> optionalRoles = (List<String>) alldata.get("optional");
-		
+
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		try {
-			
+
 			loggedUser = em.find(User.class, cookieId);
-			
+
 			//if visibleAt is null, it means that the instance is public, otherwise I need to insert also
 			//the user address into the array
 			if(visibleAt.get(0).equals("null")) {
@@ -275,11 +230,11 @@ public class Controller {
 			} else {
 				visibleAt.add(loggedUser.getAddress());
 			}
-			
+
 			if(optionalRoles.get(0).equals("null")) {
 				optionalRoles = null;
 			}
-			
+
 			Model model = em.find(Model.class, m);
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
@@ -287,13 +242,13 @@ public class Controller {
 			Instance modelInstance = new Instance(model.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
 					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
 
-			
+
 			modelInstances.add(modelInstance);
 			model.setInstances(modelInstances);
-			
+
 			em.persist(deployedContract);
 			em.persist(modelInstance);
-			
+
 			//List<Instance> userInstances = loggedUser.getInstances();
 			//userInstances.add(modelInstance);
 			//loggedUser.setInstances(userInstances);
@@ -301,10 +256,10 @@ public class Controller {
 			tm.commit();
 
 		} catch (Exception e) {
-			  tm.rollback();
-			  e.printStackTrace();
+			tm.rollback();
+			e.printStackTrace();
 		}
-		
+
 
 		//tm.commit();
 		//System.out.println("transaction after create inst" + tm.getTransaction());
@@ -316,37 +271,37 @@ public class Controller {
 	public List<Instance> getAllInstances(Model m) throws Exception {
 		List<Instance> allInstances = null;
 		try {
-			
+
 			EntityManager em = emf.createEntityManager();
 			Model model = em.find(Model.class, m.getID());
 			//System.out.println(model.toString());
 			allInstances = model.getInstances();
-			
+
 			//System.out.println(allInstances);
 			em.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		}
 		return allInstances;
 	}
 
 	@POST
 	@Path("/subscribe/{role}/{cookieId}/{instanceID}")
 	public String subscribe(@PathParam("role") String role, @PathParam("cookieId") String cookieId,
-			@PathParam("instanceID") String instanceId, Model modelInstance) throws Exception {
+							@PathParam("instanceID") String instanceId, Model modelInstance) throws Exception {
 
 		// TO MODIFY : model has to be retrieved from the DB, not from the frontend.
 		// delete modelInstance from params and pass only the model id.
 
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		
+
 		try {
-			
+
 			loggedUser = em.find(User.class, cookieId);
-	
+
 			Instance instanceToSub = em.find(Instance.class, instanceId);
-			
+
 			int max = instanceToSub.getMaxNumber();
 			int actual = instanceToSub.getActualNumber();
 			//System.out.println(max);
@@ -358,21 +313,21 @@ public class Controller {
 				Map<String, User> subscribers = instanceToSub.getParticipants();
 				subscribers.put(role, loggedUser);
 				em.merge(instanceToSub);
-				
+
 				List<Instance> userInstances = loggedUser.getInstances();
 				userInstances.add(instanceToSub);
 				loggedUser.setInstances(userInstances);
-				
+
 				tm.commit();
 				//System.out.println(instanceToSub.toStringInstance());
 			}
-			
+
 		} catch (Exception e) {
-			 tm.rollback();
+			tm.rollback();
 			e.printStackTrace();
 		} finally {
 			em.close();
-			
+
 		}
 
 		//tm.commit();
@@ -382,11 +337,11 @@ public class Controller {
 		return "Subscribed successfully";
 
 	}
-	
+
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
 	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") String cookieId,
-			@PathParam("instanceID") String instanceId) throws Exception {
+								 @PathParam("instanceID") String instanceId) throws Exception {
 		ContractObject contractReturn = new ContractObject();
 		//tm.begin();
 
@@ -396,7 +351,7 @@ public class Controller {
 
 			Instance instanceForDeploy = em.find(Instance.class, instanceId);
 			em.close();
-			
+
 
 			String path = ContractFunctions.projectPath + File.separator + "resources" + File.separator;//modificare compiled con resources
 
@@ -406,21 +361,18 @@ public class Controller {
 
 			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
-			//System.out.println("Starting to compile...");
-			
+
 			contract.compile(instanceForDeploy.getName());
-			//System.out.println("Compiled");
-			
-			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
-			
-			String cAddress = contract.deploy(instanceForDeploy.getName());
-			if(cAddress.equals("ERROR")) {
+
+            TransactionReceipt contractCreation = contract.deploy(instanceForDeploy.getName());
+			//String cAddress = contract.deploy(instanceForDeploy.getName());
+			if(contractCreation==null) {
 				//tm.rollback();
 				return null;
 			}
-			//String cAddress = "0x2347947ec40b38dee1cf9f716ba1e1dc407c0dff";
-			contractReturn.setAddress(cAddress);
 
+			contractReturn.setAddress(contractCreation.getContractAddress());
+            contractReturn.setContractCreationHash(contractCreation.getTransactionHash());
 			contractReturn.setAbi(
 					contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
 			contractReturn.setBin("0x"
@@ -428,16 +380,16 @@ public class Controller {
 			// instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDone(true);
-			
+
 			tm.begin();
 			EntityManager em2 = emf.createEntityManager();
 			em2.persist(contractReturn);
 			em2.merge(instanceForDeploy);
 			tm.commit();
 			em2.close();
-			
-			
-			
+
+
+
 		}catch(Exception e){
 			tm.rollback();
 			e.printStackTrace();
@@ -452,7 +404,7 @@ public class Controller {
 
 		try {
 			loggedUser = retrieveUser(cookieId);
-			
+
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -467,7 +419,7 @@ public class Controller {
 		return cList;
 
 	}
-	
+
 	@POST
 	@Path("/getPart/{instanceId}/")
 	public Map<String, String> getInstParticipants(@PathParam("instanceId") String instanceId) throws Exception {
@@ -484,11 +436,11 @@ public class Controller {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-		} 
+		}
 		return participants;
 	}
 
-	
+
 
 	@POST
 	@Path("/getUserInfo/{cookieId}")
@@ -499,7 +451,7 @@ public class Controller {
 	}
 
 
-	
+
 	@POST
 	@Path("/saveModel/{fileName}/{cookieId}")
 	public void saveModel(@PathParam("fileName") String filename,@PathParam("cookieId") String cookieId , String xml) throws Exception {
@@ -508,26 +460,26 @@ public class Controller {
 		loggedUser = em.find(User.class, cookieId);
 		filename = filename + ".bpmn";
 		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
-		
+
 		FileWriter wChor = new FileWriter(uploaded);
-		
+
 		BufferedWriter bChor = new BufferedWriter(wChor);
 		bChor.write(xml);
 		bChor.flush();
 		bChor.close();
-		
+
 		Choreography getRoles = new Choreography();
 		getRoles.readFile(uploaded);
-		
+
 		getRoles.getParticipants();
-		
+
 		List<String> roles = Choreography.participantsWithoutDuplicates;
-		
+
 		Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
-		
-		
+
+
 		try {
-			
+
 			em.persist(modelUploaded);
 			tm.commit();
 		}catch(Exception e) {
@@ -537,7 +489,7 @@ public class Controller {
 			em.close();
 		}
 	}
-	
+
 	@POST
 	@Path("/getXml/{fileName}")
 	public String getxml(@PathParam("fileName") String fileName) {
@@ -548,10 +500,10 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return xml;
 	}
-	
+
 	@GET
 	@Path("/requestNewXml/")
 	public String newXml() {
@@ -561,14 +513,14 @@ public class Controller {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 		return xml;
 	}
-	
+
 	@GET
 	@Path("/changeOptional/{role}/{instanceId}/{modelId}")
-	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("instanceId") String instanceId, 
-			 @PathParam("modelId") String modelId) throws Exception {
+	public void changeOptionalRole(@PathParam("role") String optionalRole, @PathParam("instanceId") String instanceId,
+								   @PathParam("modelId") String modelId) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		//System.out.println(optionalRole + instanceId);
@@ -576,7 +528,7 @@ public class Controller {
 			Instance actualInstance = em.find(Instance.class, instanceId);
 			List<String> mandatory = actualInstance.getFreeRoles();
 			mandatory.remove(optionalRole);
-		
+
 			List<String> optional = actualInstance.getFreeRolesOptional();
 			optional.add(optionalRole);
 			//Model actualModel = em.find(Model.class, modelId);
@@ -590,7 +542,7 @@ public class Controller {
 			em.close();
 		}
 	}
-	
+
 	@POST
 	@Path("/getContractFromInstance/{instanceId}")
 	public ContractObject getContractFromInstance(@PathParam("instanceId") String instanceId) {
@@ -602,17 +554,17 @@ public class Controller {
 			em.close();
 		}
 		catch(Exception e) {
-			
+
 			e.printStackTrace();
-		} 
+		}
 		return contract;
-		
+
 	}
-	
+
 	@POST
 	@Path("/newSubscribe/{instanceId}/{role}/{cookieId}")
-	public void newSubscribe(@PathParam("instanceId") String instanceId, @PathParam("role") String role, 
-			@PathParam("cookieId") String cookieId) throws Exception {
+	public void newSubscribe(@PathParam("instanceId") String instanceId, @PathParam("role") String role,
+							 @PathParam("cookieId") String cookieId) throws Exception {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		//loggedUser = retrieveUser(cookieId);
@@ -631,11 +583,11 @@ public class Controller {
 			em.close();
 		}
 	}
-	
+
 	@POST
 	@Path("/external/contractFunction/{instanceId}/{account}/{functionName}")
-	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String account, 
-			@PathParam("functionName") String functionName, Parameters parameters) throws Exception {
+	public void ExternalContractInteraction(@PathParam("instanceId") String instanceId, @PathParam("account") String account,
+											@PathParam("functionName") String functionName, Parameters parameters) throws Exception {
 		ContractObject contract = new ContractObject();
 		EntityManager em = emf.createEntityManager();
 		Instance instance = em.find(Instance.class, instanceId);
@@ -646,23 +598,43 @@ public class Controller {
 		}finally {
 			em.close();
 		}
-		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
-		//System.out.println(parameters.getParamsAndValue());
-		//for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
-			//System.out.println("chiave: " + azz.getKey());
-			//System.out.println("valore: " + azz.getValue());
-	//	}
-		//System.out.println("PRIVATA: " + parameters.getPrivateKey());
 		con.signOffline(parameters, contract, account, functionName);
-		
-		
-		
-		
-		
-		
-		
-		
 	}
+
+	@GET
+	@Path("/getUserInstances/{cookieId}")
+	public List<Instance> GetUserInstances(@PathParam("cookieId") String cookieId)  {
+		EntityManager em = emf.createEntityManager();
+		try{
+			loggedUser = em.find(User.class, cookieId);
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			em.close();
+			return loggedUser.getInstances();
+		}
+	}
+
+	@GET
+	@Path("/getInstanceParticipants/{instanceId}")
+	public HashMap<String, String> getInstanceParticipants(@PathParam("instanceId") String instanceId){
+		Instance instanceToGet = new Instance();
+		HashMap<String, String> instanceParticipants = new HashMap<>();
+		EntityManager em = emf.createEntityManager();
+		try{
+			instanceToGet = em.find(Instance.class, instanceId);
+			for (Map.Entry<String, User> sub : instanceToGet.getParticipants().entrySet()) {
+				 instanceParticipants.put(sub.getKey(), sub.getValue().getAddress());
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			em.close();
+			return instanceParticipants;
+		}
+	}
+
+
 
 }

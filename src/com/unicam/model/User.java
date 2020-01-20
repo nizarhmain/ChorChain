@@ -1,25 +1,15 @@
 package com.unicam.model;
 
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.hibernate.annotations.NamedQuery;
 import org.hibernate.annotations.Type;
 import org.hibernate.ogm.datastore.document.options.AssociationStorage;
 import org.hibernate.ogm.datastore.document.options.AssociationStorageType;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorage;
 import org.hibernate.ogm.datastore.mongodb.options.AssociationDocumentStorageType;
+
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 @Entity

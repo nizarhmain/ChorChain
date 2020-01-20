@@ -6,18 +6,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.bson.Document;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.instance.EndEventImpl;
@@ -37,14 +31,12 @@ import org.camunda.bpm.model.xml.instance.DomElement;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 
 import com.unicam.model.ContractObject;
-import com.unicam.model.TaskObject;
 import com.unicam.model.User;
 import com.unicam.rest.ContractFunctions;
 
 import org.camunda.bpm.model.bpmn.instance.EndEvent;
 import org.camunda.bpm.model.bpmn.instance.EventBasedGateway;
 import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
-import com.unicam.rest.*;
 
 public class Choreography {
 	public static int startint;
@@ -85,7 +77,7 @@ public class Choreography {
 			choreographyFile = choreography.initial(bpmnFile.getName(), participants, optionalRoles, mandatoryRoles)
 					+ choreographyFile;
 			choreographyFile += choreography.lastFunctions();
-			finalContract = new ContractObject(null, tasks, null, null, gatewayGuards, taskIdAndRole);
+			finalContract = new ContractObject(null, null, tasks, null, null, gatewayGuards, taskIdAndRole);
 			choreography.fileAll(bpmnFile.getName());
 			//System.out.println("Contract creation done");
 			// System.out.println("Ruolii:" + Arrays.toString(roleFortask.toArray()));
