@@ -141,7 +141,7 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
     }
 
     function transactionsQueryExecuted(transactions) {
-        $scope.$apply(function() {
+        $scope.$apply(function () {
             $scope.isQuerying = false;
             $scope.contractTransactionsResult = transactions;
         })
@@ -168,8 +168,10 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
 
         const value = result[keys[0]];
         if (Array.isArray(value)) {
+            for (const item of value) { normalizeNumbersAndDates(item); }
             $scope.queryResults = value;
         } else {
+            normalizeNumbersAndDates(value);
             $scope.queryResult = value;
         }
     }
@@ -181,6 +183,28 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         link.hidden = true;
         document.body.appendChild(link); // Required for FF
         link.click();
+    }
+
+    function normalizeNumbersAndDates(obj) {
+        const numericalProp = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed',
+            'difficulty', 'totalDifficulty', 'number'];
+
+        for (const prop in obj) {
+            if (numericalProp.indexOf(prop) == -1)
+                continue;
+
+            const newValue = parseInt(obj[prop]);
+            if (newValue == null || isNaN(newValue))
+                continue;
+
+            obj[prop] = newValue;
+        }
+
+        if (obj.hasOwnProperty('timestamp')) {
+            const intValue = parseInt(obj.timestamp);
+            const date = new Date(intValue * 1000);
+            obj.timestamp = date.toLocaleDateString();
+        }
     }
 
 
