@@ -13,6 +13,8 @@ import org.camunda.bpm.model.xml.impl.instance.ModelElementInstanceImpl;
 import org.camunda.bpm.model.xml.instance.DomElement;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 
+import javax.servlet.http.Part;
+
 public class ChoreographyTask {
 
 ModelElementInstanceImpl task;
@@ -39,6 +41,22 @@ public ChoreographyTask(ModelElementInstanceImpl task, BpmnModelInstance modelIn
 	this.name=task.getAttributeValue("name");
 	init();
 }
+
+public String getSecondParticipant(){
+	for (DomElement childElement : task.getDomElement().getChildElements()) {
+		String type=childElement.getLocalName();
+		switch (type) {
+			case "participantRef":
+				Participant p = model.getModelElementById(childElement.getTextContent());
+				if (!p.equals(initialParticipant)) {
+					String secondParticipant = p.getAttributeValue("name");
+					return secondParticipant;
+				}
+		}
+	}
+	return null;
+}
+
 
 private void init() 
 {
