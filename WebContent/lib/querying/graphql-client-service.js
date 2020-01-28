@@ -7,7 +7,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
     this.availableOperator = ['=', '!=', '>', '>=', '<', '<='];
 
-    this.availableLogicalOperator = ['and', 'or'];
+    this.availableLogicalOperator = ['∧', '∨'];
 
     this.getEntityFields = function (entity) {
         if (entity == 'block' || entity == 'blocks')
@@ -34,7 +34,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
                 Property: 'number',
                 Operator: '>',
                 Value: null,
-                LogicalOperator: 'and',
+                LogicalOperator: '∧',
                 Mandatory: true
             },
             {
@@ -59,7 +59,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
                 Property: 'blockNumber',
                 Operator: '>',
                 Value: null,
-                LogicalOperator: 'and',
+                LogicalOperator: '∧',
                 Mandatory: true
             },
             {

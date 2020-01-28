@@ -100,10 +100,16 @@
                             </select>
                             <input type="text" ng-model="rule.Value" class="form-control col" style="margin-left: 8px;"
                                 ng-change="onRuleValueChanged()" />
-                            <select ng-model="rule.LogicalOperator" class="form-control col-md-2"
-                                ng-disabled="rule.Mandatory" ng-if="rule.LogicalOperator" style="margin-left: 8px;">
+
+                            <div class="form-control col-md-1" ng-if="rule.LogicalOperator" style="margin-left: 8px;">
+                                {{rule.LogicalOperator}}
+                            </div>
+                            <!-- <select ng-model="rule.LogicalOperator" class="form-control col-md-2"
+                                ng-disabled="rule.Mandatory && !rule.OperatorEditable" ng-if="rule.LogicalOperator" style="margin-left: 8px;">
                                 <option ng-repeat="op in logicalOperators" value="{{op}}">{{op}}</option>
-                            </select>
+                            </select> -->
+                            <button ng-if="$last" class="btn btn-primary" ng-click="addNewConstratint()"
+                                style="margin-left: 8px;">Add</button>
                         </div>
                     </div>
                 </div>

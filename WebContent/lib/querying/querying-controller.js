@@ -93,6 +93,19 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         startFileDownload(uri);
     }
 
+    $scope.addNewConstratint = function () {
+        const index = $scope.rules.length - 1;
+        $scope.rules[index].LogicalOperator = '∧';
+        $scope.rules[index].OperatorEditable = false;
+        $scope.rules.push({
+            Property: null,
+            Operator: null,
+            Value: null,
+            LogicalOperator: null,
+            Mandatory: false
+        });
+    }
+
     function updateUI() {
         $scope.queryExecutionErrorOccurred = false;
         if ($scope.selectedEntity == null) {
@@ -169,10 +182,22 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         const value = result[keys[0]];
         if (Array.isArray(value)) {
             for (const item of value) { normalizeNumbersAndDates(item); }
-            $scope.queryResults = value;
+            const finalResult = filterResults(value, $scope.rules);
+            if (!Array.isArray(finalResult) || finalResult.length <= 0) {
+                queryEmptyResults();
+                return;
+            }
+
+            $scope.queryResults = finalResult;
         } else {
             normalizeNumbersAndDates(value);
-            $scope.queryResult = value;
+            const finalResult = filterResults(value, $scope.rules);
+            if (!finalResult) {
+                queryEmptyResults();
+                return;
+            }
+
+            $scope.queryResult = finalResult;
         }
     }
 
@@ -204,6 +229,63 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
             const intValue = parseInt(obj.timestamp);
             const date = new Date(intValue * 1000);
             obj.timestamp = date.toLocaleDateString();
+        }
+    }
+
+    function filterResults(result, rules) {
+        if (!result || !rules)
+            return result;
+
+        const filteringRules = rules.filter(r => !r.Mandatory && isValidRule(r));
+        if (!Array.isArray(filteringRules) || filteringRules.length <= 0)
+            return result;
+
+        if (!Array.isArray(result)) {
+            for (const rule of filteringRules) {
+                if (!valueRespectsRule(result, rule)) {
+                    return null;
+                }
+            }
+
+            return result;
+        }
+
+        const filteredResult = [];
+        for (const item of result) {
+            let invalidItem = false;
+            for (const rule of filteringRules) {
+                if (!valueRespectsRule(item, rule)) {
+                    invalidItem = true;
+                    break;
+                }
+            }
+
+            if (!invalidItem)
+                filteredResult  .push(item);
+        }
+
+        return filteredResult;
+    }
+
+    function isValidRule(rule) {
+        return rule.Operator != null && rule.Property != null && rule.Value != null;
+    }
+
+    function valueRespectsRule(value, rule) {
+        if (!rule)
+            return true;
+
+        if (!value || !value[rule.Property])
+            return false;
+
+        switch (rule.Operator) {
+            case '>': return value[rule.Property] > rule.Value;
+            case '>=': return value[rule.Property] >= rule.Value;
+            case '<': return value[rule.Property] < rule.Value;
+            case '<=': return value[rule.Property] <= rule.Value;
+            case '=': return value[rule.Property] == rule.Value;
+            case '!=': return value[rule.Property] != rule.Value;
+            default: return false;
         }
     }
 
