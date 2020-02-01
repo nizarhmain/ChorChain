@@ -123,6 +123,27 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         return contractTransactions;
     }
 
+    this.getContractTransactionsWithWeb3 = async function (address, abi) {
+        if (typeof window.web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        }
+
+        const contract = new web3.eth.Contract(abi, address);
+        const contractEvents = await contract.getPastEvents('functionDone', {
+		    fromBlock: 0,
+		    toBlock: 'latest'
+        }, (error, result) => { });
+        
+        const transactions = contractEvents.map(e => e.transactionHash);
+        let result = [];
+        for (const hash of transactions) {
+            const transaction = await this.getTransactionData(hash);
+            result.push(transaction);
+        }
+
+        return result;
+    }
+
 
     function getTransactionFields() {
         return ['hash', 'nonce', 'index', 'from', 'to', 'value', 'gas', 'gasPrice', 'gasUsed',
@@ -174,12 +195,12 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         for (const field in projectionFields) {
             if (!projectionFields[field])
                 continue;
-            
+
             if (field == 'blockNumber') {
                 filterExpression += `\n\t\tblock { number }`;
                 continue;
             }
-            
+
             if (field == 'blockHash') {
                 filterExpression += `\n\t\tblock { hash }`;
                 continue;

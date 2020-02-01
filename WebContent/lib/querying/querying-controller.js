@@ -106,6 +106,18 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
         });
     }
 
+    $scope.executeStaticQuery = function () {
+        $scope.isQuerying = true;
+        testUtilityMethod4()
+            .then(result => {
+                $scope.$apply(function () {
+                    $scope.isQuerying = false;
+                    $scope.queryResults = result;
+                })
+            })
+            .catch(errorExecutingQuery);
+    }
+
     function updateUI() {
         $scope.queryExecutionErrorOccurred = false;
         if ($scope.selectedEntity == null) {
@@ -261,7 +273,7 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
             }
 
             if (!invalidItem)
-                filteredResult  .push(item);
+                filteredResult.push(item);
         }
 
         return filteredResult;
@@ -304,6 +316,16 @@ angular.module('querying').controller('queryingController', ["$scope", "graphqlC
     async function testUtilityMethod3() {
         const block = await graphqlClientService.getBlockData(4131251);
         console.log(block);
+    }
+
+    async function testUtilityMethod4() {
+        const address = '0x2af5d197d4e226e75e5c51fbd2c9cdcc0e8cba00';
+        const abi = getContractAbi();
+        return await graphqlClientService.getContractTransactionsWithWeb3(address, abi);
+    }
+
+    function getContractAbi() {
+        return [{ "constant": false, "inputs": [{ "internalType": "string", "name": "motivation", "type": "string" }], "name": "Message_1xm9dxy", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "getCurrentState", "outputs": [{ "components": [{ "internalType": "string", "name": "ID", "type": "string" }, { "internalType": "enum HotelBooking.State", "name": "status", "type": "uint8" }], "internalType": "struct HotelBooking.Element[]", "name": "", "type": "tuple[]" }, { "components": [{ "internalType": "uint256", "name": "quotation", "type": "uint256" }, { "internalType": "bool", "name": "confirmation", "type": "bool" }, { "internalType": "string", "name": "date", "type": "string" }, { "internalType": "uint256", "name": "bedrooms", "type": "uint256" }, { "internalType": "bool", "name": "confirm", "type": "bool" }, { "internalType": "string", "name": "motivation", "type": "string" }, { "internalType": "string", "name": "booking_id", "type": "string" }, { "internalType": "bool", "name": "cancel", "type": "bool" }, { "internalType": "string", "name": "ID", "type": "string" }], "internalType": "struct HotelBooking.StateMemory", "name": "", "type": "tuple" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "string", "name": "date", "type": "string" }, { "internalType": "uint256", "name": "bedrooms", "type": "uint256" }], "name": "Message_045i10y", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address payable", "name": "to", "type": "address" }], "name": "Message_1etcmvl", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "bool", "name": "confirm", "type": "bool" }], "name": "Message_0r9lypd", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "uint256", "name": "quotation", "type": "uint256" }], "name": "Message_1em0ee4", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "bool", "name": "confirmation", "type": "bool" }], "name": "Message_1nlagx2", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "string", "name": "ID", "type": "string" }], "name": "Message_1joj7ca", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "string", "name": "booking_id", "type": "string" }], "name": "Message_1ljlm4g", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "bool", "name": "cancel", "type": "bool" }], "name": "Message_0m9p3da", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "string", "name": "_role", "type": "string" }], "name": "subscribe_as_participant", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address payable", "name": "to", "type": "address" }], "name": "Message_0o8eyir", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "", "type": "uint256" }], "name": "stateChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "string", "name": "", "type": "string" }], "name": "functionDone", "type": "event" }];
     }
 
 }]);

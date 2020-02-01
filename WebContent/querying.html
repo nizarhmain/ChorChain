@@ -11,7 +11,8 @@
         integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+        integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
     <!-- graphics -->
     <link rel="stylesheet" href="css/unicons.css">
     <link rel="stylesheet" href="css/owl.carousel.min.css">
@@ -64,10 +65,13 @@
             <div class="card card-body" style="margin: 15px;">
                 <h5>Download all the transactions of a contract</h5>
                 <div class="row" style="margin: 0;">
-                    <input type="text" class="form-control col-md-11" placeholder="Contract's creation transaction hash"
+                    <input type="text" class="form-control col-md-10" placeholder="Contract's creation transaction hash"
                         ng-model="contractsQueryTransaction" />
                     <button class="btn btn-primary col-md-1"
                         ng-click="executeContractTransactionsQuery()">Query</button>
+                    <div class="col-md-1" style="padding-left: 8px;">
+                        <button class="btn btn-primary" ng-click="executeStaticQuery()">Static Query</button>
+                    </div>
                 </div>
             </div>
 
