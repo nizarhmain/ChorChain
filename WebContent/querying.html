@@ -65,13 +65,10 @@
             <div class="card card-body" style="margin: 15px;">
                 <h5>Download all the transactions of a contract</h5>
                 <div class="row" style="margin: 0;">
-                    <input type="text" class="form-control col-md-10" placeholder="Contract's creation transaction hash"
+                    <input type="text" class="form-control col-md-11" placeholder="Instance id"
                         ng-model="contractsQueryTransaction" />
                     <button class="btn btn-primary col-md-1"
                         ng-click="executeContractTransactionsQuery()">Query</button>
-                    <div class="col-md-1" style="padding-left: 8px;">
-                        <button class="btn btn-primary" ng-click="executeStaticQuery()">Static Query</button>
-                    </div>
                 </div>
             </div>
 

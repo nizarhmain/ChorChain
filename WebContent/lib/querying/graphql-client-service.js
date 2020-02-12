@@ -124,10 +124,10 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
     }
 
     this.getContractTransactionsWithWeb3 = async function (address, abi) {
-        if (typeof window.web3 !== 'undefined') {
+        if (typeof web3 !== 'undefined') {
             web3 = new Web3(web3.currentProvider);
         }
-
+        
         const contract = new web3.eth.Contract(abi, address);
         const contractEvents = await contract.getPastEvents('functionDone', {
 		    fromBlock: 0,
@@ -142,6 +142,10 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         }
 
         return result;
+    }
+
+    this.getContractDataFromInstance = async function(instanceId) {
+        return $http.post(`http://localhost:8080/ChorChain/rest/getContractFromInstance/${instanceId}`);
     }
 
 
