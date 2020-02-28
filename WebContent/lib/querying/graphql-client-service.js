@@ -2,7 +2,8 @@
 
 angular.module('querying', []).service('graphqlClientService', function ($http) {
 
-    // 'transactions',
+    // Public querying features
+
     this.availableEntities = ['block', 'blocks', 'transaction', 'gasPrice', 'protocolVersion'];
 
     this.availableOperator = ['=', '!=', '>', '>=', '<', '<='];
@@ -148,6 +149,33 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         return $http.post(`http://localhost:8080/ChorChain/rest/getContractFromInstance/${instanceId}`);
     }
 
+
+
+    // public audit features
+
+    this.getModels = async function () {
+        const response = await $http.post("rest/getModels");
+        if (!response || response.status != 200) {
+            throw new Error("Error executing the http request");
+        }
+
+        return Promise.resolve(response.data);
+    }
+
+    this.getModelFile = async function (modelName) {
+        const response = await $http.post("rest/getXml/" + modelName);
+        if (!response || response.status != 200) {
+            throw new Error("Error executing the http request");
+        }
+
+        return Promise.resolve(response.data);
+    }
+
+
+
+
+
+    // private methods
 
     function getTransactionFields() {
         return ['hash', 'nonce', 'index', 'from', 'to', 'value', 'gas', 'gasPrice', 'gasUsed',
