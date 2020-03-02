@@ -128,13 +128,13 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         if (typeof web3 !== 'undefined') {
             web3 = new Web3(web3.currentProvider);
         }
-        
+
         const contract = new web3.eth.Contract(abi, address);
         const contractEvents = await contract.getPastEvents('functionDone', {
-		    fromBlock: 0,
-		    toBlock: 'latest'
+            fromBlock: 0,
+            toBlock: 'latest'
         }, (error, result) => { });
-        
+
         const transactions = contractEvents.map(e => e.transactionHash);
         let result = [];
         for (const hash of transactions) {
@@ -145,7 +145,27 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
         return result;
     }
 
-    this.getContractDataFromInstance = async function(instanceId) {
+    this.getContractDataWithWeb3 = async function (contract) {
+        if (!contract || !contract.abi || !contract.address)
+            throw new Error("Invalid parameters");
+
+        if (!web3)
+            throw new Error("Web3 not available");
+
+        if (typeof web3 !== 'undefined')
+            web3 = new Web3(web3.currentProvider);
+
+        try {
+            const abi = JSON.parse(contract.abi);
+            const ethContract = new web3.eth.Contract(abi, contract.address);
+            await populateContractPastEvents(ethContract, contract, this);
+            contract.currentState = await ethContract.methods.getCurrentState().call();
+            processContract(contract);
+        } catch (error) { console.log(error); }
+    }
+
+
+    this.getContractDataFromInstance = async function (instanceId) {
         return $http.post(`http://localhost:8080/ChorChain/rest/getContractFromInstance/${instanceId}`);
     }
 
@@ -353,6 +373,33 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
             return null;
 
         return result[objectName];
+    }
+
+
+
+    async function populateContractPastEvents(ethContract, destinationContract, context) {
+        try {
+            const contractEvents = await ethContract.getPastEvents('functionDone', {
+                fromBlock: 0,
+                toBlock: 'latest'
+            }, (error, result) => { });
+
+            const transactions = contractEvents.map(e => e.transactionHash);
+            destinationContract.transactions = [];
+            for (const hash of transactions) {
+                const transaction = await context.getTransactionData(hash);
+                destinationContract.transactions.push(transaction);
+            }
+
+        } catch (error) { console.log(error); }
+    }
+
+    function processContract(contract) {
+        if (!contract || !contract.currentState)
+            return;
+
+        contract.isCompleted = Array.isArray(contract.currentState[0]) &&
+            contract.currentState[0].find(x => x.status == 1) == null;
     }
 
 });
