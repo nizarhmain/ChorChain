@@ -107,3 +107,17 @@
 	flex: 30px 0 0;
 	height: 30px;
 }
+
+.link {
+	color: #ffc200 !important;
+	text-decoration: underline !important;
+}
+
+.transaction-item {
+	max-width: 100%;
+	overflow: hidden;
+	font-size: smaller;
+	padding: 8px 0;
+	word-wrap: break-word;
+	border-bottom: 1px solid lightgray;
+}

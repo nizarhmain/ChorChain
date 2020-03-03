@@ -37,7 +37,7 @@
 <body ng-app="querying" ng-controller="auditController" ng-cloak>
 
     <!-- MENU -->
-    <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light" data-ng-init="setUser()">
         <div class="container">
 
             <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChain logo">
@@ -77,24 +77,20 @@
     <div class="container-fluid" style="padding-top: 16px;">
         <div class="row" data-ng-init="getModels()">
 
-            <div class="col-lg-3" ng-show="models">
-                <div class="card">
-                    <div class="card-body" ng-cloak>
-                        <h5>Model File List</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models">
-                                <a ng-click="selectModel(model)" class="nav-link">{{model.name}}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="col-lg-3" ng-show="models" ng-cloak>
+                <h5 mb-3>Model File List</h5>
+                <ul class="list-group">
+                    <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models">
+                        <a ng-click="selectModel(model)" class="nav-link">{{model.name}}</a>
+                    </li>
+                </ul>
             </div>
 
             <div class="col-lg-6" ng-show="selectedModel">
                 <h5>{{selectedModel.name}}</h5>
                 <div>Uploaded by: {{selectedModel.uploadedBy}}</div>
                 <div>All roles: <span ng-repeat="role in selectedModel.roles">{{role}} </span></div>
-                <div id="canvas" style="height: 300px;"></div>
+                <div id="canvas" style="height: 300px; border: 1px solid lightgray;"></div>
             </div>
 
             <div class="col-lg-3" ng-show="selectedModel">
@@ -116,7 +112,7 @@
                                 ng-if="instance.deployedContract.isCompleted" />
                             <img class="icon" src="resources/icons/ic_processing.png"
                                 ng-if="!instance.deployedContract.isCompleted" />
-                            <div><a class="nav-link"><b>{{instance.id}}</b></a></div>
+                            <div><a class="nav-link">{{instance.id}}</a></div>
                         </div>
                         <div>
                             <small>
@@ -131,9 +127,15 @@
                                 </div>
                             </small>
                         </div>
-                        <div class="mt-3">
+                        <div class="mt-2">
                             <small>
                                 <div>Total gas used: {{instance.totalGasUsed ? instance.totalGasUsed : '-'}}</div>
+                            </small>
+                        </div>
+                        <div class="mt-2">
+                            <small>
+                                <a ng-click="showTransactions(instance.deployedContract.transactions)" class="link"
+                                    ng-if="instance.deployedContract.transactions">Transacions</a>
                             </small>
                         </div>
                     </div>
@@ -149,6 +151,28 @@
     <div class="spinner-container" ng-if="isRetrievingData">
         <div class="spinner"></div>
         <div>Retrieving data...</div>
+    </div>
+
+
+
+
+    <div class="dialog-container" ng-if="isShowingTransactionsDialog">
+        <div class="dialog">
+            <div class="dialog-title">Transactions</div>
+            <div class="dialog-content" style="overflow-y: scroll;">
+                <div ng-repeat="transaction in selectedTransactions" class="transaction-item">
+                    <div><b>{{transaction.hash}}</b></div>
+                    <div ng-if="transaction.timestamp">Timestamp: {{transaction.timestamp}}</div>
+                    <div ng-if="transaction.gasUsed">GasUsed: {{transaction.gasUsed}}</div>
+                    <div ng-if="transaction.value">Value: {{transaction.value}}</div>
+                    <div ng-if="transaction.from">From: {{transaction.from.address}}</div>
+                    <div ng-if="transaction.to">To: {{transaction.to.address}}</div>
+                </div>
+            </div>
+            <div class="dialog-actions">
+                <button class="btn btn-primary" ng-click="closeTransactionsDialog()">Ok</button>
+            </div>
+        </div>
     </div>
 
 

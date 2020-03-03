@@ -14,6 +14,10 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.isRetrievingData = false;
 
+    $scope.isShowingTransactionsDialog = false;
+
+    $scope.selectedTransactions = false;
+
 
     $scope.getModels = async function () {
         $scope.isRetrievingData = true;
@@ -35,6 +39,17 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         await retrieveModelData(model);
         $scope.$apply(() => updateInstancesData(model));
         $scope.$apply(() => $scope.isRetrievingData = false);
+    }
+
+    $scope.showTransactions = function (transactions) {
+        $scope.isShowingTransactionsDialog = true;
+        $scope.selectedTransactions = transactions;
+        for (const item of transactions) { normalizeNumbersAndDates(item); }
+    }
+
+    $scope.closeTransactionsDialog = function () {
+        $scope.selectedTransactions = null;
+        $scope.isShowingTransactionsDialog = false;
     }
 
 
@@ -78,6 +93,27 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             }
 
             instance.totalGasUsed = totalGas;
+        }
+    }
+
+    // TODO: duplicated function, move to the service!
+    function normalizeNumbersAndDates(obj) {
+        const numericalProps = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed'];
+        for (const prop in obj) {
+            if (numericalProps.indexOf(prop) == -1)
+                continue;
+
+            const newValue = parseInt(obj[prop]);
+            if (newValue == null || isNaN(newValue))
+                continue;
+
+            obj[prop] = newValue;
+        }
+
+        if (obj.hasOwnProperty('timestamp')) {
+            const intValue = parseInt(obj.timestamp);
+            const date = new Date(intValue * 1000);
+            obj.timestamp = date.toLocaleDateString();
         }
     }
 
