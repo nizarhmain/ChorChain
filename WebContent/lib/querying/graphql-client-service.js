@@ -283,6 +283,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
     function buildTransactionFilterExpression() {
         const fields = getTransactionFields();
+        fields.push('blockTimestamp')
         let projectionExpr = '{';
         for (const field of fields) {
             if (field == 'from' || field == 'to') {
@@ -292,6 +293,11 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
             if (field == 'blockNumber') {
                 projectionExpr += `\n\t\tblock { number }`
+                continue;
+            }
+
+            if (field == 'blockTimestamp') {
+                projectionExpr += `\n\t\tblock { timestamp }`
                 continue;
             }
 
@@ -384,12 +390,33 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
                 toBlock: 'latest'
             }, (error, result) => { });
 
-            const transactions = contractEvents.map(e => e.transactionHash);
+            const duplicatedTransactions = contractEvents.map(e => e.transactionHash);
+            const transactions = [...new Set(duplicatedTransactions)];
+            abiDecoder.addABI(JSON.parse(destinationContract.abi));
             destinationContract.transactions = [];
+            // const actorAddresses = [];
             for (const hash of transactions) {
                 const transaction = await context.getTransactionData(hash);
+                if (transaction.inputData) {
+                    const result = abiDecoder.decodeMethod(transaction.inputData);
+                    if (result && result.name && result.params) {
+                        let parameters = result.params.map(p => `${p.name}: ${p.value}`).join(', ');
+                        transaction.decodedInput = `${result.name}(${parameters})`;
+                    }
+                }
+
+                // if (transaction.from && transaction.from.address) {
+                //     actorAddresses.push(transaction.from.address);
+                // }
+
+                // if (transaction.to && transaction.to.address) {
+                //     actorAddresses.push(transaction.to.address);
+                // }
+
                 destinationContract.transactions.push(transaction);
             }
+
+            destinationContract.actors = [... new Set(actorAddresses)];
 
         } catch (error) { console.log(error); }
     }

@@ -75,7 +75,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
                 continue;
 
             await graphqlClientService.getContractDataWithWeb3(contract);
-            // console.log("Contratto modificato: ", contract);
         }
     }
 
@@ -98,6 +97,7 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     // TODO: duplicated function, move to the service!
     function normalizeNumbersAndDates(obj) {
+        // console.log("normalizeNumbersAndDates");
         const numericalProps = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed'];
         for (const prop in obj) {
             if (numericalProps.indexOf(prop) == -1)
@@ -110,10 +110,15 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             obj[prop] = newValue;
         }
 
-        if (obj.hasOwnProperty('timestamp')) {
-            const intValue = parseInt(obj.timestamp);
+        // console.log("CONVERTO: ", obj);
+        if (obj.block && obj.block.timestamp) {
+            // console.log("ha il timestamp del blocco");
+            const intValue = parseInt(obj.block.timestamp);
+            // console.log("Intero parsato ", intValue);
             const date = new Date(intValue * 1000);
-            obj.timestamp = date.toLocaleDateString();
+            // console.log("Data: ", date);
+            obj.block.timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+            // console.log("RIsultato: ", obj);
         }
     }
 

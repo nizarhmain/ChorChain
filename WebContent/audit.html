@@ -14,6 +14,9 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.2.6/dist/web3.min.js" crossorigin="anonymous"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/abi-decoder@1.2.0/dist/abi-decoder.js" crossorigin="anonymous"></script>
+
+
     <!-- Modeler import -->
     <link rel="stylesheet" href="css/diagram-js-preview.css" />
     <link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
@@ -161,12 +164,13 @@
             <div class="dialog-title">Transactions</div>
             <div class="dialog-content" style="overflow-y: scroll;">
                 <div ng-repeat="transaction in selectedTransactions" class="transaction-item">
-                    <div><b>{{transaction.hash}}</b></div>
-                    <div ng-if="transaction.timestamp">Timestamp: {{transaction.timestamp}}</div>
-                    <div ng-if="transaction.gasUsed">GasUsed: {{transaction.gasUsed}}</div>
-                    <div ng-if="transaction.value">Value: {{transaction.value}}</div>
-                    <div ng-if="transaction.from">From: {{transaction.from.address}}</div>
-                    <div ng-if="transaction.to">To: {{transaction.to.address}}</div>
+                    <div class="mb-1"><b>{{transaction.hash}}</b></div>
+                    <div class="mb-1" ng-if="transaction.gasUsed">GasUsed: {{transaction.gasUsed}}</div>
+                    <div class="mb-1" ng-if="transaction.value">Value: {{transaction.value}}</div>
+                    <div class="mb-1" ng-if="transaction.from">From: {{transaction.from.address}}</div>
+                    <div class="mb-1" ng-if="transaction.to">To: {{transaction.to.address}}</div>
+                    <div class="mb-1" ng-if="transaction.block.timestamp">Timestamp: {{transaction.block.timestamp}}</div>
+                    <div ng-if="transaction.decodedInput">Message: {{transaction.decodedInput}}</div>
                 </div>
             </div>
             <div class="dialog-actions">
