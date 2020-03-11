@@ -107,6 +107,24 @@
                     ({{completedInstancesPercentage}}%)
                 </div>
 
+                <div class="mb-3" ng-if="completedInstances > 0">
+                    <div>Execution time</div>
+                    <small>
+                        <span>Max. {{instancesMaxExecutionTime}}s</span>
+                        <span class="ml-3">Min. {{instancesMinExecutionTime}}s</span>
+                        <span class="ml-3">Av. {{instancesAverageExecutionTime}}s</span>
+                    </small>
+                </div>
+
+                <div class="mb-3" ng-if="completedInstances > 0">
+                    <div>Total gas used</div>
+                    <small>
+                        Max. {{instancesMaxGasUsed}}
+                        <span class="ml-3">Min. {{instancesMinGasUsed}}</span>
+                        <span class="ml-3">Av. {{instancesAverageGasUsed}}</span>
+                    </small>
+                </div>
+
                 <div ng-repeat="instance in selectedModel.instances">
                     <div class="card card-body" style="cursor:pointer; margin-bottom: 8px;"
                         ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
@@ -169,7 +187,8 @@
                     <div class="mb-1" ng-if="transaction.value">Value: {{transaction.value}}</div>
                     <div class="mb-1" ng-if="transaction.from">From: {{transaction.from.address}}</div>
                     <div class="mb-1" ng-if="transaction.to">To: {{transaction.to.address}}</div>
-                    <div class="mb-1" ng-if="transaction.block.timestamp">Timestamp: {{transaction.block.timestamp}}</div>
+                    <div class="mb-1" ng-if="transaction.block.timestamp">Timestamp: {{transaction.block.timestamp}}
+                    </div>
                     <div ng-if="transaction.decodedInput">Message: {{transaction.decodedInput}}</div>
                 </div>
             </div>

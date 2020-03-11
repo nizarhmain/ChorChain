@@ -8,6 +8,18 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.totalInstances = 0;
 
+    $scope.instancesMaxExecutionTime = 0;
+
+    $scope.instancesMinExecutionTime = 0;
+
+    $scope.instancesAverageExecutionTime = 0;
+
+    $scope.instancesMaxGasUsed = 0;
+
+    $scope.instancesMinGasUsed = 0;
+
+    $scope.instancesAverageGasUsed = 0;
+
     $scope.completedInstances = 0;
 
     $scope.completedInstancesPercentage = 0;
@@ -76,6 +88,8 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
             await graphqlClientService.getContractDataWithWeb3(contract);
         }
+
+        console.log(model);
     }
 
     function updateInstancesData(model) {
@@ -92,12 +106,24 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             }
 
             instance.totalGasUsed = totalGas;
+            instance.executionTime = isNaN(instance.deployedContract.executionTime) ? 0 : instance.deployedContract.executionTime;
+        }
+
+        if (Array.isArray($scope.completedInstances) && $scope.completedInstances.length > 0) {
+            $scope.instancesMaxExecutionTime = Math.max(...$scope.completedInstances.map(i => i.executionTime));
+            $scope.instancesMinExecutionTime = Math.min(...$scope.completedInstances.map(i => i.executionTime));
+            const totalExecutionTime = $scope.completedInstances.map(i => i.executionTime).reduce((a, b) => a + b, 0);
+            $scope.instancesAverageExecutionTime = totalExecutionTime / model.instances.length;
+
+            $scope.instancesMinGasUsed = Math.max(...$scope.completedInstances.map(i => i.totalGasUsed));
+            $scope.instancesMaxGasUsed = Math.min(...$scope.completedInstances.map(i => i.totalGasUsed));
+            const totalGasUsed = $scope.completedInstances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
+            $scope.instancesAverageGasUsed = totalGasUsed / model.instances.length;
         }
     }
 
     // TODO: duplicated function, move to the service!
     function normalizeNumbersAndDates(obj) {
-        // console.log("normalizeNumbersAndDates");
         const numericalProps = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed'];
         for (const prop in obj) {
             if (numericalProps.indexOf(prop) == -1)

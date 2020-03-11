@@ -394,7 +394,7 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
             const transactions = [...new Set(duplicatedTransactions)];
             abiDecoder.addABI(JSON.parse(destinationContract.abi));
             destinationContract.transactions = [];
-            // const actorAddresses = [];
+            const actorAddresses = [];
             for (const hash of transactions) {
                 const transaction = await context.getTransactionData(hash);
                 if (transaction.inputData) {
@@ -405,13 +405,13 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
                     }
                 }
 
-                // if (transaction.from && transaction.from.address) {
-                //     actorAddresses.push(transaction.from.address);
-                // }
+                if (transaction.from && transaction.from.address) {
+                    actorAddresses.push(transaction.from.address);
+                }
 
-                // if (transaction.to && transaction.to.address) {
-                //     actorAddresses.push(transaction.to.address);
-                // }
+                if (transaction.to && transaction.to.address) {
+                    actorAddresses.push(transaction.to.address);
+                }
 
                 destinationContract.transactions.push(transaction);
             }
@@ -427,6 +427,15 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
         contract.isCompleted = Array.isArray(contract.currentState[0]) &&
             contract.currentState[0].find(x => x.status == 1) == null;
+
+        if (Array.isArray(contract.transactions)) {
+            const orderedTransactions = contract.transactions
+                .sort((a, b) => parseInt(a.block.timestamp) - parseInt(b.block.timestamp));
+
+            const first = parseInt(orderedTransactions[0].block.timestamp);
+            const last = parseInt(orderedTransactions[orderedTransactions.length - 1].block.timestamp);
+            contract.executionTime = last - first;
+        }
     }
 
 });
