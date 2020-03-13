@@ -90,9 +90,25 @@
             </div>
 
             <div class="col-lg-6" ng-show="selectedModel">
-                <h5>{{selectedModel.name}}</h5>
-                <div>Uploaded by: {{selectedModel.uploadedBy}}</div>
-                <div>All roles: <span ng-repeat="role in selectedModel.roles">{{role}} </span></div>
+                <!-- <div class="row"> -->
+                    <h5 class="col-md-10">{{selectedModel.name}}</h5>
+                    <!-- <a class="col-md-2 link messages-link">Messages</a> -->
+                <!-- </div> -->
+                <div class="mb-2">Uploaded by: {{selectedModel.uploadedBy}}</div>
+                <!-- <div>All roles: <span ng-repeat="role in selectedModel.roles">{{role}} </span></div> -->
+                <table ng-if="subscriptions != null" class="subscription-table mb-2">
+                    <tr>
+                        <th ng-repeat="role in subscriptionKeys">{{role}}</th>
+                    </tr>
+                    <tr>
+                        <td ng-repeat="role in subscriptionKeys">
+                            <div ng-repeat="item in subscriptions[role]">
+                                <small>{{item.actor}} (x {{item.times}})</small>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
                 <div id="canvas" style="height: 300px; border: 1px solid lightgray;"></div>
             </div>
 
@@ -116,7 +132,7 @@
                     </small>
                 </div>
 
-                <div class="mb-3" ng-if="completedInstances > 0">
+                <div class="mb-3">
                     <div>Total gas used</div>
                     <small>
                         Max. {{instancesMaxGasUsed}}

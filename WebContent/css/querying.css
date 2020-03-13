@@ -121,3 +121,29 @@
 	word-wrap: break-word;
 	border-bottom: 1px solid lightgray;
 }
+
+
+
+
+/* Roles table */
+
+.subscription-table {
+	border: 1px solid lightgray;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.subscription-table tr td,
+.subscription-table tr th {
+	padding: 4px 8px;
+	border: 1px solid lightgray;
+}
+
+.messages-link {
+	text-align: right;
+	font-size: small;
+}
+
+.messages-link:hover {
+	cursor: pointer;
+}

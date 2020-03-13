@@ -160,10 +160,10 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
             const ethContract = new web3.eth.Contract(abi, contract.address);
             await populateContractPastEvents(ethContract, contract, this);
             contract.currentState = await ethContract.methods.getCurrentState().call();
+            contract.subscriptions = await ethContract.methods.getRoles().call();
             processContract(contract);
         } catch (error) { console.log(error); }
     }
-
 
     this.getContractDataFromInstance = async function (instanceId) {
         return $http.post(`http://localhost:8080/ChorChain/rest/getContractFromInstance/${instanceId}`);
