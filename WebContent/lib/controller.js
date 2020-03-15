@@ -41,7 +41,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				var paytop = document.getElementById('paymentCheckTop').checked;
 				var messagetop = "";
 				if(paytop == true){
-					messagetop = "payment"+payCount+"(address payable to)";
+					messagetop = "payment"+payCount+"()";
 					payCount += 1;
 				} else {
 					if($scope.task.fnametop != "" && $scope.task.fnametop !=undefined){
@@ -64,7 +64,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				var paybottom = document.getElementById('paymentCheckBottom').checked;
 				var messagebottom = "";
 				if(paybottom == true){
-					messagebottom = "payment"+payCount+"(address payable to)";
+					messagebottom = "payment"+payCount+"()";
 					payCount += 1;
 				} else {
 					if($scope.task.fnamebot != "" && $scope.task.fnamebot != undefined){
@@ -85,6 +85,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				paytop = false;
 				paybottom = false;
 				document.getElementById('paymentCheckBottom').checked = false;
+				document.getElementById('paymentCheckTop').checked = false;
 				$scope.removeParameters();
 				$scope.task.fnamebot = "";
 				$scope.task.fnametop="";
@@ -139,11 +140,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						   $('.djs-direct-editing-content').focus();
 						   
 						   }
-					   if($('#paymentCheck').is(':checked'))
-					   {  
-						
+					   if($('#paymentCheck').is(':checked')) {
 						$scope.countPayment++;
-					   	$scope.str = "payment"+$scope.countPayment+"(address payable to)";
+					   	$scope.str = "payment"+$scope.countPayment+"()";
 					   	$('.djs-direct-editing-content').text($scope.str);
 					   	$('.djs-direct-editing-content').focus();					   
 					   	
