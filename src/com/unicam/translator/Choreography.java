@@ -185,8 +185,8 @@ public class Choreography {
 			}
 		}
 
-		intro += " ]; \n" + "	mapping(string=>address) roles; \r\n"
-				+ "	mapping(string=>address) optionalRoles; \r\n";
+		intro += " ]; \n" + "	mapping(string=>address payable) roles; \r\n"
+				+ "	mapping(string=>address payable) optionalRoles; \r\n";
 		String constr = "constructor() public{\r\n" + "    //struct instantiation\r\n"
 				+ "    for (uint i = 0; i < elementsID.length; i ++) {\r\n"
 				+ "        elements.push(Element(elementsID[i], State.DISABLED));\r\n"
@@ -228,6 +228,30 @@ public class Choreography {
 				+ "				" + parseSid(startEventAdd) + "();\r\n" + "       	}\r\n"
 				+ "			emit functionDone(\"Contract creation\"); \n "
 				+ "  }\r\n"
+				+ " function getRoles() public view returns( string[] memory, address[] memory){\n" +
+				"    uint c = roleList.length;\n" +
+				"    string[] memory allRoles = new string[](c);\n" +
+				"    address[] memory allAddresses = new address[](c);\n" +
+				"    \n" +
+				"    for(uint i = 0; i < roleList.length; i ++){\n" +
+				"        allRoles[i] = roleList[i];\n" +
+				"        allAddresses[i] = roles[roleList[i]];\n" +
+				"    }\n" +
+				"    return (allRoles, allAddresses);\n" +
+				"}" +
+                "   function getOptionalRoles() public view returns( string[] memory, address[] memory){\n" +
+                "       require(optionalList.length > 0);\n" +
+                "       uint c = optionalList.length;\n" +
+                "       string[] memory allRoles = new string[](c);\n" +
+                "       address[] memory allAddresses = new address[](c);\n" +
+                "       \n" +
+                "       for(uint i = 0; i < optionalList.length; i ++){\n" +
+                "           allRoles[i] = optionalList[i];\n" +
+                "           allAddresses[i] = optionalRoles[optionalList[i]];\n" +
+                "       }\n" +
+                "    \n" +
+                "       return (allRoles, allAddresses);\n" +
+                "   }\n"
 				+ "\nfunction subscribe_as_participant(string memory _role) public {\r\n"
 				+ "        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n"
 				+ "          optionalRoles[_role]=msg.sender;\r\n" + "        }\r\n" + "    }\n"
@@ -279,7 +303,6 @@ public class Choreography {
 	}
 
 	private static String addToMemory(String msg) {
-
 		String add = "";
 		String n = msg.replace("string", "").replace("uint", "").replace("bool", "").replace(" ", "");
 		String r = n.replace(")", "");
@@ -294,12 +317,21 @@ public class Choreography {
 		return add;
 	}
 
-	private static String createTransaction(String msg) {
+	private static String createTransaction(ChoreographyTask task, List<String> optionalRoles,
+                                            List<String> mandatoryRoles) {
 		String ret = "";
-		String n = msg.replace("address", "").replace("payable", "");
+		Participant toPay = task.getParticipantRef();
+		if(mandatoryRoles.contains(toPay.getName())){
+            ret = "roles[\"" + toPay.getName() + "\"].transfer(msg.value);";
+        }
+         else if(optionalRoles.contains(toPay.getName())){
+            ret = "optionalRoles[\"" + toPay.getName() + "\"].transfer(msg.value);";
+        }
+		/*String n = msg.replace("address", "").replace("payable", "");
 		String r = n.replace(")", "");
 		String[] t = r.split("\\(");
-		ret = t[1] + ".transfer(msg.value);";
+		ret = t[1] + ".transfer(msg.value);";*/
+
 
 		return ret;
 	}
@@ -562,7 +594,7 @@ public class Choreography {
 								+ " public payable " + pName + ") {\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false)
 								+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-								+ createTransaction(request) + "\n" + eventBlock;
+								+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock;
 					} else {
 
 						descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
@@ -591,7 +623,7 @@ public class Choreography {
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, false)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-							+ createTransaction(request) + "\n" + eventBlock + "}\n";
+							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock + "}\n";
 						} else {
 							taskNull = false;
 
@@ -617,7 +649,7 @@ public class Choreography {
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, true)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, true) + "\");\n"
-							+ createTransaction(response) + "\n" + eventBlock;
+							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock;
 						} else {
 							taskNull = false;
 							pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);
