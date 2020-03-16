@@ -369,9 +369,9 @@ public class ContractFunctions {
 		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
 		  pendingTransaction = true;
-		  //if(transactionResponse.hasError()) {
-		  //System.out.println(transactionResponse.getError().getData());
-		  //System.out.println(transactionResponse.getError().getMessage());}
+		  if(transactionResponse.hasError()) {
+		  System.out.println(transactionResponse.getError().getData());
+		  System.out.println(transactionResponse.getError().getMessage());}
 		  String transactionHash = transactionResponse.getTransactionHash();  
 		  //System.out.println("Thash: " + transactionHash);
 		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();

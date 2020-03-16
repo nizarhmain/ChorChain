@@ -362,14 +362,26 @@ public class Choreography {
 	// if is var==var result is currentMemory.var, var
 	private static String addCompareString(ModelElementInstance outgoing) {
 		String guards = outgoing.getAttributeValue("name");
-		String[] guardValue = guards.split("==");
+
 		String res = "";
 
 		if (guards.contains("\"")) {
-
+			String[] guardValue = guards.split("==");
 			res = "compareStrings(currentMemory." + guardValue[0] + ", " + guardValue[1] + ")==true";
-		} else {
-			res = "currentMemory." + outgoing.getAttributeValue("name");
+		} else if(guards.contains("==")){
+			res = "currentMemory." + guards;
+		} else if(guards.contains(">=")){
+			String[] guardValue = guards.split(">=");
+			res = "currentMemory." + guardValue[0] + ">= currentMemory." + guardValue[1] ;
+		} else if(guards.contains(">")){
+			String[] guardValue = guards.split(">");
+			res = "currentMemory." + guardValue[0] + "> currentMemory." + guardValue[1] ;
+		} else if(guards.contains("<=")){
+			String[] guardValue = guards.split("<=");
+			res = "currentMemory." + guardValue[0] + "<= currentMemory." + guardValue[1] ;
+		} else if(guards.contains("<")){
+			String[] guardValue = guards.split("<");
+			res = "currentMemory." + guardValue[0] + "< currentMemory." + guardValue[1] ;
 		}
 
 		// System.out.println("RESULTT: " + res);
