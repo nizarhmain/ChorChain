@@ -33,6 +33,25 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     $scope.selectedTransactions = false;
 
 
+    var accountInterval = setInterval(function () {
+
+        $('.djs-group').dblclick(function (e) {
+            e.stopPropagation();
+            //event.stopPropagation()
+
+            //taskid = e.currentTarget.childNodes[0].dataset.elementId;
+            var message = e.currentTarget.childNodes[0].dataset.elementId;
+            showSingleTransaction(message);
+            //$('#auditing').modal('show');
+
+            //angular.element(document.getElementById('controllerBody')).scope().showSingleTransaction(message);
+
+        });
+    }, 100);
+    //document.getElementsByClassName("djs-group").ondblclick = function() {console.log("ciao")};
+
+
+
     $scope.getModels = async function () {
         $scope.isRetrievingData = true;
         try {
@@ -61,6 +80,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         $scope.isShowingTransactionsDialog = true;
         $scope.selectedTransactions = transactions;
         for (const item of transactions) { normalizeNumbersAndDates(item); }
+    }
+
+    function showSingleTransaction(messageId){
+        $scope.isShowingTransactionsDialog = true;
+        console.log($scope.isShowingTransactionsDialog);
+        console.log(messageId);
     }
 
     $scope.closeTransactionsDialog = function () {
