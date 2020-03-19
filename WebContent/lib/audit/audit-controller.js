@@ -57,7 +57,7 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         try {
             const models = await graphqlClientService.getModels();
             $scope.$apply(() => {
-                $scope.models = models;
+                $scope.models = models.sort((a, b) => a.name.localeCompare(b.name));
                 $scope.isRetrievingData = false;
             });
         } catch (error) {
@@ -82,7 +82,7 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         for (const item of transactions) { normalizeNumbersAndDates(item); }
     }
 
-    function showSingleTransaction(messageId){
+    function showSingleTransaction(messageId) {
         $scope.isShowingTransactionsDialog = true;
         console.log($scope.isShowingTransactionsDialog);
         console.log(messageId);
@@ -199,12 +199,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             $scope.instancesMaxExecutionTime = Math.max(...completedInstances.map(i => i.executionTime));
             $scope.instancesMinExecutionTime = Math.min(...completedInstances.map(i => i.executionTime));
             const totalExecutionTime = completedInstances.map(i => i.executionTime).reduce((a, b) => a + b, 0);
-            $scope.instancesAverageExecutionTime = totalExecutionTime / model.instances.length;
+            $scope.instancesAverageExecutionTime = totalExecutionTime / completedInstances.length;
 
             $scope.instancesMinGasUsed = Math.max(...completedInstances.map(i => i.totalGasUsed));
             $scope.instancesMaxGasUsed = Math.min(...completedInstances.map(i => i.totalGasUsed));
             const totalGasUsed = completedInstances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
-            $scope.instancesAverageGasUsed = totalGasUsed / model.instances.length;
+            $scope.instancesAverageGasUsed = totalGasUsed / completedInstances.length;
         }
     }
 

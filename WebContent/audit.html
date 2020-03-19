@@ -82,7 +82,7 @@
 
             <div class="col-lg-3" ng-show="models" ng-cloak>
                 <h5 mb-3>Model File List</h5>
-                <ul class="list-group">
+                <ul class="list-group models-list">
                     <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models">
                         <a ng-click="selectModel(model)" class="nav-link">{{model.name}}</a>
                     </li>
@@ -91,8 +91,8 @@
 
             <div class="col-lg-6" ng-show="selectedModel">
                 <!-- <div class="row"> -->
-                    <h5 class="col-md-10">{{selectedModel.name}}</h5>
-                    <!-- <a class="col-md-2 link messages-link">Messages</a> -->
+                <h5 class="col-md-10">{{selectedModel.name}}</h5>
+                <!-- <a class="col-md-2 link messages-link">Messages</a> -->
                 <!-- </div> -->
                 <div class="mb-2">Uploaded by: {{selectedModel.uploadedBy}}</div>
                 <!-- <div>All roles: <span ng-repeat="role in selectedModel.roles">{{role}} </span></div> -->
@@ -141,8 +141,9 @@
                     </small>
                 </div>
 
-                <div ng-repeat="instance in selectedModel.instances">
-                    <div class="card card-body" style="cursor:pointer; margin-bottom: 8px;"
+                <div class="instances-list">
+                    <div ng-repeat="instance in selectedModel.instances" class="card card-body"
+                        style="cursor:pointer; margin-bottom: 8px;"
                         ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
                         <div class="instance-title">
                             <img class="icon" src="resources/icons/ic_completed.png"
@@ -176,7 +177,9 @@
                             </small>
                         </div>
                     </div>
+
                 </div>
+
             </div>
 
         </div>

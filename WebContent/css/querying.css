@@ -147,3 +147,15 @@
 .messages-link:hover {
 	cursor: pointer;
 }
+
+
+
+.models-list {
+	max-height: calc(100vh - 132px);
+	overflow-y: scroll;
+}
+
+.instances-list {
+	max-height: calc(100vh - 252px);
+	overflow-y: scroll;
+}
