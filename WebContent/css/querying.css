@@ -113,6 +113,10 @@
 	text-decoration: underline !important;
 }
 
+.link:hover {
+	cursor: pointer;
+}
+
 .transaction-item {
 	max-width: 100%;
 	overflow: hidden;

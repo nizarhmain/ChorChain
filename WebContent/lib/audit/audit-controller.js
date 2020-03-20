@@ -6,6 +6,8 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.selectedModel;
 
+    $scope.selectedInstance;
+
     $scope.totalInstances = 0;
 
     $scope.instancesMaxExecutionTime = 0;
@@ -74,6 +76,10 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         console.log("final model", model);
         $scope.$apply(() => updateInstancesData(model));
         $scope.$apply(() => $scope.isRetrievingData = false);
+    }
+
+    $scope.selectInstance = function (instance) {
+        $scope.selectedInstance = instance;
     }
 
     $scope.showTransactions = function (transactions) {
