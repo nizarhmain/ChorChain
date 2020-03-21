@@ -94,9 +94,21 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     }
 
     function showSingleTransaction(messageId) {
-        $scope.isShowingTransactionsDialog = true;
-        console.log($scope.isShowingTransactionsDialog);
-        console.log(messageId);
+        console.log($scope.selectedInstance);
+        const buff = [];
+        const allTransactions = $scope.selectedInstance.deployedContract.transactions;
+        for(const transaction of allTransactions){
+            console.log(transaction);
+
+            if(transaction.decodedInput && transaction.decodedInput.includes(messageId)){
+                buff.push(transaction)
+                //$scope.selectedTransactions.push(transaction);
+            }
+        }
+        $scope.selectedTransactions = buff;
+       // $scope.selectedTransactions = $scope.selectedInstance.deployedContract.transactions;
+        $scope.$apply(() => $scope.isShowingTransactionsDialog = true);
+        console.log($scope.selectedInstance);
     }
 
     $scope.closeTransactionsDialog = function () {
