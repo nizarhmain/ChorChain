@@ -131,12 +131,6 @@
 
 /* Roles table */
 
-.subscription-table {
-	border: 1px solid lightgray;
-	border-collapse: collapse;
-	width: 100%;
-}
-
 .subscription-table tr td,
 .subscription-table tr th {
 	padding: 4px 8px;
@@ -162,4 +156,17 @@
 .instances-list {
 	max-height: calc(100vh - 252px);
 	overflow-y: scroll;
+}
+
+.roles-panel {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.roles-panel div {
+	margin-left: 12px;
+}
+
+.roles-panel div:first-of-type {
+	margin-left: 0;
 }

@@ -28,6 +28,10 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.subscriptions = null;
 
+    $scope.selectedSubscription = null;
+
+    $scope.isShowingSubscriptionDialog = false;
+
     $scope.isRetrievingData = false;
 
     $scope.isShowingTransactionsDialog = false;
@@ -97,6 +101,17 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     $scope.closeTransactionsDialog = function () {
         $scope.selectedTransactions = null;
         $scope.isShowingTransactionsDialog = false;
+    }
+
+    $scope.showRoleUsers = function(subscription) {
+        console.log("Mostro la seguente subscription: ", subscription);
+        $scope.selectedSubscription = subscription;
+        $scope.isShowingSubscriptionDialog = true;
+    }
+
+    $scope.closeSubscriptionsDialog = function() {
+        $scope.selectedSubscription = null;
+        $scope.isShowingSubscriptionDialog = false;
     }
 
 

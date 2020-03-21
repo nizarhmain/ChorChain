@@ -96,7 +96,9 @@
                 <!-- </div> -->
                 <div class="mb-2">Uploaded by: {{selectedModel.uploadedBy}}</div>
                 <!-- <div>All roles: <span ng-repeat="role in selectedModel.roles">{{role}} </span></div> -->
-                <table ng-if="subscriptions != null" class="subscription-table mb-2">
+
+
+                <!-- <table ng-if="subscriptions != null" class="subscription-table mb-2">
                     <tr>
                         <th ng-repeat="role in subscriptionKeys">{{role}}</th>
                     </tr>
@@ -107,7 +109,8 @@
                             </div>
                         </td>
                     </tr>
-                </table>
+                </table> -->
+
 
                 <div id="canvas" style="height: 300px; border: 1px solid lightgray;"></div>
 
@@ -160,6 +163,30 @@
                         <span class="ml-3">Av. {{instancesAverageGasUsed}}</span>
                     </small>
                 </div>
+
+
+                <div ng-if="subscriptions != null" class="mb-3">
+                    <div><b>Roles</b></div>
+                    <div class="roles-panel">
+                        <div ng-repeat="role in subscriptionKeys" class="link"
+                            ng-click="showRoleUsers(subscriptions[role])">
+                            <small>{{role}}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <table ng-if="subscriptions != null" class="subscription-table mb-2">
+                    <tr>
+                        <th ng-repeat="role in subscriptionKeys">{{role}}</th>
+                    </tr>
+                    <tr>
+                        <td ng-repeat="role in subscriptionKeys">
+                            <div ng-repeat="item in subscriptions[role]">
+                                <small>{{item.actor}} (x {{item.times}})</small>
+                            </div>
+                        </td>
+                    </tr>
+                </table> -->
 
                 <div class="instances-list">
                     <div ng-repeat="instance in selectedModel.instances" class="card card-body"
@@ -234,6 +261,23 @@
             </div>
             <div class="dialog-actions">
                 <button class="btn btn-primary" ng-click="closeTransactionsDialog()">Ok</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="dialog-container" ng-if="isShowingSubscriptionDialog">
+        <div class="dialog">
+            <div class="dialog-title">Users</div>
+            <div class="dialog-content" style="overflow-y: scroll;">
+                <div ng-repeat="item in selectedSubscription">
+                    <small>{{item.actor}} (x {{item.times}})</small>
+                </div>
+            </div>
+            <div class="dialog-actions">
+                <button class="btn btn-primary" ng-click="closeSubscriptionsDialog()">Ok</button>
             </div>
         </div>
     </div>
