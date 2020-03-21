@@ -32,6 +32,8 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.isShowingSubscriptionDialog = false;
 
+    $scope.isShowingMessagesDialog = false;
+
     $scope.isRetrievingData = false;
 
     $scope.isShowingTransactionsDialog = false;
@@ -77,7 +79,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         await showModelBPMN(model);
         await retrieveModelData(model);
         processModelData(model);
-        console.log("final model", model);
         $scope.$apply(() => updateInstancesData(model));
         $scope.$apply(() => $scope.isRetrievingData = false);
     }
@@ -103,15 +104,22 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         $scope.isShowingTransactionsDialog = false;
     }
 
-    $scope.showRoleUsers = function(subscription) {
-        console.log("Mostro la seguente subscription: ", subscription);
+    $scope.showRoleUsers = function (subscription) {
         $scope.selectedSubscription = subscription;
         $scope.isShowingSubscriptionDialog = true;
     }
 
-    $scope.closeSubscriptionsDialog = function() {
+    $scope.closeSubscriptionsDialog = function () {
         $scope.selectedSubscription = null;
         $scope.isShowingSubscriptionDialog = false;
+    }
+
+    $scope.showModelMessages = function() {
+        $scope.isShowingMessagesDialog = true;
+    }
+
+    $scope.closeMessagesDialog = function() {
+        $scope.isShowingMessagesDialog = false;
     }
 
 
@@ -137,7 +145,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
                 continue;
 
             await graphqlClientService.getContractDataWithWeb3(contract);
-            console.log("Istanza", instance);
         }
     }
 
@@ -149,9 +156,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
                 continue;
 
             processInstanceSubscriptions(instance, subscriptions);
-            processInstanceMessages(instance, messages);
+            const instanceMessages = getInstanceMessages(instance);
+            addInstanceMessagesToModelMessages(instanceMessages, messages);
         }
 
+        console.log("Total messages", messages);
+        model.messages = messages;
         model.subscriptions = subscriptions;
     }
 
@@ -179,14 +189,15 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         }
     }
 
-    function processInstanceMessages(instance, actualMessages) {
+    function getInstanceMessages(instance) {
         const contract = instance.deployedContract;
-        console.log(instance.deployedContract.transactions);
         if (!contract || !contract.transactions || contract.transactions.length <= 0)
-            return;
+            return null;
 
-        const result = groupBy(contract.transactions, 'decodedInput');
-        console.log(result);
+        let finalTransactions = contract.transactions.map(t => addMessageToTransaction(t));
+        finalTransactions = groupBy(finalTransactions, 'message');
+        delete finalTransactions.undefined;
+        return finalTransactions;
     }
 
     function groupBy(xs, key) {
@@ -195,6 +206,43 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             return rv;
         }, {});
     };
+
+    function addMessageToTransaction(transaction) {
+        if (!transaction.decodedInput) {
+            if (transaction.hasOwnProperty("decodedInput"))
+                delete transaction.decodedInput;
+            return transaction;
+        }
+
+        let message = transaction.decodedInput;
+        while (message.indexOf(':') != -1) {
+            const start = message.indexOf(':');
+            let end = message.indexOf(',');
+            if (end === -1)
+                end = message.indexOf(')');
+            if (end === -1)
+                break;
+            const subs = message.substring(start, end);
+            message = message.replace(subs, '');
+        }
+
+        transaction.message = message;
+        return transaction;
+    }
+
+    function addInstanceMessagesToModelMessages(instanceMessages, modelMessages) {
+        if (!instanceMessages || !modelMessages)
+            return;
+
+        for (const item in instanceMessages) {
+            if (Array.isArray(modelMessages[item])) {
+                modelMessages[item] = modelMessages[item].concat(instanceMessages[item]);
+                continue;
+            }
+
+            modelMessages[item] = instanceMessages[item];
+        }
+    }
 
     function updateInstancesData(model) {
         $scope.subscriptions = model.subscriptions;
