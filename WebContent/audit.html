@@ -80,6 +80,7 @@
     <div class="container-fluid" style="padding-top: 16px;">
         <div class="row" data-ng-init="getModels()">
 
+            <!-- Left column - list of models -->
             <div class="col-lg-3" ng-show="models" ng-cloak>
                 <h5 mb-3>Model File List</h5>
                 <ul class="list-group models-list">
@@ -89,6 +90,7 @@
                 </ul>
             </div>
 
+            <!-- Center column - bpmn and selection informations -->
             <div class="col-lg-6" ng-show="selectedModel">
                 <div class="row">
                     <h5 class="col-md-10">{{selectedModel.name}}</h5>
@@ -104,6 +106,8 @@
                         <small class="ml-2">
                             <a ng-click="showTransactions(selectedInstance.deployedContract.transactions)" class="link"
                                 ng-if="selectedInstance.deployedContract.transactions">Transacions</a>
+                            <a ng-click="showInstanceMessages()" class="link ml-3"
+                                ng-if="selectedInstance.messages">Messages</a>
                         </small>
                     </h5>
 
@@ -115,14 +119,35 @@
                     <div class="mt-2">
                         Total gas used: {{selectedInstance.totalGasUsed ? selectedInstance.totalGasUsed : '-'}}
                     </div>
+
+                    <table class="table table-bordered table-striped mt-3" ng-if="selectedInstance.subscriptions">
+                        <tr>
+                            <th>Role</th>
+                            <th>User</th>
+                            <th>Gas used</th>
+                        </tr>
+                        <tr ng-repeat="sub in selectedInstance.subscriptions">
+                            <td>
+                                <small>{{sub.role}}</small>
+                                <small ng-if="!sub.mandatory">(optional)</small>
+                                <small ng-if="sub.mandatory" style="font-weight: normal;">(mandatory)</small>
+                            </td>
+                            <td><small>{{sub.actor}}</small></td>
+                            <td><small>{{getUserGasUsed(sub.actor)}}</small></td>
+                        </tr>
+                    </table>
+
                 </div>
 
             </div>
 
+            <!-- Right column - model statistics and instances -->
             <div class="col-lg-3" ng-show="selectedModel">
 
                 <div ng-if="subscriptions != null && subscriptionKeys.length > 0" class="mb-3">
-                    <div><h5>Roles</h5></div>
+                    <div>
+                        <h5>Model roles</h5>
+                    </div>
                     <div class="roles-panel">
                         <div ng-repeat="role in subscriptionKeys" class="link"
                             ng-click="showRoleUsers(subscriptions[role])">
@@ -235,7 +260,7 @@
             <div class="dialog-title">Messages</div>
             <div class="dialog-content" style="overflow-y: scroll;">
 
-                <div ng-repeat="(message, transactions) in selectedModel.messages" class="mb-4">
+                <div ng-repeat="(message, transactions) in dialogMessages" class="mb-4">
                     <div style="font-weight: bold; margin-bottom: 8px;">
                         <span>{{message}}</span>
                         <small style="font-weight: normal;" class="mb-1">[Sent {{transactions.length}} times]</small>

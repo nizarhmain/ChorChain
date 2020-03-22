@@ -34,6 +34,8 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.isShowingMessagesDialog = false;
 
+    $scope.dialogMessages = null;
+
     $scope.isRetrievingData = false;
 
     $scope.isShowingTransactionsDialog = false;
@@ -75,6 +77,7 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.selectModel = async function (model) {
         $scope.selectedModel = model;
+        $scope.selectedInstance = null;
         $scope.isRetrievingData = true;
         await showModelBPMN(model);
         await retrieveModelData(model);
@@ -97,16 +100,16 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         console.log($scope.selectedInstance);
         const buff = [];
         const allTransactions = $scope.selectedInstance.deployedContract.transactions;
-        for(const transaction of allTransactions){
+        for (const transaction of allTransactions) {
             console.log(transaction);
 
-            if(transaction.decodedInput && transaction.decodedInput.includes(messageId)){
+            if (transaction.decodedInput && transaction.decodedInput.includes(messageId)) {
                 buff.push(transaction)
                 //$scope.selectedTransactions.push(transaction);
             }
         }
         $scope.selectedTransactions = buff;
-       // $scope.selectedTransactions = $scope.selectedInstance.deployedContract.transactions;
+        // $scope.selectedTransactions = $scope.selectedInstance.deployedContract.transactions;
         $scope.$apply(() => $scope.isShowingTransactionsDialog = true);
         console.log($scope.selectedInstance);
     }
@@ -126,12 +129,37 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         $scope.isShowingSubscriptionDialog = false;
     }
 
-    $scope.showModelMessages = function() {
+    $scope.showModelMessages = function () {
         $scope.isShowingMessagesDialog = true;
+        $scope.dialogMessages = $scope.selectedModel.messages;
     }
 
-    $scope.closeMessagesDialog = function() {
+    $scope.showInstanceMessages = function () {
+        $scope.isShowingMessagesDialog = true;
+        $scope.dialogMessages = $scope.selectedInstance.messages;
+    }
+
+    $scope.closeMessagesDialog = function () {
         $scope.isShowingMessagesDialog = false;
+        $scope.dialogMessages = null;
+    }
+
+    $scope.getUserGasUsed = function (user) {
+        if (!$scope.selectedInstance || !$scope.selectedInstance.deployedContract || !$scope.selectedInstance.deployedContract.transactions)
+            return '';
+
+        const transactions = $scope.selectedInstance.deployedContract.transactions;
+        const userTransactions = transactions.filter(t => t.from.address.toLowerCase() === user.toLowerCase());
+        if (!Array.isArray(userTransactions))
+            return '';
+
+        let userGas = 0;
+        for (const transaction of userTransactions) {
+            userGas += parseInt(transaction.gasUsed);
+        }
+
+        const percentage = userGas * 100 / $scope.selectedInstance.totalGasUsed;
+        return `${userGas} (${percentage}%)`;
     }
 
 
@@ -168,13 +196,14 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
                 continue;
 
             processInstanceSubscriptions(instance, subscriptions);
-            const instanceMessages = getInstanceMessages(instance);
-            addInstanceMessagesToModelMessages(instanceMessages, messages);
+            instance.messages = getInstanceMessages(instance);
+            addInstanceMessagesToModelMessages(instance.messages, messages);
         }
 
-        console.log("Total messages", messages);
         model.messages = messages;
         model.subscriptions = subscriptions;
+
+        console.log("final model", model);
     }
 
     function processInstanceSubscriptions(instance, actualSubscriptions) {
@@ -184,9 +213,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
         const contractRoles = contract.subscriptions[0];
         const contractActors = contract.subscriptions[1];
+        instance.subscriptions = [];
         for (let i = 0; i < contractRoles.length; i++) {
             const role = contractRoles[i];
             const actor = contractActors[i];
+            const mandatory = instance.mandatoryRoles.find(r => r === role) != null;
+            instance.subscriptions.push({ actor: actor, role: role, mandatory: mandatory });
             if (!actualSubscriptions.hasOwnProperty(role))
                 actualSubscriptions[role] = [{ actor: actor, times: 1 }];
             else {
