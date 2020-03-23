@@ -48,7 +48,7 @@
   <nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
     <div class="container">
       <!-- <a class="navbar-brand" href="index.html"></i> ChorChain</a>--->
-      	<img src="ChorChain_logo.png" width="150" height="52" alt="ChorChin logo">
+      <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChin logo">
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -65,13 +65,16 @@
             <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
           </li>
           <li class="nav-item">
-            <a href="deploy.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
+            <a href="deploy.html" class="nav-link"><span data-hover="Deploy">Deploy</span></a>
           </li>
           <li class="nav-item">
-              <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
+            <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
           </li>
           <li class="nav-item">
             <a href="audit.html" class="nav-link"><span data-hover="Audit">Audit</span></a>
+          </li>
+          <li class="nav-item">
+            <a href="personalPage.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
           </li>
         </ul>
         <!--  
@@ -93,19 +96,19 @@
         <div class="col-lg-3">
           <div class="card">
             <div class="card-body">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group flex-wrap" role="group">
-                <button class="btn custom-btn custom-btn-bg custom-btn-link " type="button" data-toggle="collapse"
-                  data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseExample">
-                  <i class="fas fa-upload"></i> Upload model
-                </button>
-                <button class="btn custom-btn  custom-btn-link" type="button" data-toggle="collapse"
-                  data-target="#collapseSearch" aria-expanded="false" aria-controls="collapseExample">
-                  <i class="fas fa-search"></i> Search
-                </button>
+              <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group flex-wrap" role="group">
+                  <button class="btn custom-btn custom-btn-bg custom-btn-link " type="button" data-toggle="collapse"
+                    data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fas fa-upload"></i> Upload model
+                  </button>
+                  <button class="btn custom-btn  custom-btn-link" type="button" data-toggle="collapse"
+                    data-target="#collapseSearch" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fas fa-search"></i> Search
+                  </button>
 
+                </div>
               </div>
-             </div>
               <div class="collapse" id="collapseUpload">
                 <div class="card card-body">
                   <form action="rest/upload" method="POST" enctype="multipart/form-data" class="text-center p-3">
@@ -134,7 +137,7 @@
                       <input type="text" class="form-control" ng-model="searchText" id="searchModel" name="role"
                         style="width:100%;">
                     </div>
-                    
+
                   </form>
                 </div>
               </div>
@@ -168,30 +171,30 @@
                       instance</button>
                     <button data-toggle="modal" data-target="#modalPreview" class="btn btn-success">See
                       model preview</button>
-                  
+
                     <form>
-	                    <!-- <select class="custom-select" ng-model="searchRole">
+                      <!-- <select class="custom-select" ng-model="searchRole">
 	                        <option ng-repeat="role in model.roles track by $index" value="{{role}}">{{role}}
 	                        </option>
 	                      </select>--->
-	                      <input type="text" class="form-control" ng-model="searchRole" id="searchRole" name="role">
-                     </form>
-                 
+                      <input type="text" class="form-control" ng-model="searchRole" id="searchRole" name="role">
+                    </form>
+
                   </div>
                 </div>
               </div>
             </div>
-              <div class="col-lg-12" >
-                          <div class="alert custom-alert-yellow mt-3 alert-dismissible fade show" ng-if="msg != null">
-            {{msg}}
-             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			    <span aria-hidden="true">&times;</span>
-			  </button>
-            </div> 
-            <div class="alert custom-alert-yellow mt-3" ng-if="model.instances.length == 0">
-            There are no instances for this model
-			 </div>
-			 <div ng-repeat="instance in model.instances | filter:searchRole">
+            <div class="col-lg-12">
+              <div class="alert custom-alert-yellow mt-3 alert-dismissible fade show" ng-if="msg != null">
+                {{msg}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="alert custom-alert-yellow mt-3" ng-if="model.instances.length == 0">
+                There are no instances for this model
+              </div>
+              <div ng-repeat="instance in model.instances | filter:searchRole">
                 <div class="card  my-2"
                   ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
                   <h5 class="card-header ">n� {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
@@ -254,9 +257,9 @@
               </div>
             </div>
           </div>
-          </div>
         </div>
       </div>
+    </div>
   </section>
 
   <!-- Modal preview -->
@@ -368,13 +371,13 @@
   <script src="lib/service.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
     integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
-  </script>
+    </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
     integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
-  </script>
+    </script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
-  </script>
+    </script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
   <script src="lib/app.js"></script>
   <script src="lib/appmodeler.js"></script>

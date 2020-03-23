@@ -29,7 +29,7 @@
 	<link rel="stylesheet" href="css/querying.css">
 
 	<style>
-		.highlight:not (.djs-connection ) .djs-visual>:nth-child(1) {
+		.highlight:not .djs-connection .djs-visual>:nth-child(1) {
 			fill: green !important;
 		}
 
@@ -114,14 +114,17 @@
 						<a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
 					</li>
 					<li class="nav-item">
-						<a href="deploy.html" class="nav-link active"><span data-hover="Personal Page">Personal
-								Page</span></a>
+						<a href="deploy.html" class="nav-link active"><span data-hover="Deploy">Deploy</span></a>
 					</li>
 					<li class="nav-item">
 						<a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
 					</li>
 					<li class="nav-item">
 						<a href="audit.html" class="nav-link"><span data-hover="Audit">Audit</span></a>
+					</li>
+					<li class="nav-item">
+						<a href="personalPage.html" class="nav-link"><span data-hover="Personal Page">Personal
+								Page</span></a>
 					</li>
 				</ul>
 			</div>
@@ -465,9 +468,9 @@
 							//var a = parameter;
 							//parArray = parameter.split('\,');
 							var splittedParams;
-							if(parameter.includes(', ')){
+							if (parameter.includes(', ')) {
 								splittedParams = parameter.split('\, ');
-							}else{
+							} else {
 								splittedParams = parameter.split('\,');
 							}
 

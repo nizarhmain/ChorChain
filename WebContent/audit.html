@@ -60,13 +60,17 @@
                         <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
                     </li>
                     <li class="nav-item">
-                        <a href="deploy.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
+                        <a href="deploy.html" class="nav-link"><span data-hover="Deploy">Deploy</span></a>
                     </li>
                     <li class="nav-item">
                         <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
                     </li>
                     <li class="nav-item">
                         <a href="audit.html" class="nav-link active"><span data-hover="Audit">Audit</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="personalPage.html" class="nav-link"><span data-hover="Personal Page">Personal
+                                Page</span></a>
                     </li>
                 </ul>
             </div>
@@ -273,7 +277,8 @@
                         <tr ng-repeat="transaction in transactions">
                             <td><small>{{transaction.hash}} <div style="color: gray">Instance:
                                         {{transaction.instanceId}}</div></small></td>
-                            <td style="display: table-cell; vertical-align: middle;"><small>{{transaction.from.address}}</small></td>
+                            <td style="display: table-cell; vertical-align: middle;">
+                                <small>{{transaction.from.address}}</small></td>
                         </tr>
                     </table>
                 </div>
