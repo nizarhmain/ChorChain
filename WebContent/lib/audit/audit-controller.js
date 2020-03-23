@@ -238,7 +238,8 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         if (!contract || !contract.transactions || contract.transactions.length <= 0)
             return null;
 
-        let finalTransactions = contract.transactions.map(t => addMessageToTransaction(t));
+        for (const tr of contract.transactions) { tr.instanceId = instance.id; }
+        let finalTransactions = contract.transactions.map(t => addMessageToTransaction(t, instance.deployedContract));
         finalTransactions = groupBy(finalTransactions, 'message');
         delete finalTransactions.undefined;
         return finalTransactions;
@@ -251,7 +252,7 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         }, {});
     };
 
-    function addMessageToTransaction(transaction) {
+    function addMessageToTransaction(transaction, contract) {
         if (!transaction.decodedInput) {
             if (transaction.hasOwnProperty("decodedInput"))
                 delete transaction.decodedInput;
@@ -270,8 +271,33 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             message = message.replace(subs, '');
         }
 
-        transaction.message = message;
+        const mappedMessage = getMessageFromContract(message, contract);
+        transaction.message = mappedMessage ? mappedMessage : message;
         return transaction;
+    }
+
+    function getMessageFromContract(key, contract) {
+        if (!key || !contract || !contract.tasks)
+            return key;
+
+        const parameters = getMethodParameters(key);
+        return contract.tasks.find(t => {
+            const tParams = getMethodParameters(t);
+            const matchedParams = parameters.filter(p => tParams.find(t => t.trim().indexOf(p.trim()) !== -1));
+            return matchedParams.length === parameters.length;
+        });
+    }
+
+    function getMethodParameters(value) {
+        if (!value)
+            return [value];
+
+        const start = value.indexOf('(');
+        const end = value.indexOf(')');
+        if (start === -1 || end === -1)
+            return [value];
+
+        return value.substring(start + 1, end).split(',');
     }
 
     function addInstanceMessagesToModelMessages(instanceMessages, modelMessages) {

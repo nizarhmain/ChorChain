@@ -81,7 +81,7 @@
         <div class="row" data-ng-init="getModels()">
 
             <!-- Left column - list of models -->
-            <div class="col-lg-3" ng-show="models" ng-cloak>
+            <div class="col-lg-2" ng-show="models" ng-cloak>
                 <h5 mb-3>Model File List</h5>
                 <ul class="list-group models-list">
                     <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models">
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Center column - bpmn and selection informations -->
-            <div class="col-lg-6" ng-show="selectedModel">
+            <div class="col-lg-7" ng-show="selectedModel">
                 <div class="row">
                     <h5 class="col-md-10">{{selectedModel.name}}</h5>
                     <a class="col-md-2 link messages-link" ng-click="showModelMessages()">Messages</a>
@@ -271,8 +271,9 @@
                             <th>Users</th>
                         </tr>
                         <tr ng-repeat="transaction in transactions">
-                            <td><small>{{transaction.hash}}</small></td>
-                            <td><small>{{transaction.from.address}}</small></td>
+                            <td><small>{{transaction.hash}} <div style="color: gray">Instance:
+                                        {{transaction.instanceId}}</div></small></td>
+                            <td style="display: table-cell; vertical-align: middle;"><small>{{transaction.from.address}}</small></td>
                         </tr>
                     </table>
                 </div>
