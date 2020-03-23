@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="css/diagram-js-preview.css" />
   <link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
   <link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
+  <link rel="stylesheet" href="css/querying.css">
 
   <!-- Modeler end import -->
 
@@ -140,7 +141,7 @@
             </div>
             <div class="card-body" ng-cloak>
               <h6>Model File List</h6>
-              <ul class="list-group">
+              <ul class="list-group models-list">
                 <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models | filter:searchText ">
                   <a ng-click="setModel(model)" class="nav-link "> <i class="fas fa-file"></i>
                     {{model.name}}</a>

@@ -26,6 +26,7 @@
 	<!-- Sweet alert -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
+	<link rel="stylesheet" href="css/querying.css">
 
 	<style>
 		.highlight-overlay {
@@ -129,7 +130,7 @@
 					<div class="card">
 						<div class="card-body" ng-cloak>
 							<h6>Model File List</h6>
-							<ul class="list-group ">
+							<ul class="list-group models-list">
 								<li class="list-group-item" ng-repeat="contract in contracts track by $index">
 									<a ng-click="getTask(contract.id); getPast()" class="nav-link" id="{{contract.id}}"
 										style="cursor:pointer">{{contract.name}}
@@ -172,13 +173,13 @@
 												<div class="form-group">
 													<input type="text" class="form-control" placeholder="Function input"
 														ng-model="param">
-													<div ng-show="payment == true">
+													<!--<div ng-show="payment == true">
 														<input type="text" class="form-control"
 															placeholder="Amount to send" ng-model="amount">
-													</div>
+													</div>--->
 												</div>
 												<input type="submit" class="btn btn-primary" value="Submit"
-													ng-click="launch(msg.ID, $index, contract.id, param, amount)"
+													ng-click="launch(msg.ID, $index, contract.id, param)"
 													id="submitbtn">
 											</form>
 											<div
@@ -392,22 +393,22 @@
 
 
 
-		$scope.launch = async function (task, $index, refresh, parameter, amount) {
+		$scope.launch = async function (task, $index, refresh, parameter) {
 			$("#submitbtn").prop("disabled", true);
-			var am = amount;
+			//var am = amount;
 
 			var params = parameter;
 			var name = $scope.actualContract.tasks[$index];
 			//console.log(name);
 			if (name.includes("payment")) {
 
-				var complete = task + '(address)';
+				var complete = task + '()';
 				var replaced = complete.replace(/-/g, '_');
 				//console.log($scope.myContract.methods);
 
 				var parArray = [];
-				parArray.push(parameter);
-				var newAmount = web3.utils.toWei(amount, 'ether');
+				//parArray.push(parameter);
+				var newAmount = web3.utils.toWei(params, 'ether');
 
 				$scope.myContract.methods[replaced].apply(this, parArray).send({
 					from: $scope.user.address,
