@@ -93,7 +93,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     $scope.showTransactions = function (transactions) {
         $scope.isShowingTransactionsDialog = true;
         $scope.selectedTransactions = transactions;
-        for (const item of transactions) { normalizeNumbersAndDates(item); }
     }
 
     function showSingleTransaction(messageId) {
@@ -325,11 +324,14 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
                 continue;
 
             let totalGas = 0;
+            let totalFee = 0;
             for (const transaction of instance.deployedContract.transactions) {
                 totalGas += parseInt(transaction.gasUsed);
+                totalFee += transaction.fee ? transaction.fee : 0;
             }
 
             instance.totalGasUsed = totalGas;
+            instance.totalFee = totalFee;
             instance.executionTime = isNaN(instance.deployedContract.executionTime) ? 0 : instance.deployedContract.executionTime;
         }
 
@@ -344,32 +346,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             $scope.instancesMaxGasUsed = Math.min(...completedInstances.map(i => i.totalGasUsed));
             const totalGasUsed = completedInstances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
             $scope.instancesAverageGasUsed = totalGasUsed / completedInstances.length;
-        }
-    }
-
-    // TODO: duplicated function, move to the service!
-    function normalizeNumbersAndDates(obj) {
-        const numericalProps = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed'];
-        for (const prop in obj) {
-            if (numericalProps.indexOf(prop) == -1)
-                continue;
-
-            const newValue = parseInt(obj[prop]);
-            if (newValue == null || isNaN(newValue))
-                continue;
-
-            obj[prop] = newValue;
-        }
-
-        // console.log("CONVERTO: ", obj);
-        if (obj.block && obj.block.timestamp) {
-            // console.log("ha il timestamp del blocco");
-            const intValue = parseInt(obj.block.timestamp);
-            // console.log("Intero parsato ", intValue);
-            const date = new Date(intValue * 1000);
-            // console.log("Data: ", date);
-            obj.block.timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
-            // console.log("RIsultato: ", obj);
         }
     }
 

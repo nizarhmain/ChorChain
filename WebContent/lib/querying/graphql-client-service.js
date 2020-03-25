@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('querying', []).service('graphqlClientService', function ($http) {
+angular.module('querying', ['ngCookies']).service('graphqlClientService', function ($http, $cookies) {
 
     // Public querying features
 
@@ -184,6 +184,27 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
     this.getModelFile = async function (modelName) {
         const response = await $http.post("rest/getXml/" + modelName);
+        if (!response || response.status != 200) {
+            throw new Error("Error executing the http request");
+        }
+
+        return Promise.resolve(response.data);
+    }
+
+
+    // public personal page features
+
+    this.isLoggedIn = function () {
+        return $cookies.get('UserId') != null;
+    }
+
+    this.getCurrentUser = async function () {
+        const userId = $cookies.get('UserId');
+        if (!userId) {
+            throw new Error("No user available");
+        }
+
+        const response = await $http.post("rest/getUserInfo/" + userId);
         if (!response || response.status != 200) {
             throw new Error("Error executing the http request");
         }
@@ -434,8 +455,40 @@ angular.module('querying', []).service('graphqlClientService', function ($http) 
 
             const first = parseInt(orderedTransactions[0].block.timestamp);
             const last = parseInt(orderedTransactions[orderedTransactions.length - 1].block.timestamp);
+            console.log("transazioni: prima, ultima ", contract.transactions, orderedTransactions);
             contract.executionTime = last - first;
+
+            for (const transaction of contract.transactions) {
+                normalizeNumbersAndDates(transaction);
+                calculateTransactionFee(transaction);
+            }
         }
+    }
+
+    function normalizeNumbersAndDates(obj) {
+        const numericalProps = ['nonce', 'value', 'gas', 'gasLimit', 'gasPrice', 'gasUsed', 'cumulativeGasUsed'];
+        for (const prop in obj) {
+            if (numericalProps.indexOf(prop) == -1)
+                continue;
+
+            const newValue = parseInt(obj[prop]);
+            if (newValue == null || isNaN(newValue))
+                continue;
+
+            obj[prop] = newValue;
+        }
+
+        if (obj.block && obj.block.timestamp) {
+            const intValue = parseInt(obj.block.timestamp);
+            const date = new Date(intValue * 1000);
+            obj.block.timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+        }
+    }
+
+    function calculateTransactionFee(transaction) {
+        const gasPrice = transaction.gasPrice / 1000000000000000000; //Convert wei to eth
+        const gasUsed = transaction.gasUsed;
+        transaction.fee = gasPrice * gasUsed;
     }
 
 });

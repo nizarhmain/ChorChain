@@ -34,7 +34,7 @@
 <body ng-app="querying" ng-controller="personalPageController" ng-cloak>
 
     <!-- MENU -->
-    <nav class="navbar navbar-expand-sm navbar-light bg-light" data-ng-init="setUser()">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light" data-ng-init="initializeUser()">
         <div class="container">
 
             <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChain logo">
@@ -63,7 +63,8 @@
                         <a href="audit.html" class="nav-link"><span data-hover="Audit">Audit</span></a>
                     </li>
                     <li class="nav-item">
-                        <a href="personalPage.html" class="nav-link active"><span data-hover="Personal Page">Personal Page</span></a>
+                        <a href="personalPage.html" class="nav-link active"><span data-hover="Personal Page">Personal
+                                Page</span></a>
                     </li>
                 </ul>
             </div>
@@ -75,16 +76,109 @@
 
 
     <div class="container-fluid" style="padding-top: 16px;">
-        {{test}}
+
+        <div ng-if="showNotLoggedInMessage">You must log in to access this page</div>
+
+        <div ng-if="!showNotLoggedInMessage" ng-cloak>
+
+            <div class="row">
+
+                <div class="col-lg-2" ng-show="models" ng-cloak>
+                    <h5 mb-3>Your models</h5>
+                    <ul class="list-group models-list">
+                        <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models">
+                            <a ng-click="selectModel(model)" class="nav-link">{{model.name}}</a>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="col-lg-7" ng-if="selectedModel">
+                    <h5>{{selectedModel.name}}</h5>
+
+                    <div class="mb-3">
+                        <div>Model instances: {{selectedModel.totalInstances}}</div>
+                        <div>Completed instances: {{selectedModel.completedInstances}}
+                            ({{selectedModel.completedInstancesPercentage}}%)</div>
+                    </div>
+                    
+
+                    <div ng-if="selectedModel.userRoles && selectedModel.userRoles.length > 0" class="mb-3">
+                        <div>Your roles</div>
+                        <div>
+                            <small ng-repeat="role in selectedModel.userRoles">
+                                {{role}} <span ng-if="role != selectedModel.userRoles[selectedModel.userRoles.length - 1]">-</span>
+                            </small>
+                        </div>
+                    </div>
+                    
+
+                    <div class="mb-3" style="display: flex; flex-direction: row; justify-content: space-between;">
+
+                        <div>
+                            <div>Execution time</div>
+                            <small>
+                                <span>Max. {{selectedModel.maxExecutionTime}}s</span>
+                                <span class="ml-3">Min. {{selectedModel.minExecutionTime}}s</span>
+                                <span class="ml-3">Av. {{selectedModel.avgExecutionTime}}s</span>
+                            </small>
+                        </div>
+
+                        <div>
+                            <div>Gas used</div>
+                            <small>
+                                <span>Max. {{selectedModel.maxGasUsed}}s</span>
+                                <span class="ml-3">Min. {{selectedModel.minGasUsed}}s</span>
+                                <span class="ml-3">Av. {{selectedModel.avgGasUsed}}s</span>
+                            </small>
+                        </div>
+
+                    </div>
+
+
+                    <b class="mb-2">Instances</b>
+                    <div ng-repeat="instance in selectedModel.instances" class="card card-body mb-3">
+                        <div class="instance-title mb-3">
+                            <img class="icon" src="resources/icons/ic_completed.png"
+                                ng-if="instance.deployedContract.isCompleted" />
+                            <img class="icon" src="resources/icons/ic_processing.png"
+                                ng-if="!instance.deployedContract.isCompleted" />
+                            <div class="ml-2"><b>{{instance.id}}</b></div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <div>Execution time: {{instance.executionTime}}s</div>
+                                <div>Total gas used: {{instance.totalGasUsed}}</div>
+                                <div>Total fee: {{instance.totalFee.toFixed(10)}}</div>
+                            </div>
+                            <div ng-if="instance.userRoles && instance.userRoles.length > 0">
+                                <div>Your roles</div>
+                                <div>
+                                    <span ng-repeat="role in instance.userRoles">
+                                        {{role}} <span ng-if="role != instance.userRoles[instance.userRoles.length - 1]">-</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
 
 
     <!-- Spinner overlay -->
-    <!-- <div class="spinner-container" ng-if="isRetrievingData">
+    <div class="spinner-container" ng-if="isRetrievingData">
         <div class="spinner"></div>
         <div>Retrieving data...</div>
-    </div> -->
+    </div>
 
 
 

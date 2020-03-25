@@ -123,6 +123,9 @@
                     <div class="mt-2">
                         Total gas used: {{selectedInstance.totalGasUsed ? selectedInstance.totalGasUsed : '-'}}
                     </div>
+                    <div class="mt-2">
+                        Total fee: {{selectedInstance.totalFee ? selectedInstance.totalFee.toFixed(10) : '-'}}
+                    </div>
 
                     <table class="table table-bordered table-striped mt-3" ng-if="selectedInstance.subscriptions">
                         <tr>
@@ -227,6 +230,7 @@
                 <div ng-repeat="transaction in selectedTransactions" class="transaction-item">
                     <div class="mb-1"><b>{{transaction.hash}}</b></div>
                     <div class="mb-1" ng-if="transaction.gasUsed">GasUsed: {{transaction.gasUsed}}</div>
+                    <div class="mb-1" ng-if="transaction.fee">Fee: {{transaction.fee.toFixed(10)}}</div>
                     <div class="mb-1" ng-if="transaction.value">Value: {{transaction.value}}</div>
                     <div class="mb-1" ng-if="transaction.from">From: {{transaction.from.address}}</div>
                     <div class="mb-1" ng-if="transaction.to">To: {{transaction.to.address}}</div>
