@@ -54,7 +54,8 @@
                         <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
                     </li>
                     <li class="nav-item">
-                        <a href="deploy.html" class="nav-link"><span data-hover="Deploy">Deploy</span></a>
+                        <a href="deploy.html" class="nav-link"><span data-hover="Running Contracts">Running
+                                Contracts</span></a>
                     </li>
                     <li class="nav-item">
                         <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
@@ -77,7 +78,7 @@
 
     <div class="container-fluid" style="padding-top: 16px;">
 
-        <div ng-if="showNotLoggedInMessage">You must log in to access this page</div>
+        <h3 ng-if="showNotLoggedInMessage">You must log in to access this page</h3>
 
         <div ng-if="!showNotLoggedInMessage" ng-cloak>
 
@@ -101,17 +102,40 @@
                         <div>Completed instances: {{selectedModel.completedInstances}}
                             ({{selectedModel.completedInstancesPercentage}}%)</div>
                     </div>
-                    
 
-                    <div ng-if="selectedModel.userRoles && selectedModel.userRoles.length > 0" class="mb-3">
-                        <div>Your roles</div>
+
+                    <div class="mb-3" style="display: flex; flex-direction: row; justify-content: space-between;">
+
+                        <div
+                            ng-if="(selectedModel.userRoles && selectedModel.userRoles.length > 0) || (selectedModel.userOptionalRoles && selectedModel.userOptionalRoles.length > 0)">
+                            <div>Your roles</div>
+                            <div>
+                                <span ng-repeat="role in selectedModel.userRoles">
+                                    <span>{{role}} (Mandatory)</span>
+                                    <span
+                                        ng-if="role != selectedModel.userRoles[selectedModel.userRoles.length - 1]">-</span>
+                                </span>
+                                <span ng-repeat="role in selectedModel.userOptionalRoles">
+                                    <span>{{role}} (Optional)</span>
+                                    <span
+                                        ng-if="role != selectedModel.userOptionalRoles[selectedModel.userOptionalRoles.length - 1]">-</span>
+                                </span>
+                            </div>
+                        </div>
+
+
                         <div>
-                            <small ng-repeat="role in selectedModel.userRoles">
-                                {{role}} <span ng-if="role != selectedModel.userRoles[selectedModel.userRoles.length - 1]">-</span>
+                            <div style="text-align: end;">Fee (Ether)</div>
+                            <small>
+                                <span>Max. {{selectedModel.maxFee.toFixed(10)}}</span>
+                                <span class="ml-3">Min. {{selectedModel.minFee.toFixed(10)}}</span>
+                                <span class="ml-3">Av. {{selectedModel.averageFee.toFixed(10)}}</span>
                             </small>
                         </div>
+
                     </div>
-                    
+
+
 
                     <div class="mb-3" style="display: flex; flex-direction: row; justify-content: space-between;">
 
@@ -125,11 +149,11 @@
                         </div>
 
                         <div>
-                            <div>Gas used</div>
+                            <div style="text-align: end;">Gas used</div>
                             <small>
-                                <span>Max. {{selectedModel.maxGasUsed}}s</span>
-                                <span class="ml-3">Min. {{selectedModel.minGasUsed}}s</span>
-                                <span class="ml-3">Av. {{selectedModel.avgGasUsed}}s</span>
+                                <span>Max. {{selectedModel.maxGasUsed}}</span>
+                                <span class="ml-3">Min. {{selectedModel.minGasUsed}}</span>
+                                <span class="ml-3">Av. {{selectedModel.avgGasUsed}}</span>
                             </small>
                         </div>
 
@@ -150,13 +174,20 @@
                             <div>
                                 <div>Execution time: {{instance.executionTime}}s</div>
                                 <div>Total gas used: {{instance.totalGasUsed}}</div>
-                                <div>Total fee: {{instance.totalFee.toFixed(10)}}</div>
+                                <div>Total fee: {{instance.totalFee.toFixed(10)}} Ether</div>
                             </div>
-                            <div ng-if="instance.userRoles && instance.userRoles.length > 0">
+                            <div
+                                ng-if="(instance.userRoles && instance.userRoles.length > 0) || (instance.userOptionalRoles && instance.userOptionalRoles.length > 0)">
                                 <div>Your roles</div>
                                 <div>
                                     <span ng-repeat="role in instance.userRoles">
-                                        {{role}} <span ng-if="role != instance.userRoles[instance.userRoles.length - 1]">-</span>
+                                        <span>{{role}} (Mandatory)</span>
+                                        <span ng-if="role != instance.userRoles[instance.userRoles.length - 1]">-</span>
+                                    </span>
+                                    <span ng-repeat="role in instance.userOptionalRoles">
+                                        <span>{{role}} (Optional)</span>
+                                        <span
+                                            ng-if="role != instance.userOptionalRoles[instance.userOptionalRoles.length - 1]">-</span>
                                     </span>
                                 </div>
                             </div>

@@ -22,6 +22,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
     $scope.instancesAverageGasUsed = 0;
 
+    $scope.instancesMaxFee = 0;
+
+    $scope.instancesMinFee = 0;
+
+    $scope.instancesAverageFee = 0;
+
     $scope.completedInstances = 0;
 
     $scope.completedInstancesPercentage = 0;
@@ -161,6 +167,24 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         return `${userGas} (${percentage}%)`;
     }
 
+    $scope.getUserTotalFee = function (user) {
+        if (!$scope.selectedInstance || !$scope.selectedInstance.deployedContract || !$scope.selectedInstance.deployedContract.transactions)
+            return '';
+
+        const transactions = $scope.selectedInstance.deployedContract.transactions;
+        const userTransactions = transactions.filter(t => t.from.address.toLowerCase() === user.toLowerCase());
+        if (!Array.isArray(userTransactions))
+            return '';
+
+        let totalFee = 0;
+        for (const transaction of userTransactions) {
+            totalFee += transaction.fee;
+        }
+
+        const percentage = totalFee * 100 / $scope.selectedInstance.totalFee;
+        return `${totalFee.toFixed(10)} (${percentage}%)`;
+    }
+
 
     function errorRetrievingData() {
         $scope.$apply(function () {
@@ -201,8 +225,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
         model.messages = messages;
         model.subscriptions = subscriptions;
-
-        console.log("final model", model);
     }
 
     function processInstanceSubscriptions(instance, actualSubscriptions) {
@@ -342,10 +364,15 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
             const totalExecutionTime = completedInstances.map(i => i.executionTime).reduce((a, b) => a + b, 0);
             $scope.instancesAverageExecutionTime = totalExecutionTime / completedInstances.length;
 
-            $scope.instancesMinGasUsed = Math.max(...completedInstances.map(i => i.totalGasUsed));
-            $scope.instancesMaxGasUsed = Math.min(...completedInstances.map(i => i.totalGasUsed));
+            $scope.instancesMaxGasUsed = Math.max(...completedInstances.map(i => i.totalGasUsed));
+            $scope.instancesMinGasUsed = Math.min(...completedInstances.map(i => i.totalGasUsed));
             const totalGasUsed = completedInstances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
             $scope.instancesAverageGasUsed = totalGasUsed / completedInstances.length;
+
+            $scope.instancesMaxFee = Math.max(...completedInstances.map(i => i.totalFee));
+            $scope.instancesMinFee = Math.min(...completedInstances.map(i => i.totalFee));
+            const totalFee = completedInstances.map(i => i.totalFee).reduce((a, b) => a + b, 0);
+            $scope.instancesAverageFee = totalFee / completedInstances.length;
         }
     }
 

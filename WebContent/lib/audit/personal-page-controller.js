@@ -16,9 +16,7 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
             $scope.isRetrievingData = true;
             const user = await graphqlClientService.getCurrentUser();
             await retreiveDataWithUser(user);
-            console.log("final", user);
             const models = await graphqlClientService.getModels();
-            console.log("I modelli scaricati", models);
             updateBindings(models, user);
         } else {
             $scope.showNotLoggedInMessage = true;
@@ -35,7 +33,7 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
             return;
 
         for (const instance of user.instances) {
-            if (!instance.deployedContract)
+            if (!instance.deployedContract || !instance.deployedContract.address || !instance.deployedContract.abi)
                 continue;
 
             await graphqlClientService.getContractDataWithWeb3(instance.deployedContract);
@@ -62,6 +60,16 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
                     }
                 }
 
+                if (instance.deployedContract.optionalSubscriptions) {
+                    const indices = getAllIndexes(instance.deployedContract.optionalSubscriptions[1], user.address);
+                    instance.userOptionalRoles = [];
+                    for (const index of indices) {
+                        if (instance.deployedContract.optionalSubscriptions[0].length <= index)
+                            continue;
+                        instance.userOptionalRoles.push(instance.deployedContract.optionalSubscriptions[0][index]);
+                    }
+                }
+
                 if (!Array.isArray(instance.deployedContract.transactions)) {
                     instance.executionTime = 0;
                     instance.totalGasUsed = 0;
@@ -81,17 +89,27 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
             }
 
             const allRoles = model.instances.map(i => Array.isArray(i.userRoles) ? i.userRoles : []);
+            const allOptionalRoles = model.instances.map(i => Array.isArray(i.userOptionalRoles) ? i.userOptionalRoles : []);
             model.userRoles = [...new Set([].concat.apply([], allRoles))];
+            model.userOptionalRoles = [...new Set([].concat.apply([], allOptionalRoles))];
 
-            model.maxExecutionTime = Math.max(...model.instances.map(i => i.executionTime));
-            model.minExecutionTime = Math.min(...model.instances.map(i => i.executionTime));
-            const totalExecutionTime = model.instances.map(i => i.executionTime).reduce((a, b) => a + b, 0);
-            model.avgExecutionTime = totalExecutionTime / model.instances.length;
-
-            model.maxGasUsed = Math.max(...model.instances.map(i => i.totalGasUsed));
-            model.minGasUsed = Math.min(...model.instances.map(i => i.totalGasUsed));
-            const total = model.instances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
-            model.avgGasUsed = total / model.instances.length;
+            const completedInstances = model.instances.filter(x => x.deployedContract.isCompleted);
+            if (Array.isArray(completedInstances) && completedInstances.length > 0) {
+                model.maxExecutionTime = Math.max(...completedInstances.map(i => i.executionTime));
+                model.minExecutionTime = Math.min(...completedInstances.map(i => i.executionTime));
+                const totalExecutionTime = completedInstances.map(i => i.executionTime).reduce((a, b) => a + b, 0);
+                model.avgExecutionTime = totalExecutionTime / completedInstances.length;
+    
+                model.maxGasUsed = Math.max(...completedInstances.map(i => i.totalGasUsed));
+                model.minGasUsed = Math.min(...completedInstances.map(i => i.totalGasUsed));
+                const total = completedInstances.map(i => i.totalGasUsed).reduce((a, b) => a + b, 0);
+                model.avgGasUsed = total / completedInstances.length;
+    
+                model.maxFee = Math.max(...completedInstances.map(i => i.totalFee));
+                model.minFee = Math.min(...completedInstances.map(i => i.totalFee));
+                const totalFee = completedInstances.map(i => i.totalFee).reduce((a, b) => a + b, 0);
+                model.averageFee = totalFee / completedInstances.length;
+            }
         }
 
         $scope.$apply(() => {

@@ -161,6 +161,7 @@ angular.module('querying', ['ngCookies']).service('graphqlClientService', functi
             await populateContractPastEvents(ethContract, contract, this);
             contract.currentState = await ethContract.methods.getCurrentState().call();
             contract.subscriptions = await ethContract.methods.getRoles().call();
+            contract.optionalSubscriptions = await ethContract.methods.getOptionalRoles().call();
             processContract(contract);
         } catch (error) { console.log(error); }
     }
@@ -455,11 +456,11 @@ angular.module('querying', ['ngCookies']).service('graphqlClientService', functi
 
             const first = parseInt(orderedTransactions[0].block.timestamp);
             const last = parseInt(orderedTransactions[orderedTransactions.length - 1].block.timestamp);
-            console.log("transazioni: prima, ultima ", contract.transactions, orderedTransactions);
             contract.executionTime = last - first;
 
             for (const transaction of contract.transactions) {
                 normalizeNumbersAndDates(transaction);
+                convertWeiToEth(transaction);
                 calculateTransactionFee(transaction);
             }
         }
@@ -483,6 +484,10 @@ angular.module('querying', ['ngCookies']).service('graphqlClientService', functi
             const date = new Date(intValue * 1000);
             obj.block.timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
         }
+    }
+
+    function convertWeiToEth(transaction) {
+        transaction.value = transaction.value / 1000000000000000000;
     }
 
     function calculateTransactionFee(transaction) {

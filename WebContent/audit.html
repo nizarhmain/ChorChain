@@ -60,7 +60,7 @@
                         <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
                     </li>
                     <li class="nav-item">
-                        <a href="deploy.html" class="nav-link"><span data-hover="Deploy">Deploy</span></a>
+                        <a href="deploy.html" class="nav-link"><span data-hover="Running Contracts">Running Contracts</span></a>
                     </li>
                     <li class="nav-item">
                         <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
@@ -124,7 +124,7 @@
                         Total gas used: {{selectedInstance.totalGasUsed ? selectedInstance.totalGasUsed : '-'}}
                     </div>
                     <div class="mt-2">
-                        Total fee: {{selectedInstance.totalFee ? selectedInstance.totalFee.toFixed(10) : '-'}}
+                        Total fee: {{selectedInstance.totalFee ? selectedInstance.totalFee.toFixed(10) : '-'}} Ether
                     </div>
 
                     <table class="table table-bordered table-striped mt-3" ng-if="selectedInstance.subscriptions">
@@ -132,6 +132,7 @@
                             <th>Role</th>
                             <th>User</th>
                             <th>Gas used</th>
+                            <th>Fee (Ether)</th>
                         </tr>
                         <tr ng-repeat="sub in selectedInstance.subscriptions">
                             <td>
@@ -141,6 +142,7 @@
                             </td>
                             <td><small>{{sub.actor}}</small></td>
                             <td><small>{{getUserGasUsed(sub.actor)}}</small></td>
+                            <td><small>{{getUserTotalFee(sub.actor)}}</small></td>
                         </tr>
                     </table>
 
@@ -192,6 +194,15 @@
                     </small>
                 </div>
 
+                <div class="mb-3">
+                    <div>Total fee (Ether)</div>
+                    <small>
+                        Max. {{instancesMaxFee.toFixed(10)}}
+                        <span class="ml-3">Min. {{instancesMinFee.toFixed(10)}}</span>
+                        <span class="ml-3">Av. {{instancesAverageFee.toFixed(10)}}</span>
+                    </small>
+                </div>
+
                 <div class="instances-list">
                     <div ng-repeat="instance in selectedModel.instances" class="card card-body"
                         style="cursor:pointer; margin-bottom: 8px;"
@@ -230,8 +241,8 @@
                 <div ng-repeat="transaction in selectedTransactions" class="transaction-item">
                     <div class="mb-1"><b>{{transaction.hash}}</b></div>
                     <div class="mb-1" ng-if="transaction.gasUsed">GasUsed: {{transaction.gasUsed}}</div>
-                    <div class="mb-1" ng-if="transaction.fee">Fee: {{transaction.fee.toFixed(10)}}</div>
-                    <div class="mb-1" ng-if="transaction.value">Value: {{transaction.value}}</div>
+                    <div class="mb-1" ng-if="transaction.fee">Fee: {{transaction.fee.toFixed(10)}} Ether</div>
+                    <div class="mb-1" ng-if="transaction.value">Value: {{transaction.value.toFixed(10)}} Ether</div>
                     <div class="mb-1" ng-if="transaction.from">From: {{transaction.from.address}}</div>
                     <div class="mb-1" ng-if="transaction.to">To: {{transaction.to.address}}</div>
                     <div class="mb-1" ng-if="transaction.block.timestamp">Timestamp: {{transaction.block.timestamp}}
