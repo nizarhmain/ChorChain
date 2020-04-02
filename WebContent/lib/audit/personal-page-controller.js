@@ -47,9 +47,12 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
         for (const model of userModels) {
             model.totalInstances = model.instances.length;
             model.instances = model.instances.map(i => user.instances.find(ii => ii.id === i.id));
-            model.completedInstances = model.instances.filter(i => i.deployedContract.isCompleted).length;
+            model.completedInstances = model.instances.filter(i => i.deployedContract && i.deployedContract.isCompleted).length;
             model.completedInstancesPercentage = model.completedInstances * 100 / model.totalInstances;
             for (const instance of model.instances) {
+                if (instance.deployedContract == null)
+                    continue;
+
                 if (instance.deployedContract.subscriptions) {
                     const indices = getAllIndexes(instance.deployedContract.subscriptions[1], user.address);
                     instance.userRoles = [];
@@ -93,7 +96,7 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
             model.userRoles = [...new Set([].concat.apply([], allRoles))];
             model.userOptionalRoles = [...new Set([].concat.apply([], allOptionalRoles))];
 
-            const completedInstances = model.instances.filter(x => x.deployedContract.isCompleted);
+            const completedInstances = model.instances.filter(x => x.deployedContract != null && x.deployedContract.isCompleted);
             if (Array.isArray(completedInstances) && completedInstances.length > 0) {
                 model.maxExecutionTime = Math.max(...completedInstances.map(i => i.executionTime));
                 model.minExecutionTime = Math.min(...completedInstances.map(i => i.executionTime));

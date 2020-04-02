@@ -124,12 +124,12 @@
                         </div>
 
 
-                        <div>
+                        <div ng-if="selectedModel.maxFee || selectedModel.minFee">
                             <div style="text-align: end;">Fee (Ether)</div>
                             <small>
-                                <span>Max. {{selectedModel.maxFee.toFixed(10)}}</span>
-                                <span class="ml-3">Min. {{selectedModel.minFee.toFixed(10)}}</span>
-                                <span class="ml-3">Av. {{selectedModel.averageFee.toFixed(10)}}</span>
+                                <span ng-if="selectedModel.maxFee">Max. {{selectedModel.maxFee.toFixed(10)}}</span>
+                                <span ng-if="selectedModel.minFee" class="ml-3">Min. {{selectedModel.minFee.toFixed(10)}}</span>
+                                <span ng-if="selectedModel.averageFee" class="ml-3">Av. {{selectedModel.averageFee.toFixed(10)}}</span>
                             </small>
                         </div>
 
@@ -139,21 +139,21 @@
 
                     <div class="mb-3" style="display: flex; flex-direction: row; justify-content: space-between;">
 
-                        <div>
+                        <div ng-if="selectedModel.maxExecutionTime || selectedModel.minExecutionTime">
                             <div>Execution time</div>
                             <small>
-                                <span>Max. {{selectedModel.maxExecutionTime}}s</span>
-                                <span class="ml-3">Min. {{selectedModel.minExecutionTime}}s</span>
-                                <span class="ml-3">Av. {{selectedModel.avgExecutionTime}}s</span>
+                                <span ng-if="selectedModel.maxExecutionTime">Max. {{selectedModel.maxExecutionTime}}s</span>
+                                <span ng-if="selectedModel.minExecutionTime" class="ml-3">Min. {{selectedModel.minExecutionTime}}s</span>
+                                <span ng-if="selectedModel.avgExecutionTime" class="ml-3">Av. {{selectedModel.avgExecutionTime}}s</span>
                             </small>
                         </div>
 
-                        <div>
+                        <div ng-if="selectedModel.maxGasUsed || selectedModel.minGasUsed">
                             <div style="text-align: end;">Gas used</div>
                             <small>
-                                <span>Max. {{selectedModel.maxGasUsed}}</span>
-                                <span class="ml-3">Min. {{selectedModel.minGasUsed}}</span>
-                                <span class="ml-3">Av. {{selectedModel.avgGasUsed}}</span>
+                                <span ng-if="selectedModel.maxGasUsed">Max. {{selectedModel.maxGasUsed}}</span>
+                                <span ng-if="selectedModel.minGasUsed" class="ml-3">Min. {{selectedModel.minGasUsed}}</span>
+                                <span ng-if="selectedModel.avgGasUsed" class="ml-3">Av. {{selectedModel.avgGasUsed}}</span>
                             </small>
                         </div>
 
@@ -164,9 +164,9 @@
                     <div ng-repeat="instance in selectedModel.instances" class="card card-body mb-3">
                         <div class="instance-title mb-3">
                             <img class="icon" src="resources/icons/ic_completed.png"
-                                ng-if="instance.deployedContract.isCompleted" />
+                                ng-if="instance.deployedContract && instance.deployedContract.isCompleted" />
                             <img class="icon" src="resources/icons/ic_processing.png"
-                                ng-if="!instance.deployedContract.isCompleted" />
+                                ng-if="!instance.deployedContract ||!instance.deployedContract.isCompleted" />
                             <div class="ml-2"><b>{{instance.id}}</b></div>
                         </div>
 
