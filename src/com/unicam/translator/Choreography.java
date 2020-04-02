@@ -635,7 +635,9 @@ public class Choreography {
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, false)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock + "}\n";
+							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n"
+							+ "	enable(\"" + getNextId(node, true) + "\");\n"
+							+ eventBlock + "}\n";
 						} else {
 							taskNull = false;
 

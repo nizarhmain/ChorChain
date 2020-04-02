@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('querying').controller('queryingController', ["$scope", "graphqlClientService", function ($scope, graphqlClientService) {
+angular.module('querying', []).controller('queryingController', ["$scope", "graphqlClientService", function ($scope, graphqlClientService) {
 
     $scope.entities = graphqlClientService.availableEntities;
 

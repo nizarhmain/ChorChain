@@ -502,32 +502,27 @@ public class Controller {
 	
 	@POST
 	@Path("/saveModel/{fileName}/{cookieId}")
-	public void saveModel(@PathParam("fileName") String filename,@PathParam("cookieId") String cookieId , String xml) throws Exception {
+	public void saveModel(@PathParam("fileName") String filename, @PathParam("cookieId") String cookieId , String xml) throws Exception {
+
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		loggedUser = em.find(User.class, cookieId);
-		filename = filename + ".bpmn";
-		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
-		
-		FileWriter wChor = new FileWriter(uploaded);
-		
-		BufferedWriter bChor = new BufferedWriter(wChor);
-		bChor.write(xml);
-		bChor.flush();
-		bChor.close();
-		
-		Choreography getRoles = new Choreography();
-		getRoles.readFile(uploaded);
-		
-		getRoles.getParticipants();
-		
-		List<String> roles = Choreography.participantsWithoutDuplicates;
-		
-		Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
-		
-		
 		try {
-			
+			loggedUser = em.find(User.class, cookieId);
+			filename = filename + ".bpmn";
+			File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
+
+			FileWriter wChor = new FileWriter(uploaded);
+
+			BufferedWriter bChor = new BufferedWriter(wChor);
+			bChor.write(xml);
+			bChor.flush();
+			bChor.close();
+
+			Choreography getRoles = new Choreography();
+			getRoles.readFile(uploaded);
+			getRoles.getParticipants();
+			List<String> roles = Choreography.participantsWithoutDuplicates;
+			Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
 			em.persist(modelUploaded);
 			tm.commit();
 		}catch(Exception e) {
