@@ -46,9 +46,10 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
 
         for (const model of userModels) {
             model.totalInstances = model.instances.length;
-            model.instances = model.instances.map(i => user.instances.find(ii => ii.id === i.id));
+            model.instances = model.instances.map(i => user.instances.find(ii => ii.id === i.id)).filter(i => i != null);
             model.completedInstances = model.instances.filter(i => i.deployedContract && i.deployedContract.isCompleted).length;
             model.completedInstancesPercentage = model.completedInstances * 100 / model.totalInstances;
+
             for (const instance of model.instances) {
                 if (instance.deployedContract == null)
                     continue;
@@ -114,7 +115,7 @@ angular.module('querying').controller('personalPageController', ["$scope", "grap
                 model.averageFee = totalFee / completedInstances.length;
             }
         }
-
+        
         $scope.$apply(() => {
             $scope.user = user;
             $scope.models = userModels;
