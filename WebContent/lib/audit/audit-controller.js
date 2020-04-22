@@ -82,6 +82,10 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     }
 
     $scope.selectModel = async function (model) {
+        const date = new Date();
+        const secondsToMs = (date.getSeconds()) * 1000;
+        const milliseconds = date.getMilliseconds();
+        const totalMs = secondsToMs + milliseconds;
         $scope.selectedModel = model;
         $scope.selectedInstance = null;
         $scope.isRetrievingData = true;
@@ -90,6 +94,12 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         processModelData(model);
         $scope.$apply(() => updateInstancesData(model));
         $scope.$apply(() => $scope.isRetrievingData = false);
+        const date1 = new Date();
+        const secondsToMs1 = (date1.getSeconds()) * 1000;
+        const milliseconds1 = date1.getMilliseconds();
+        const totalMs1 = secondsToMs1 + milliseconds1;
+        console.log(totalMs1 - totalMs);
+
     }
 
     $scope.selectInstance = function (instance) {

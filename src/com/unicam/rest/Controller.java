@@ -391,6 +391,7 @@ public class Controller {
 		//tm.begin();
 
 		try {
+			System.out.println("sono nel try del deploy");
 			EntityManager em = emf.createEntityManager();
 			loggedUser = em.find(User.class, cookieId);
 
@@ -439,9 +440,11 @@ public class Controller {
 			
 			
 		}catch(Exception e){
+			System.out.println("sono nel catch del deploy");
 			tm.rollback();
 			e.printStackTrace();
 		}finally {
+			System.out.println("sono nel finally del deploy");
 			return contractReturn;
 		}
 	}
@@ -641,23 +644,8 @@ public class Controller {
 		}finally {
 			em.close();
 		}
-		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
-		//System.out.println(parameters.getParamsAndValue());
-		//for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
-			//System.out.println("chiave: " + azz.getKey());
-			//System.out.println("valore: " + azz.getValue());
-	//	}
-		//System.out.println("PRIVATA: " + parameters.getPrivateKey());
 		con.signOffline(parameters, contract, account, functionName);
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 
 }

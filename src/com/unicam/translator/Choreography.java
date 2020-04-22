@@ -216,9 +216,11 @@ public class Choreography {
 		constr += "         \r\n" + "         //enable the start process\r\n" + "         init();\r\n" + "    }\r\n"
 				+ "    ";
 
-		String other = "modifier checkMand(string storage role) \n"
-				+ "{ \n\trequire(msg.sender == roles[role]); \n\t_; }" + "modifier checkOpt(string storage role) \n"
-				+ "{ \n\trequire(msg.sender == optionalRoles[role]); \n\t_; }" + "modifier Owner(string memory task) \n"
+		String other = "modifier checkMand(string memory role){ \n" +
+				"	require(msg.sender == roles[role]); \n\t_; }\n" +
+				"modifier checkOpt(string memory role){\n" +
+				"	require(msg.sender == optionalRoles[role]); \n\t_; }\n" +
+				"modifier Owner(string memory task) \n"
 				+ "{ \n\trequire(elements[position[task]].status==State.ENABLED);\n\t_;\n}\n"
 				+ "function init() internal{\r\n" + "       bool result=true;\r\n"
 				+ "       	for(uint i=0; i<roleList.length;i++){\r\n"

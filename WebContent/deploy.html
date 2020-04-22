@@ -114,7 +114,7 @@
 						<a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
 					</li>
 					<li class="nav-item">
-						<a href="deploy.html" class="nav-link active"><span data-hover="Running Contracts">Running Contracts</span></a>
+						<a href="deploy.html" class="nav-link active"><span data-hover="Execution Page">Execution Page</span></a>
 					</li>
 					<li class="nav-item">
 						<a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
@@ -609,7 +609,7 @@
 				.then(console.log('Account unlocked'));
 		}
 
-		function sub1(refresh) {
+		/*function sub1(refresh) {
 			//console.log("i'm the sub starting");
 			for (var type in $scope.abi) {
 				if ($scope.abi[type].name == "stateChanged") {
@@ -639,11 +639,11 @@
 				else
 					console.log(error);
 			});
-		}
+		}*/
 
 
 
-		$scope.getPast = function () {
+		$scope.getPast =  function () {
 			//$scope.transactionHistory = [{hash:"", from:"", gas:"", gasPrice:"", time:"", blockNumber:"", sid:""}];
 			$scope.transactionHistory = [{}];
 			$scope.totalGas = [];
@@ -658,14 +658,14 @@
 					for (var ev in events) {
 						eventSid.push(events[ev].returnValues[0]);
 						var hash = events[ev].transactionHash;
-						web3.eth.getTransaction(hash).then(function (resultTransaction) {
+						/*web3.eth.getTransaction(hash).then(function (resultTransaction) {
 							var transac = {
 								hash: resultTransaction.hash,
 								from: resultTransaction.from, gas: resultTransaction.gas, gasUsed: 0, gasPrice: resultTransaction.gasPrice,
 								time: "", blockNumber: resultTransaction.blockNumber, sid: ""
-							};
-							console.log(transac);
-							web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
+							};*/
+
+							/*web3.eth.getBlock(resultTransaction.blockNumber).then(function (result) {
 								var time = result.timestamp;
 								var date = new Date(time * 1000);
 								transac.time = date;
@@ -673,16 +673,14 @@
 								callBackCount++;
 								$scope.$apply(function (receipt) {
 									$scope.transactionHistory.push(transac);
-									// console.log(transac);
-									//console.log(eventSid);
 								});
-							});
-						});
-						web3.eth.getTransactionReceipt(hash).then(function (receipt) {
+							});					});*/
+
+						/*web3.eth.getTransactionReceipt(hash).then(function (receipt) {
 							$scope.totalGas.push(receipt.gasUsed);
 							console.log($scope.totalGas);
 							console.log($scope.transactionHistory);
-						});
+						});*/
 					}
 					$scope.transactionHistory.shift();
 				});
@@ -694,6 +692,31 @@
 			}
 		}
 
+		$scope.getPastTransactions = async function(){
+		    const pastEvents = await getPastEvents();
+            console.log(pastEvents);
+        }
+
+
+		async function getPastEvents(){
+			 return await $scope.myContract.getPastEvents('functionDone', {
+				fromBlock: 0,
+				toBlock: 'latest'
+			});
+		}
+
+		async function getTransactionReceipt(hash){
+			 const receipt = await web3.eth.getTransactionReceipt(hash);
+			  $scope.totalGas.push(receipt.gasUsed);
+		}
+
+		async function getBlock(resultTransaction){
+			const result = await web3.eth.getBlock(resultTransaction.blockNumber);
+		}
+
+		async function getTransactionHash(hash){
+			const resultTransaction = await web3.eth.getTransaction(hash);
+		}
 
 		/*$scope.getTransactionTime = function(){
 			$scope.transactionHistory.pop();
@@ -741,21 +764,6 @@
 								var completeToShow = { "name": index, "value": $scope.memory[onlyName[1]], "tData": {} };
 								$scope.msgToShow.push(completeToShow);
 
-								/*for(var id in $scope.transactionHistory) {
-	
-									if ($scope.transactionHistory[id].sid == messageId) {
-										$scope.$apply(function(scop){
-											console.log("entro?");
-											//$scope.msgToShow.push(completeToShow);
-											completeToShow.tData =  $scope.transactionHistory[id];
-											$scope.msgToShow.push(completeToShow);
-										  //  $scope.msgToShow.tData = $scope.transactionHistory[id];
-											console.log($scope.msgToShow);
-										});
-	
-										break;
-									}
-								}*/
 							});
 						}
 					} else {
@@ -763,20 +771,6 @@
 						$scope.$apply(function (scop) {
 							var completeToShow = { "name": noPar, "value": $scope.memory[onlyName[1]], "tData": {} };
 							$scope.msgToShow.push(completeToShow);
-							/* for(var id in $scope.transactionHistory) {
-	 
-								 if ($scope.transactionHistory[id].sid == messageId) {
-									 $scope.$apply(function(scop){
-										 console.log("entro?");
-										 completeToShow.tData = $scope.transactionHistory[id];
-									   //  $scope.msgToShow.tData = $scope.transactionHistory[id];
-										 $scope.msgToShow.push(completeToShow);
-										 console.log($scope.msgToShow);
-									 });
-	 
-									 break;
-								 }
-							 }*/
 						});
 					}
 
@@ -787,19 +781,6 @@
 				$scope.msgToShow.shift();
 				console.log($scope.msgToShow);
 			});
-
-			/*for(var id in $scope.transactionHistory) {
-				if ($scope.transactionHistory[id].sid == messageId) {
-					console.log("sono uguali: ");
-					console.log(messageId);
-					console.log($scope.transactionHistory[id].sid);
-	
-					$scope.$apply(function(scop){
-						$scope.transactionToShow.push($scope.transactionHistory[id]);
-					});
-				}
-				$scope.transactionToShow.shift();
-			}*/
 
 		}
 
