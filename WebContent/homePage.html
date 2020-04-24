@@ -56,7 +56,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse" id="navbarNav" ng-if="isLogged">
         <ul class="navbar-nav mx-auto">
           <li class="nav-item">
             <a href="homePage.html" class="nav-link active"><span data-hover="Home Page">Home Page</span></a>
@@ -90,8 +90,10 @@
       </div>
     </div>
   </nav>
+
   <section class=" d-lg-flex justify-content-center align-items-center" ng-cloak>
-    <div class="container-fluid">
+    <h3 ng-if="!isLogged">You must log in to access this page</h3>
+    <div class="container-fluid" ng-if="isLogged" >
       <div class="row" data-ng-init="getModels()">
         <div class="col-lg-3">
           <div class="card">

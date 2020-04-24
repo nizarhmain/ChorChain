@@ -306,7 +306,6 @@ public class ContractFunctions {
 	}
 	
 	public String deploy(String bin) throws Exception {
-		System.out.println("sono dentro al deploy almeno");
 		  if(pendingTransaction == true) {
 			  System.out.println("C'è una transazione pendente");
 			  return "ERROR";
@@ -369,9 +368,7 @@ public class ContractFunctions {
 
 		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
-		  System.out.println(transactionResponse);
-		System.out.println(transactionResponse.getRawResponse());
-		System.out.println(transactionResponse.getTransactionHash());
+
 		  pendingTransaction = true;
 		  if(transactionResponse.hasError()) {
 			  System.out.println(transactionResponse.getError().getData());
@@ -383,7 +380,6 @@ public class ContractFunctions {
 		 
 		  //Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
 		  for (int i = 0; i < 222220; i++) {
-			    System.out.println("Wait: " + i);
 	            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
 	                //Thread.sleep(5000);
 	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();

@@ -145,9 +145,10 @@ public class Choreography {
 	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
 			List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
-				+ ContractFunctions.parseName(filename, "") + "{\n" + "		uint counter;\r\n"
-				+ "	event stateChanged(uint);  \n"
-				+ "	event functionDone(string);\n"
+				+ ContractFunctions.parseName(filename, "") + "{\n" +
+				//"		uint counter;\r\n"
+				//+ "	event stateChanged(uint);  \n"
+				 "	event functionDone(string);\n"
 				+ "	mapping (string=>uint) position;\n"
 				+ "\n	enum State {DISABLED, ENABLED, DONE} State s; \n" + "	mapping(string => string) operator; \n"
 				+ "	struct Element{\n	string ID;\n	State status;\n}\n" + "	struct StateMemory{\n	";
@@ -263,8 +264,9 @@ public class Choreography {
 	}
 
 	private String lastFunctions() {
-		String descr = " function enable(string memory _taskID) internal { elements[position[_taskID]].status=State.ENABLED; "
-				+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
+		String descr = " function enable(string memory _taskID) internal {\n" +
+				"	elements[position[_taskID]].status=State.ENABLED; }\n"
+				//+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
 				+ "    function disable(string memory _taskID) internal { elements[position[_taskID]].status=State.DISABLED; }\r\n"
 				+ "\r\n"
 				+ "    function done(string memory _taskID) internal { elements[position[_taskID]].status=State.DONE; " +
@@ -449,19 +451,26 @@ public class Choreography {
 				String descr = "function " + parseSid(getNextId(node, false)) + "() private {\n"
 						+ "	require(elements[position[\"" + node.getAttributeValue("id")
 						+ "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");\n";
+				int countIf = 0;
 				for (SequenceFlow outgoing : ((ExclusiveGateway) node).getOutgoing()) {
 					ModelElementInstance nextElement = modelInstance
 							.getModelElementById(outgoing.getAttributeValue("targetRef"));
 					// checking if there are conditions on the next element, conditions are setted
 					// in the name of the sequence flow
 					if (outgoing.getAttributeValue("name") != null) {
-
-						descr += "if(" + addCompareString(outgoing) + "){" + "enable(\"" + getNextId(nextElement, false)
+						String condition = "";
+						if(countIf > 0){
+							condition = "else if";
+						}else{
+							condition = "if";
+						}
+						descr += condition +"(" + addCompareString(outgoing) + "){" + "enable(\"" + getNextId(nextElement, false)
 								+ "\"); \n ";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
 							descr += parseSid(getNextId(nextElement, false)) + "(); \n";
 						}
 						descr += "}\n";
+						countIf++;
 					} else {
 						descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {

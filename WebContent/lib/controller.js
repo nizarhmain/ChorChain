@@ -4,7 +4,8 @@
 var module = angular.module('homePage.controllers', ['ngCookies']);
 module.controller("controller", [ "$scope","$window", "$location", "service", '$cookies',
 		function($scope,$window, $location,service, $cookies) {
-			
+
+			$scope.isLogged = false;
 	        $scope.countPayment = 0;
 			$scope.regUser = {};
 			$scope.user = {};
@@ -188,20 +189,18 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.loginUser = function(){
-				service.loginUser($scope.user).then(function(response){
-					if(!response.data){
-						//console.log("Negative response");
-					}
-					else{
-						//console.log("logged");
-						$cookies.put('UserId', response.data);
-						$scope.cookieId = response.data;
-						//console.log($scope.cookieId);
-						window.location.href = 'http://193.205.92.133:8080/ChorChain/homePage.html';
-					}
-					
-				});		
+					service.loginUser($scope.user).then(function (response) {
+						if (!response.data) {
+
+						} else {
+							$cookies.put('UserId', response.data);
+							$scope.cookieId = response.data;
+							window.location.href = 'http://virtualpros.unicam.it:8080/ChorChain/homePage.html';
+						}
+
+					});
 			}
+
 			
 			$scope.getModels = function(){
 			    $scope.cookieId = $cookies.get('UserId');
@@ -298,7 +297,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				//	$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
 					
 					service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
-						//console.log("yeee");
 					});
 				/*	$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
 						from : $scope.user.address,
@@ -323,10 +321,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 							from : $scope.user.address,
 							gas: 200000,
 						}).then(function(receipt){
-							//console.log(receipt);
 							service.newSubscribe(instanceId, roletosubscribe, $cookies.get('UserId')).then(function(receipt){
-								//console.log("yeee");
-								
 							});
 						});
 					});
@@ -347,11 +342,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.setUser = function(){
-				var userId = $cookies.get('UserId');
-				service.setUser(userId).then(function(response){
-					$scope.user = response.data;
-					//console.log($scope.user);
-				});
+				if($cookies.get('UserId') != null){
+					$scope.isLogged = true;
+					var userId = $cookies.get('UserId');
+					service.setUser(userId).then(function(response){
+						$scope.user = response.data;
+					});
+				}else{
+					$scope.isLogged = false;
+				}
 			}
 			
 			//$scope.setUser();

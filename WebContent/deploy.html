@@ -105,7 +105,7 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
-			<div class="collapse navbar-collapse" id="navbarNav">
+			<div class="collapse navbar-collapse" id="navbarNav" ng-if="isLogged">
 				<ul class="navbar-nav mx-auto">
 					<li class="nav-item">
 						<a href="homePage.html" class="nav-link"><span data-hover="Home Page">Home Page</span></a>
@@ -131,7 +131,8 @@
 		</div>
 	</nav>
 	<section class=" d-lg-flex justify-content-center align-items-center">
-		<div class="container-fluid">
+        <h3 ng-if="!isLogged">You must log in to access this page</h3>
+		<div class="container-fluid" ng-if="isLogged ">
 			<div class="row">
 				<div class="col-lg-3">
 					<div class="card">
@@ -139,7 +140,7 @@
 							<h6>Model File List</h6>
 							<ul class="list-group models-list">
 								<li class="list-group-item" ng-repeat="contract in contracts track by $index">
-									<a ng-click="getTask(contract.id); getPast()" class="nav-link" id="{{contract.id}}"
+									<a ng-click="getContractParticipants(contract.id); getTask(contract.id); sub(contract.id); getPast()" class="nav-link" id="{{contract.id}}"
 										style="cursor:pointer">{{contract.name}}
 										<small class="text-muted">{{contract.id}}</small></a>
 								</li>
@@ -160,7 +161,7 @@
 								<div class="col-9" ng-cloak>
 									<div class="slidecontainer">
 										<input class="slider" id="transactionSlider" type="range" class="no-border"
-											value="0" min="0" max="{{transactionHistory.length - 1}}" />
+											value="0" min="0" max="{{eventSid.length}}" />
 									</div>
 									<button type="button" style="display: none" id="js-preview"
 										data-value="{{actualContract.name}}"></button>
@@ -202,31 +203,31 @@
 											ng-if="msg">{{msg.name}} : {{msg.value}} <br></li>
 									</ul>
 									<ul class="list-group">
-										<li class="list-group-item"
-											ng-repeat="transaction in transactionHistory track by $index"
-											ng-if="transaction.sid == actualSid || $index == actualSid">
-											<div ng-repeat="creation in transactionHistory"
-												ng-if="transaction.sid.includes('Start') && creation.sid.includes('Contract creation')">
-												Contract Creation (event {{$index + 1}})<br>
-												Transaction hash : <a
-													href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}">
-													{{transaction.hash}} </a><br>
-												Sent from : {{creation.from}} <br>
-												Transaction gas limit : {{creation.gas}} <br>
-												Transaction gas price : {{creation.gasPrice}} <br>
-												Gas used by the transaction : {{creation.gasUsed}} <br>
-												Block mine time :{{creation.time}}
-											</div>
-											<br>
-											Event {{$index + 1}} <br>
-											Transaction hash : <a
-												href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}">
-												{{transaction.hash}} </a><br>
-											Sent from : {{transaction.from}} <br>
-											Transaction gas limit : {{transaction.gas}} <br>
-											Transaction gas price : {{transaction.gasPrice}} <br>
-											Gas used by the transaction : {{transaction.gasUsed}} <br>
-											Block mine time :{{transaction.time}}
+										<!---<li class="list-group-item"
+                                        ng-repeat="transaction in transactionHistory track by $index"
+                                        ng-if="transaction.sid == actualSid || $index == actualSid">
+                                    <div ng-repeat="creation in transactionHistory"
+                                            ng-if="transaction.sid.includes('Start') && creation.sid.includes('Contract creation')">
+                                            Contract Creation (event {{$index + 1}})<br>
+                                            Transaction hash : <a
+                                                href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}">
+                                                {{transaction.hash}} </a><br>
+                                            Sent from : {{creation.from}} <br>
+                                            Transaction gas limit : {{creation.gas}} <br>
+                                            Transaction gas price : {{creation.gasPrice}} <br>
+                                            Gas used by the transaction : {{creation.gasUsed}} <br>
+                                            Block mine time :{{creation.time}}
+                                        </div>
+                                        <br>
+                                        Event {{$index + 1}} <br>
+                                        Transaction hash : <a
+                                            href="https://rinkeby.etherscan.io/tx/{{transaction.hash}}">
+                                            {{transaction.hash}} </a><br>
+                                        Sent from : {{transaction.from}} <br>
+                                        Transaction gas limit : {{transaction.gas}} <br>
+                                        Transaction gas price : {{transaction.gasPrice}} <br>
+                                        Gas used by the transaction : {{transaction.gasUsed}} <br>
+                                        Block mine time :{{transaction.time}}--->
 										</li>
 									</ul>
 								</div>
@@ -237,32 +238,6 @@
 					</div>
 				</div>
 			</div>
-			<!---<div class="col-lg-12">
-			<div class="table-responsive">
-				<table class="table">
-					<thread>
-						<tr>
-							<th scope="col">#</th>
-							<th scope="col">Transaction Hash</th>
-							<th scope="col">Sent from</th>
-							<th scope="col">Gas limit</th>
-							<th scope="col">Gas price</th>
-							<th scope="col">Transaction time</th>
-						</tr>
-					</thread>
-					<tbody>
-					<tr ng-repeat="transaction in transactionHistory track by $index">
-						<th scope="row">{{$index + 1}} </th>
-						<td>{{transaction.hash}}</td>
-						<td>{{transaction.from}}</td>
-						<td>{{transaction.gas}}</td>
-						<td>{{transaction.gasPrice}}</td>
-						<td>{{transaction.time}}</td>
-					</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>-->
 		</div>
 		</div>
 		</div>
@@ -272,7 +247,7 @@
 
 		</div>
 	</section>
-	<div class="modal fade" role="dialog" id="auditing">
+	<div class="modal fade" role="dialog" id="auditing"  ng-if="isLogged ">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-body">
@@ -342,7 +317,7 @@
 			//$('#auditing').modal('show');
 
 			angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(task);
-			angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
+			//angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
 		});
 	}, 100);
 
@@ -361,8 +336,10 @@
 
 	slider.oninput = function () {
 		//$('#auditing').modal('show');
-		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(slider.value);
-		angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
+
+		const parsedValue = angular.element(document.getElementById('controllerBody')).scope().parsingSliderInput(slider.value);
+		angular.element(document.getElementById('controllerBody')).scope().selectTransactionToShow(parsedValue);
+		//angular.element(document.getElementById('controllerBody')).scope().gasCalculation();
 	}
 
 	var app = angular.module('monitor', ['ngCookies']);
@@ -393,10 +370,11 @@
 		$scope.transactionToShow = [{ hash: "", from: "", gas: "", gasPrice: "", time: "", blockNumber: "", sid: "" }];
 		$scope.actualSid = "";
 		$scope.totalGas = [];
+		$scope.eventSid = [];
+        $scope.isLogged = false;
 
 
-
-		//var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
+        //var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
 
 
 
@@ -506,9 +484,7 @@
 								if (error) {
 									$("#submitbtn").prop("disabled", false);
 								}
-								//	console.log(error);
-								//console.log(receipt);
-								//	$scope.getTask(refresh);
+
 							});
 
 						} catch (e) {
@@ -527,38 +503,29 @@
 
 
 		$scope.getUserContracts = function () {
-
-
 			$http.post("rest/getCont/" + $cookies.get('UserId')).then(function (response) {
 				$scope.contracts = response.data;
-				//console.log($scope.contracts);
 			});
 		}
 
 		$scope.getSingleMem = function () {
-			//for(var i in $scope.memory){
-			//console.log(i);
-			//}
-
 			$scope.singleMemory = $scope.memory[$scope.index];
-			//console.log($scope.singleMemory);
 		}
 
-		$scope.getTask = function (id) {
-			//$scope.transactionHistory = {};
+		$scope.getContractParticipants = function(id){
+            $http.post("rest/getPart/" + id).then(function (response) {
+                $scope.actualContract.participants = response.data;
+            });
+        }
 
+		$scope.getTask = function (id) {
 			setTabActive(id);
-			//id � l'id dell instance
-			//qui prendo i participants
-			$http.post("rest/getPart/" + id).then(function (response) {
-				//console.log(response);
+			/*$http.post("rest/getPart/" + id).then(function (response) {
 				$scope.actualContract.participants = response.data;
-			});
+			});*/
 
 			$scope.msgs = null;
 			$scope.memory = null;
-			//parameter = null;
-			//console.log($scope.msgs);
 			for (var i in $scope.contracts) {
 				if ($scope.contracts[i].id == id) {
 					$scope.actualContract = $scope.contracts[i].deployedContract;
@@ -572,41 +539,34 @@
 			}
 			$scope.abi = JSON.parse($scope.actualContract.abi);
 			$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
-			//
 
 			$scope.myContract.methods.getCurrentState().call().then(function (receipt) {
 				$scope.$apply(function (recepit) {
 					$scope.msgs = receipt[0];
 					$scope.memory = receipt[1];
-					//console.log($scope.msgs);
 					$scope.setRoleActive();
-					sub(id);
+					//sub(id);
 				});
-
-
 			});
 		}
 
 
 		$scope.setUser = function () {
-			$http.post("rest/getUserInfo/" + $cookies.get('UserId')).then(function (response) {
-
-				$scope.user = response.data;
-				//console.log($scope.user);
-			});
+            if($cookies.get('UserId') != null) {
+                $scope.isLogged = true;
+                $http.post("rest/getUserInfo/" + $cookies.get('UserId')).then(function (response) {
+                    $scope.user = response.data;
+                });
+            }else{
+                $scope.isLogged = false;
+            }
 		}
 
 		async function unlock() {
-			//console.log($scope.user);
 			//TODO java method. optional: rimettere psw quando tento di sbloccare account $scope.user.address
-			/*$http.post("rest/getUserInfo/").then(function(response){
-				 web3.eth.personal.unlockAccount(
-						response.data.address, response.data.privateKey)
-						.then(console.log('Account unlocked'));
-			});*///console.log($scope.user.address);
 			await web3.eth.personal.unlockAccount($scope.user.address
 				, $scope.user.privateKey, 10000)
-				.then(console.log('Account unlocked'));
+				.then();
 		}
 
 		/*function sub1(refresh) {
@@ -653,10 +613,10 @@
 			}, (error, result) => { })
 				.then((result) => {
 					var events = result;
-					var eventSid = [];
+
 					var callBackCount = 0;
 					for (var ev in events) {
-						eventSid.push(events[ev].returnValues[0]);
+						$scope.eventSid.push(events[ev].returnValues[0]);
 						var hash = events[ev].transactionHash;
 						/*web3.eth.getTransaction(hash).then(function (resultTransaction) {
 							var transac = {
@@ -705,18 +665,6 @@
 			});
 		}
 
-		async function getTransactionReceipt(hash){
-			 const receipt = await web3.eth.getTransactionReceipt(hash);
-			  $scope.totalGas.push(receipt.gasUsed);
-		}
-
-		async function getBlock(resultTransaction){
-			const result = await web3.eth.getBlock(resultTransaction.blockNumber);
-		}
-
-		async function getTransactionHash(hash){
-			const resultTransaction = await web3.eth.getTransaction(hash);
-		}
 
 		/*$scope.getTransactionTime = function(){
 			$scope.transactionHistory.pop();
@@ -730,9 +678,13 @@
 			}
 		}*/
 
+		$scope.parsingSliderInput = function (sliderValue){
+			return $scope.eventSid[sliderValue];
+		}
+
 		//First part takes the clicked object id and shows the sent variable
 		$scope.selectTransactionToShow = function (messageId) {
-
+			console.log(messageId);
 			$scope.$apply(function (scop) {
 				$scope.actualSid = messageId;
 				console.log(messageId);
@@ -798,6 +750,7 @@
 					/*if ($scope.actualContract.tasks[i].includes("payment")) {
 						$scope.payment = true;
 					}*/
+                    removehighlightmsg(activeSid);
 					highlightmsg(activeSid);
 					//console.log("dentro i" + $scope.activeSid);
 					//console.log("dentro set role active: "+ $scope.actualContract.taskIdAndRole[activeSid]);
@@ -811,6 +764,7 @@
 				else if ($scope.msgs[i].status == 2) {
 					activeSid = $scope.msgs[i].ID;
 					//bpmnjs.get('canvas').addMarker(activeSid, 'highlight')
+                    removehighlightmsg(activeSid);
 					highlightmsg(activeSid);
 					$scope.msgs[i].status = "Done";
 				}
@@ -833,14 +787,15 @@
 
 
 
-		function sub(refresh) {
-			for (var type in $scope.abi) {
-				if ($scope.abi[type].name == "stateChanged") {
+		$scope.sub = function(refresh) {
+            console.log("quante volte parte il sub");
+            for (var type in $scope.abi) {
+				if ($scope.abi[type].name == "functionDone") {
 					$scope.inputs = $scope.abi[type].inputs;
 				}
 			}
-			//console.log("dentro il sub");
-			$scope.myContract.events.stateChanged((error, result) => {
+
+			$scope.myContract.events.functionDone((error, result) => {
 				const eventObj = web3.eth.abi.decodeLog(
 					$scope.inputs,
 					result.data,
@@ -856,9 +811,6 @@
 		}
 
 
-
-
-
 		$scope.addMeta();
 		$scope.getUserContracts();
 		$scope.setUser();
@@ -867,7 +819,6 @@
 		$scope.getXml = function (filename) {
 			$http.post("rest/getXml/" + filename).then(function (response) {
 				$scope.model = response.data;
-				//console.log($scope.model);
 			});
 		}
 
