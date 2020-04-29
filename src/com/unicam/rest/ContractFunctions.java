@@ -339,8 +339,8 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-		  BigInteger GAS_PRICE = BigInteger.valueOf(13_000_000_000L);
-		  BigInteger GAS_LIMIT = BigInteger.valueOf(6_900_000L);
+		  BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
+		  BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
 		  
@@ -355,7 +355,7 @@ public class ContractFunctions {
 		  
 		  EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
 		  BigInteger amountUsed = estimation.getAmountUsed();
-		  //System.out.println("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + blockGasLimit);
+		  System.out.println("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + blockGasLimit);
 		  
 		  
 		  Transaction transaction1 = Transaction.createContractTransaction(
@@ -368,17 +368,18 @@ public class ContractFunctions {
 
 		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
+
 		  pendingTransaction = true;
-		  //if(transactionResponse.hasError()) {
-		  //System.out.println(transactionResponse.getError().getData());
-		  //System.out.println(transactionResponse.getError().getMessage());}
+		  if(transactionResponse.hasError()) {
+			  System.out.println(transactionResponse.getError().getData());
+			  System.out.println(transactionResponse.getError().getMessage());
+		  }
 		  String transactionHash = transactionResponse.getTransactionHash();  
 		  //System.out.println("Thash: " + transactionHash);
 		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
 		 
 		  //Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
 		  for (int i = 0; i < 222220; i++) {
-			  //System.out.println("Wait: " + i);
 	            if (!transactionReceipt.getTransactionReceipt().isPresent()) {
 	                //Thread.sleep(5000);
 	                transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
@@ -388,9 +389,12 @@ public class ContractFunctions {
 	            }
 		  }
 		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
+		System.out.println(transactionReceipt.getError());
+		System.out.println(transactionReceipt.getRawResponse());
 		  //System.out.println(transactionReceiptFinal.getContractAddress());
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();
+		  System.out.println(contractAddress);
 		  pendingTransaction = false;
 		  //System.out.println(contractAddress);
 		  return contractAddress;

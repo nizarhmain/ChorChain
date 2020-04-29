@@ -145,9 +145,10 @@ public class Choreography {
 	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
 			List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
-				+ ContractFunctions.parseName(filename, "") + "{\n" + "		uint counter;\r\n"
-				+ "	event stateChanged(uint);  \n"
-				+ "	event functionDone(string);\n"
+				+ ContractFunctions.parseName(filename, "") + "{\n" +
+				//"		uint counter;\r\n"
+				//+ "	event stateChanged(uint);  \n"
+				 "	event functionDone(string);\n"
 				+ "	mapping (string=>uint) position;\n"
 				+ "\n	enum State {DISABLED, ENABLED, DONE} State s; \n" + "	mapping(string => string) operator; \n"
 				+ "	struct Element{\n	string ID;\n	State status;\n}\n" + "	struct StateMemory{\n	";
@@ -185,8 +186,8 @@ public class Choreography {
 			}
 		}
 
-		intro += " ]; \n" + "	mapping(string=>address) roles; \r\n"
-				+ "	mapping(string=>address) optionalRoles; \r\n";
+		intro += " ]; \n" + "	mapping(string=>address payable) roles; \r\n"
+				+ "	mapping(string=>address payable) optionalRoles; \r\n";
 		String constr = "constructor() public{\r\n" + "    //struct instantiation\r\n"
 				+ "    for (uint i = 0; i < elementsID.length; i ++) {\r\n"
 				+ "        elements.push(Element(elementsID[i], State.DISABLED));\r\n"
@@ -216,9 +217,11 @@ public class Choreography {
 		constr += "         \r\n" + "         //enable the start process\r\n" + "         init();\r\n" + "    }\r\n"
 				+ "    ";
 
-		String other = "modifier checkMand(string storage role) \n"
-				+ "{ \n\trequire(msg.sender == roles[role]); \n\t_; }" + "modifier checkOpt(string storage role) \n"
-				+ "{ \n\trequire(msg.sender == optionalRoles[role]); \n\t_; }" + "modifier Owner(string memory task) \n"
+		String other = "modifier checkMand(string memory role){ \n" +
+				"	require(msg.sender == roles[role]); \n\t_; }\n" +
+				"modifier checkOpt(string memory role){\n" +
+				"	require(msg.sender == optionalRoles[role]); \n\t_; }\n" +
+				"modifier Owner(string memory task) \n"
 				+ "{ \n\trequire(elements[position[task]].status==State.ENABLED);\n\t_;\n}\n"
 				+ "function init() internal{\r\n" + "       bool result=true;\r\n"
 				+ "       	for(uint i=0; i<roleList.length;i++){\r\n"
@@ -228,6 +231,30 @@ public class Choreography {
 				+ "				" + parseSid(startEventAdd) + "();\r\n" + "       	}\r\n"
 				+ "			emit functionDone(\"Contract creation\"); \n "
 				+ "  }\r\n"
+				+ " function getRoles() public view returns( string[] memory, address[] memory){\n" +
+				"    uint c = roleList.length;\n" +
+				"    string[] memory allRoles = new string[](c);\n" +
+				"    address[] memory allAddresses = new address[](c);\n" +
+				"    \n" +
+				"    for(uint i = 0; i < roleList.length; i ++){\n" +
+				"        allRoles[i] = roleList[i];\n" +
+				"        allAddresses[i] = roles[roleList[i]];\n" +
+				"    }\n" +
+				"    return (allRoles, allAddresses);\n" +
+				"}" +
+                "   function getOptionalRoles() public view returns( string[] memory, address[] memory){\n" +
+                "       require(optionalList.length > 0);\n" +
+                "       uint c = optionalList.length;\n" +
+                "       string[] memory allRoles = new string[](c);\n" +
+                "       address[] memory allAddresses = new address[](c);\n" +
+                "       \n" +
+                "       for(uint i = 0; i < optionalList.length; i ++){\n" +
+                "           allRoles[i] = optionalList[i];\n" +
+                "           allAddresses[i] = optionalRoles[optionalList[i]];\n" +
+                "       }\n" +
+                "    \n" +
+                "       return (allRoles, allAddresses);\n" +
+                "   }\n"
 				+ "\nfunction subscribe_as_participant(string memory _role) public {\r\n"
 				+ "        if(optionalRoles[_role]==0x0000000000000000000000000000000000000000){\r\n"
 				+ "          optionalRoles[_role]=msg.sender;\r\n" + "        }\r\n" + "    }\n"
@@ -237,8 +264,9 @@ public class Choreography {
 	}
 
 	private String lastFunctions() {
-		String descr = " function enable(string memory _taskID) internal { elements[position[_taskID]].status=State.ENABLED; "
-				+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
+		String descr = " function enable(string memory _taskID) internal {\n" +
+				"	elements[position[_taskID]].status=State.ENABLED; }\n"
+				//+ "     emit stateChanged(counter++);\r\n" + "}\r\n" + "\r\n"
 				+ "    function disable(string memory _taskID) internal { elements[position[_taskID]].status=State.DISABLED; }\r\n"
 				+ "\r\n"
 				+ "    function done(string memory _taskID) internal { elements[position[_taskID]].status=State.DONE; " +
@@ -279,7 +307,6 @@ public class Choreography {
 	}
 
 	private static String addToMemory(String msg) {
-
 		String add = "";
 		String n = msg.replace("string", "").replace("uint", "").replace("bool", "").replace(" ", "");
 		String r = n.replace(")", "");
@@ -294,12 +321,21 @@ public class Choreography {
 		return add;
 	}
 
-	private static String createTransaction(String msg) {
+	private static String createTransaction(ChoreographyTask task, List<String> optionalRoles,
+                                            List<String> mandatoryRoles) {
 		String ret = "";
-		String n = msg.replace("address", "").replace("payable", "");
+		Participant toPay = task.getParticipantRef();
+		if(mandatoryRoles.contains(toPay.getName())){
+            ret = "roles[\"" + toPay.getName() + "\"].transfer(msg.value);";
+        }
+         else if(optionalRoles.contains(toPay.getName())){
+            ret = "optionalRoles[\"" + toPay.getName() + "\"].transfer(msg.value);";
+        }
+		/*String n = msg.replace("address", "").replace("payable", "");
 		String r = n.replace(")", "");
 		String[] t = r.split("\\(");
-		ret = t[1] + ".transfer(msg.value);";
+		ret = t[1] + ".transfer(msg.value);";*/
+
 
 		return ret;
 	}
@@ -330,14 +366,26 @@ public class Choreography {
 	// if is var==var result is currentMemory.var, var
 	private static String addCompareString(ModelElementInstance outgoing) {
 		String guards = outgoing.getAttributeValue("name");
-		String[] guardValue = guards.split("==");
+
 		String res = "";
 
 		if (guards.contains("\"")) {
-
+			String[] guardValue = guards.split("==");
 			res = "compareStrings(currentMemory." + guardValue[0] + ", " + guardValue[1] + ")==true";
-		} else {
-			res = "currentMemory." + outgoing.getAttributeValue("name");
+		} else if(guards.contains("==")){
+			res = "currentMemory." + guards;
+		} else if(guards.contains(">=")){
+			String[] guardValue = guards.split(">=");
+			res = "currentMemory." + guardValue[0] + ">= currentMemory." + guardValue[1] ;
+		} else if(guards.contains(">")){
+			String[] guardValue = guards.split(">");
+			res = "currentMemory." + guardValue[0] + "> currentMemory." + guardValue[1] ;
+		} else if(guards.contains("<=")){
+			String[] guardValue = guards.split("<=");
+			res = "currentMemory." + guardValue[0] + "<= currentMemory." + guardValue[1] ;
+		} else if(guards.contains("<")){
+			String[] guardValue = guards.split("<");
+			res = "currentMemory." + guardValue[0] + "< currentMemory." + guardValue[1] ;
 		}
 
 		// System.out.println("RESULTT: " + res);
@@ -403,19 +451,26 @@ public class Choreography {
 				String descr = "function " + parseSid(getNextId(node, false)) + "() private {\n"
 						+ "	require(elements[position[\"" + node.getAttributeValue("id")
 						+ "\"]].status==State.ENABLED);\n" + "	done(\"" + node.getAttributeValue("id") + "\");\n";
+				int countIf = 0;
 				for (SequenceFlow outgoing : ((ExclusiveGateway) node).getOutgoing()) {
 					ModelElementInstance nextElement = modelInstance
 							.getModelElementById(outgoing.getAttributeValue("targetRef"));
 					// checking if there are conditions on the next element, conditions are setted
 					// in the name of the sequence flow
 					if (outgoing.getAttributeValue("name") != null) {
-
-						descr += "if(" + addCompareString(outgoing) + "){" + "enable(\"" + getNextId(nextElement, false)
+						String condition = "";
+						if(countIf > 0){
+							condition = "else if";
+						}else{
+							condition = "if";
+						}
+						descr += condition +"(" + addCompareString(outgoing) + "){" + "enable(\"" + getNextId(nextElement, false)
 								+ "\"); \n ";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
 							descr += parseSid(getNextId(nextElement, false)) + "(); \n";
 						}
 						descr += "}\n";
+						countIf++;
 					} else {
 						descr += "\tenable(\"" + getNextId(nextElement, false) + "\");  \n";
 						if (nextElement instanceof Gateway || nextElement instanceof EndEvent) {
@@ -562,7 +617,7 @@ public class Choreography {
 								+ " public payable " + pName + ") {\n";
 						descr += "	require(elements[position[\"" + getNextId(node, false)
 								+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-								+ createTransaction(request) + "\n" + eventBlock;
+								+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock;
 					} else {
 
 						descr += "function " + parseSid(getNextId(node, false)) + addMemory(getPrameters(request))
@@ -591,7 +646,9 @@ public class Choreography {
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, false)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, false) + "\");\n"
-							+ createTransaction(request) + "\n" + eventBlock + "}\n";
+							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n"
+							+ "	enable(\"" + getNextId(node, true) + "\");\n"
+							+ eventBlock + "}\n";
 						} else {
 							taskNull = false;
 
@@ -617,7 +674,7 @@ public class Choreography {
 							+ " public payable " + pName + ") {\n";
 					descr += "	require(elements[position[\"" + getNextId(node, true)
 							+ "\"]].status==State.ENABLED);  \n" + "	done(\"" + getNextId(node, true) + "\");\n"
-							+ createTransaction(response) + "\n" + eventBlock;
+							+ createTransaction(task, optionalRoles, mandatoryRoles) + "\n" + eventBlock;
 						} else {
 							taskNull = false;
 							pName = getRole(task.getParticipantRef().getName(), optionalRoles, mandatoryRoles);

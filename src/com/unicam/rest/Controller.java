@@ -391,6 +391,7 @@ public class Controller {
 		//tm.begin();
 
 		try {
+
 			EntityManager em = emf.createEntityManager();
 			loggedUser = em.find(User.class, cookieId);
 
@@ -406,10 +407,10 @@ public class Controller {
 
 			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
-			//System.out.println("Starting to compile...");
+
 			
 			contract.compile(instanceForDeploy.getName());
-			//System.out.println("Compiled");
+
 			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
 			
@@ -418,7 +419,7 @@ public class Controller {
 				//tm.rollback();
 				return null;
 			}
-			//String cAddress = "0x2347947ec40b38dee1cf9f716ba1e1dc407c0dff";
+
 			contractReturn.setAddress(cAddress);
 
 			contractReturn.setAbi(
@@ -502,32 +503,27 @@ public class Controller {
 	
 	@POST
 	@Path("/saveModel/{fileName}/{cookieId}")
-	public void saveModel(@PathParam("fileName") String filename,@PathParam("cookieId") String cookieId , String xml) throws Exception {
+	public void saveModel(@PathParam("fileName") String filename, @PathParam("cookieId") String cookieId , String xml) throws Exception {
+
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
-		loggedUser = em.find(User.class, cookieId);
-		filename = filename + ".bpmn";
-		File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
-		
-		FileWriter wChor = new FileWriter(uploaded);
-		
-		BufferedWriter bChor = new BufferedWriter(wChor);
-		bChor.write(xml);
-		bChor.flush();
-		bChor.close();
-		
-		Choreography getRoles = new Choreography();
-		getRoles.readFile(uploaded);
-		
-		getRoles.getParticipants();
-		
-		List<String> roles = Choreography.participantsWithoutDuplicates;
-		
-		Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
-		
-		
 		try {
-			
+			loggedUser = em.find(User.class, cookieId);
+			filename = filename + ".bpmn";
+			File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
+
+			FileWriter wChor = new FileWriter(uploaded);
+
+			BufferedWriter bChor = new BufferedWriter(wChor);
+			bChor.write(xml);
+			bChor.flush();
+			bChor.close();
+
+			Choreography getRoles = new Choreography();
+			getRoles.readFile(uploaded);
+			getRoles.getParticipants();
+			List<String> roles = Choreography.participantsWithoutDuplicates;
+			Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
 			em.persist(modelUploaded);
 			tm.commit();
 		}catch(Exception e) {
@@ -623,7 +619,12 @@ public class Controller {
 			optionalRoles.remove(role);
 			Map<String, User> subscribers = instance.getParticipants();
 			subscribers.put(role, loggedUser);
-			em.merge(instance);
+            em.merge(instance);
+
+            List<Instance> userInstances = loggedUser.getInstances();
+            userInstances.add(instance);
+            loggedUser.setInstances(userInstances);
+
 			tm.commit();
 		}catch(Exception e) {
 			tm.rollback();
@@ -646,23 +647,8 @@ public class Controller {
 		}finally {
 			em.close();
 		}
-		//System.out.println(parameters);
 		ContractFunctions con = new ContractFunctions();
-		//System.out.println(parameters.getParamsAndValue());
-		//for(Map.Entry<String, String> azz : contract.getTaskIdAndRole().entrySet()) {
-			//System.out.println("chiave: " + azz.getKey());
-			//System.out.println("valore: " + azz.getValue());
-	//	}
-		//System.out.println("PRIVATA: " + parameters.getPrivateKey());
 		con.signOffline(parameters, contract, account, functionName);
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 
 }
