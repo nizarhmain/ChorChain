@@ -85,13 +85,6 @@ angular.module('querying', ['ngCookies']).service('graphqlClientService', functi
         const secondsToMs = (date.getSeconds()) * 1000;
         const milliseconds = date.getMilliseconds();
         const totalMs = secondsToMs + milliseconds;
-        $http.post('http://193.205.92.133:8547/graphql', jsonRequest).then(function (response){
-            const date1 = new Date();
-            const secondsToMs1 = (date1.getSeconds()) * 1000;
-            const milliseconds1 = date1.getMilliseconds();
-            const totalMs1 = secondsToMs1 + milliseconds1;
-            console.log(totalMs1 - totalMs);
-        });
         return $http.post('http://193.205.92.133:8547/graphql', jsonRequest);
     }
 

@@ -64,7 +64,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
 
         });
     }, 100);
-    //document.getElementsByClassName("djs-group").ondblclick = function() {console.log("ciao")};
 
 
 
@@ -82,10 +81,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     }
 
     $scope.selectModel = async function (model) {
-        const date = new Date();
-        const secondsToMs = (date.getSeconds()) * 1000;
-        const milliseconds = date.getMilliseconds();
-        const totalMs = secondsToMs + milliseconds;
         $scope.selectedModel = model;
         $scope.selectedInstance = null;
         $scope.isRetrievingData = true;
@@ -94,11 +89,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         processModelData(model);
         $scope.$apply(() => updateInstancesData(model));
         $scope.$apply(() => $scope.isRetrievingData = false);
-        const date1 = new Date();
-        const secondsToMs1 = (date1.getSeconds()) * 1000;
-        const milliseconds1 = date1.getMilliseconds();
-        const totalMs1 = secondsToMs1 + milliseconds1;
-        console.log(totalMs1 - totalMs);
 
     }
 
@@ -112,11 +102,9 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
     }
 
     function showSingleTransaction(messageId) {
-        console.log($scope.selectedInstance);
         const buff = [];
         const allTransactions = $scope.selectedInstance.deployedContract.transactions;
         for (const transaction of allTransactions) {
-            console.log(transaction);
 
             if (transaction.decodedInput && transaction.decodedInput.includes(messageId)) {
                 buff.push(transaction)
@@ -126,7 +114,6 @@ angular.module('querying').controller('auditController', ["$scope", "graphqlClie
         $scope.selectedTransactions = buff;
         // $scope.selectedTransactions = $scope.selectedInstance.deployedContract.transactions;
         $scope.$apply(() => $scope.isShowingTransactionsDialog = true);
-        console.log($scope.selectedInstance);
     }
 
     $scope.closeTransactionsDialog = function () {
