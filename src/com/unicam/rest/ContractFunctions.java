@@ -98,7 +98,7 @@ public class ContractFunctions {
 	
 	public static boolean pendingTransaction = false;
 	
-	//public static String projectPath = "/home/virtualpros/ChorChainStorage"; 
+	//ppublic static String projectPath = "/home/virtualpros/ChorChainStorage";
 	public static String projectPath = System.getenv("ChorChain"); 
 	
 	Web3j web3j = Web3j.build(new HttpService("http://193.205.92.133:8545"));
