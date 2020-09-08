@@ -7,8 +7,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 			$scope.isLogged = false;
 	        $scope.countPayment = 0;
+	        //user used for sign-up
 			$scope.regUser = {};
+			//user used for sign-in
 			$scope.user = {};
+			//user sued for sign-up/in
+			$scope.chorchainUser = { name:"", password:""};
+
 			$scope.role = null;
 			$scope.content = {};
 			$scope.models = {};
@@ -18,7 +23,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.contracts = {};
 			$location.path();
 			$scope.cookieId = null;
-			//$scope.user.address = "";
+			$scope.searchText = "";
 			$scope.modelName = "";
 			$scope.myContract = {};
 			$scope.selectedRoles = [];
@@ -183,21 +188,24 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.registerUser = function(){
-				service.registerUser($scope.regUser).then(function(response){	
+				service.registerUser($scope.chorchainUser).then(function(response){
+					$scope.chorchainUser = { name:"", password:""};
 					alert(response.data);
 				});		
 			}
 			
 			$scope.loginUser = function(){
-					service.loginUser($scope.user).then(function (response) {
+				console.log($scope.chorchainUser);
+				service.loginUser($scope.chorchainUser).then(function (response) {
 						if (!response.data) {
-
+							$scope.chorchainUser = { name:"", password:""};
 						} else {
+							$scope.chorchainUser = { name:"", password:""};
 							$cookies.put('UserId', response.data);
 							$scope.cookieId = response.data;
-							window.location.href = 'http://virtualpros.unicam.it:8080/ChorChain/homePage.html';
+							//window.location.href = 'http://virtualpros.unicam.it:8080/ChorChain/homePage.html';
+							window.location.href = 'http://localhost:8080/ChorChain/homePage.html';
 						}
-
 					});
 			}
 
@@ -206,17 +214,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			    $scope.cookieId = $cookies.get('UserId');
 				service.getModels().then(function(response){
 					$scope.models = response.data;
-					//console.log("Models: ");
-					//console.log($scope.models);
 				});
 			}
 			
 			$scope.subscribe = function(model, instanceId,roletosub){
-				//console.log(instanceId);
 				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
 					service.getInstances(model).then(function(response){
-						//console.log(response);
 						$scope.instances = response.data;
 						$scope.present = true;
 						$scope.getInstances(model);
@@ -344,12 +348,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.setUser = function(){
 				if($cookies.get('UserId') != null){
 					$scope.isLogged = true;
-					var userId = $cookies.get('UserId');
+					const userId = $cookies.get('UserId');
 					service.setUser(userId).then(function(response){
-						$scope.user = response.data;
+						$scope.chorchainUser = response.data;
 					});
 				}else{
 					$scope.isLogged = false;
+					$scope.chorchainUser = { name:"", password:""};
 				}
 			}
 			

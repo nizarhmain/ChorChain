@@ -24,9 +24,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
+import javax.transaction.*;
 import javax.ws.rs.Consumes;
 
 import javax.ws.rs.FormParam;
@@ -40,6 +38,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 
+import com.unicam.model.*;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 import org.bson.Document;
@@ -60,18 +59,13 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.unicam.model.ContractObject;
-import com.unicam.model.Instance;
-import com.unicam.model.Model;
-import com.unicam.model.Parameters;
-import com.unicam.model.TaskObject;
-import com.unicam.model.User;
 import com.unicam.translator.Choreography;
 
 @Path("/")
 public class Controller {
 
 	private User loggedUser;
+	private ChorchainUser chorchainLoggedUser;
 	HttpSession session;
 
 	// accessing JBoss's Transaction can be done differently but this one works
@@ -80,23 +74,33 @@ public class Controller {
 
 	// build the EntityManagerFactory as you would build in in Hibernate ORM
 	EntityManagerFactory emf = Persistence.createEntityManagerFactory("OGMPU");
-	
 
-	// now id is autoincremental, useless function.
-	/*
-	 * public int getLastId(String collection) { MongoCollection<Document> d =
-	 * db.getCollection(collection);
-	 * 
-	 * FindIterable<Document> allElements = d.find(); int finalId = 0; if
-	 * (allElements != null) { for (Document docUser : allElements) { finalId =
-	 * docUser.getInteger("ID"); } }
-	 * 
-	 * return finalId;
-	 * 
-	 * }
-	 */
 
-	@POST
+    @POST
+    @Path("registration/")
+    public String registration(ChorchainUser registrationUser) throws SystemException, NotSupportedException,
+            HeuristicRollbackException, HeuristicMixedException, RollbackException {
+        tm.begin();
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.persist(registrationUser);
+            return "Registered";
+        } catch (MongoWriteException e) {
+            tm.rollback();
+            if (e.getCode() == 11000) {
+                return "Address already registered";
+            } else
+                return "Some error occurred";
+        }
+        finally {
+            tm.commit();
+            em.clear();
+            em.close();
+        }
+    }
+
+    //old registration method, it uses Ethereum address to identify user
+	/*@POST
 	@Path("reg/")
 	public String sub(User user) throws Exception {
 		String result;
@@ -105,7 +109,6 @@ public class Controller {
 		
 		try {
 			em.persist(user);
-			
 			return "Registered";
 		} catch (MongoWriteException e) {
 			tm.rollback();
@@ -115,13 +118,12 @@ public class Controller {
 				return "Some error occurred";
 		}
 		finally {
-			//System.out.println("finito reg");
 			tm.commit();
 			em.clear();
 			em.close();
 		}
 		
-	}
+	}*/
 
 	@GET
 	@Path("/sel/")
@@ -160,10 +162,50 @@ public class Controller {
 			em.clear();
 			em.close();
 		}
-			
 	}
 
-	@POST
+	public ChorchainUser getChorchainLoggedUser(String id) throws Exception {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		try {
+			ChorchainUser user = em.find(ChorchainUser.class, id);
+			tm.commit();
+			return user;
+		}catch(Exception e) {
+			tm.rollback();
+			return null;
+		}finally {
+			em.clear();
+			em.close();
+		}
+	}
+
+    @POST
+    @Path("/login/")
+    public String login(ChorchainUser loginUser) throws Exception {
+        tm.begin();
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<ChorchainUser> query = em.createNamedQuery("ChorchainUser.findByName", ChorchainUser.class);
+        try {
+            query.setParameter("name", loginUser.getName());
+            ChorchainUser userToLog = query.getSingleResult();
+			tm.commit();
+            if(loginUser.getPassword().matches(userToLog.getPassword())){
+				return userToLog.getID();
+			}else{
+            	return "";
+			}
+        } catch (Exception nre) {
+            tm.rollback();
+            return null;
+        }finally {
+            em.clear();
+            em.close();
+        }
+    }
+
+	//Old login, used for logging with ethereum address
+	/*@POST
 	@Path("/login/")
 	public String login(User user) throws Exception {
 		tm.begin();
@@ -182,7 +224,7 @@ public class Controller {
 			em.clear();
 			em.close();
 		}
-	}
+	}*/
 
 	@POST
 	@Path("/upload")
@@ -493,10 +535,11 @@ public class Controller {
 
 	@POST
 	@Path("/getUserInfo/{cookieId}")
-	public User getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
-		loggedUser = retrieveUser(cookieId);
-		//System.out.println(loggedUser);
-		return loggedUser;
+	public ChorchainUser getUserInfo(@PathParam("cookieId") String cookieId) throws Exception {
+		//to get back to eth implementation use:
+		//loggedUser = retriveUser(cookieId)
+		chorchainLoggedUser = getChorchainLoggedUser(cookieId);
+		return chorchainLoggedUser;
 	}
 
 

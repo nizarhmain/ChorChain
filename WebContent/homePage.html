@@ -147,7 +147,7 @@
             <div class="card-body" ng-cloak>
               <h6>Model File List</h6>
               <ul class="list-group models-list">
-                <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models | filter:searchText ">
+                <li class="list-group-item" style="cursor:pointer" ng-repeat="model in models | filter:searchText "><!--| filter:searchText --->
                   <a ng-click="setModel(model)" class="nav-link "> <i class="fas fa-file"></i>
                     {{model.name}}</a>
                 </li>
@@ -198,9 +198,9 @@
               </div>
               <div ng-repeat="instance in model.instances | filter:searchRole">
                 <div class="card  my-2"
-                  ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
+                  ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(chorchainUser.name) > -1">
                   <h5 class="card-header ">n° {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
-                    <span ng-show="instance.visibleAt.indexOf(user.address) > -1" class="float-right"><i
+                    <span ng-show="instance.visibleAt.indexOf(chorchainUser.name) > -1" class="float-right"><i
                         style="color: #ffc200" class="fa fa-lock"></i> </span>
                   </h5>
                   <div class="card-body">

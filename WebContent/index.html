@@ -49,14 +49,21 @@
 							<div class="tab-pane fade show active" id="login" role="tabpanel">
 								<h5 class="m-2 text-center">Login</h5>
 								<form method="POST" class="contact-form">
-									<div class="form-group">
-										<label for="address">Insert address</label>
+									<label for="loginGroup">Insert credentials</label>
+									<div class="form-group" id="loginGroup">
+										<!---<label for="address">Insert address</label>
 										<input type="text" class="form-control" id="address"
 											placeholder="Insert account address" ng-model="user.address">
+										<small id="addressHelp" class="form-text text-muted"> </small>--->
+
+										<input type="text" class="form-control" id="loginName"
+											   placeholder="Insert name" ng-model="chorchainUser.name">
 										<small id="addressHelp" class="form-text text-muted"> </small>
+											<input type="password" class="form-control" id="loginPassword"
+												   placeholder="Insert password" ng-model="chorchainUser.password">
 									</div>
 									<input type="submit" id="loginbutton"
-										class="btn custom-btn custom-btn-bg custom-btn-link" value="Login" disabled
+										class="btn custom-btn custom-btn-bg custom-btn-link" value="Login"
 										ng-click="loginUser()" />
 								</form>
 								<div class="video1">
@@ -70,19 +77,25 @@
 							<!-- Sign up Tab content-->
 							<div class="tab-pane fade" id="signup" role="tabpanel">
 								<h5 class="m-2 text-center">Sign Up</h5>
-								<hr>
+
 								<form method="POST" class="contact-form">
-									<label>Default MetaMask address account: </label>
+									<!---<label>Default MetaMask address account: </label>-->
 									<div class="form-group input-group">
-										<label class="input-group-text" id="labeladdress"></label>
+										<!---<label class="input-group-text" id="labeladdress"></label>
 										<div class="input-group-append">
 											<button class="input-group-text " style="cursor:pointer;"
-												onclick="copyToClipboard('#labeladdress')"><i class="far fa-copy"></i></button>
-										</div>
+												onclick="copyToClipboard('#labeladdress')"><i class="far fa-copy"></i>
+											</button>
+
+										</div>--->
 									</div>
 									<div class="form-group">
-										<input type="text" class="form-control" placeholder="Copy here the default account..." id="addressRegUser"
-											ng-model="regUser.address">
+										<!--<input type="text" class="form-control" placeholder="Copy here the default account..." id="addressRegUser"
+											ng-model="regUser.address"> --->
+										<input type="text" class="form-control" placeholder="Insert your name" id="registrationUsername"
+											   ng-model="chorchainUser.name">
+										<input type="password" class="form-control" placeholder="Insert your password" id="registrationPassword"
+											   ng-model="chorchainUser.password">
 									</div>
 									<div class="form-group">
 										<input type="submit" class="btn custom-btn custom-btn-bg custom-btn-link"
@@ -114,7 +127,7 @@
 </body>
 
 <script>
-	window.addEventListener('load', function () {
+	/*window.addEventListener('load', function () {
 
 		// Check if Web3 has been injected by the browser (Mist/MetaMask).
 		if (typeof web3 !== 'undefined' && web3.currentProvider.isMetaMask == true) {
@@ -151,12 +164,10 @@
 
 		}
 
-	});
-</script>
+	});*/
 
-<script>
 	// If the MetaMask extension is present,you are asked to log in to your account the permissions to access the wallet
-	ethereum.enable();
+	/*ethereum.enable();
 	var account = web3.eth.accounts[0];
 
 	$("#labeladdress").text(web3.toChecksumAddress(account));
@@ -167,9 +178,8 @@
 			$("#labeladdress").text(web3.toChecksumAddress(account));
 		}
 	}, 100);
-</script>
 
-<script>
+
 	function copyToClipboard(element) {
 		var $temp = $("<input>");
 		$("body").append($temp);
@@ -177,9 +187,7 @@
 		document.execCommand("copy");
 		$temp.remove();
 	}
-</script>
 
-<script>
 	var accountInterval = setInterval(function () {
 
 		var selectedAccount = web3.toChecksumAddress(web3.eth.accounts[0]);
@@ -190,9 +198,7 @@
 			document.getElementById("loginbutton").disabled = true;
 
 	}, 100);
-</script>
 
-<script>
 	function createAccount() {
 		console.log("entrato");
 
@@ -203,7 +209,7 @@
 		});
 
 		console.log(addr);
-	}
+	}*/
 </script>
 
 </html>

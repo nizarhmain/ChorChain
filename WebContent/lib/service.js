@@ -2,9 +2,9 @@
 
 angular.module('homePage.services', []).factory('service',
 		[ "$http", function($http) {
-			var service = {};
-			var user = {};
-			
+			const service = {};
+			let user = {};
+
 			service.setUser = function(localUser){
 				user = localUser;
 			}
@@ -16,13 +16,12 @@ angular.module('homePage.services', []).factory('service',
 				return $http.get("rest/getModels");
 			}
 			
-			service.registerUser = function(user){
-				
-				return $http.post("rest/reg/" , user);
+			service.registerUser = function(chorchainUser){
+				return $http.post("rest/registration/" , chorchainUser);
 			}
 			
-			service.loginUser = function(user){
-				return $http.post("rest/login/", user);
+			service.loginUser = function(chorchainUser){
+				return $http.post("rest/login/", chorchainUser);
 			}
 			
 			service.getModels = function(){
