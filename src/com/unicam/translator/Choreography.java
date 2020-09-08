@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.unicam.model.ChorchainUser;
 import org.bson.Document;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -75,8 +76,8 @@ public class Choreography {
 	private static LinkedHashMap<String, String> taskIdAndRole;
 	// static String projectPath = System.getProperty("user.dir")+ "/workspace";
 
-	public boolean start(File bpmnFile, Map<String, User> participants, List<String> optionalRoles,
-			List<String> mandatoryRoles) throws Exception {
+	public boolean start(File bpmnFile, Map<String, ChorchainUser> participants, List<String> optionalRoles,
+						 List<String> mandatoryRoles) throws Exception {
 		try {
 			Choreography choreography = new Choreography();
 			choreography.readFile(bpmnFile);
@@ -142,7 +143,7 @@ public class Choreography {
 		participantsWithoutDuplicates = new ArrayList<>(new HashSet<>(partecipants));
 	}
 
-	private static String initial(String filename, Map<String, User> participants, List<String> optionalRoles,
+	private static String initial(String filename, Map<String, ChorchainUser> participants, List<String> optionalRoles,
 			List<String> mandatoryRoles) {
 		String intro = "pragma solidity ^0.5.3; \n" + "	pragma experimental ABIEncoderV2;\n" + "	contract "
 				+ ContractFunctions.parseName(filename, "") + "{\n" +
@@ -194,7 +195,7 @@ public class Choreography {
 				+ "        position[elementsID[i]]=i;\r\n" + "    }\r\n" + "         \r\n"
 				+ "         //roles definition\r\n" + "         //mettere address utenti in base ai ruoli\r\n";
 		int i = 0;
-		for (Map.Entry<String, User> sub : participants.entrySet()) {
+		for (Map.Entry<String, ChorchainUser> sub : participants.entrySet()) {
 
 			constr += "	roles[\"" + sub.getKey() + "\"] = " + sub.getValue().getAddress() + ";\n";
 			i++;

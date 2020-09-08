@@ -293,7 +293,7 @@ var payCount = 0;
 	
 	function saveModel() {
 
-		var specialCharacters = /^[a-zA-Z]*$/;
+		const specialCharacters = /^[a-zA-Z]*$/;
 		Swal.fire({
 			title: "Insert the new model name",
 			text: "Don't use special characters!",
@@ -320,7 +320,7 @@ var payCount = 0;
 
 			})
 			if (result.value) {
-				var nameAdded = result.value;
+				const nameAdded = result.value;
 				document.querySelector('.modelNameTrigger').setAttribute('data-value', nameAdded)
 
 				$("#js-save").trigger('click');

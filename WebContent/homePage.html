@@ -231,7 +231,11 @@
                       </select>
                       <div class="input-group-append">
                         <button class="btn btn-outline-secondary"
-                          ng-click="subscribe(model, instance.id, roletosubscribe)" type="button">Subscribe</button>
+                          ng-click="ethereumSubscribe(model, instance.id, roletosubscribe)" type="button">Ethereum Subscribe
+                        </button>
+                        <button class="btn btn-outline-secondary"
+                                ng-click="hyperledgerSubscribe(model, instance.id, roletosubscribe)" type="button">Hyperledger Subscribe
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -343,7 +347,7 @@
                           <div class="input-group-text">
                             {{ $index + 1 }}.</div>
                         </div>
-                        <input ng-model="field.address" type="text" class="form-control">
+                        <input ng-model="field.name" type="text" class="form-control">
                         <div class="input-group-append">
                           <a class="input-group-text text-danger pointer" ng-click="removeField(field)">X</a>
                         </div>

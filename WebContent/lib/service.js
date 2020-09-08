@@ -39,8 +39,7 @@ angular.module('homePage.services', []).factory('service',
 			
 			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
 				console.log(model.id);
-				 var data = {modelID:model.id, optional:optional, mandatory:mandatory, visibleAt:visibleAt};
-
+				const data = {modelID: model.id, optional: optional, mandatory: mandatory, visibleAt: visibleAt};
 				return $http.post("rest/createInstance/" + cookieId ,data);
 			}
 			

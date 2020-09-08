@@ -43,16 +43,16 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 		    ];
 		
 			$scope.submitform = function(){
-				//console.log($scope.task);
-				var paytop = document.getElementById('paymentCheckTop').checked;
-				var messagetop = "";
+
+				let paytop = document.getElementById('paymentCheckTop').checked;
+				let messagetop = "";
 				if(paytop == true){
 					messagetop = "payment"+payCount+"()";
 					payCount += 1;
 				} else {
 					if($scope.task.fnametop != "" && $scope.task.fnametop !=undefined){
 						messagetop = $scope.task.fnametop+"(";
-						for(var i in $scope.forms){
+						for(let i in $scope.forms){
 							messagetop += $scope.forms[i].type + " " + $scope.forms[i].vari;
 
 							if(i != ($scope.forms.length-1)){
@@ -67,15 +67,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					}
 				}
 
-				var paybottom = document.getElementById('paymentCheckBottom').checked;
-				var messagebottom = "";
+				let paybottom = document.getElementById('paymentCheckBottom').checked;
+				let messagebottom = "";
 				if(paybottom == true){
 					messagebottom = "payment"+payCount+"()";
 					payCount += 1;
 				} else {
 					if($scope.task.fnamebot != "" && $scope.task.fnamebot != undefined){
 						messagebottom = $scope.task.fnamebot+"(";
-						for(var i in $scope.forms2){
+						for(let i in $scope.forms2){
 							messagebottom += $scope.forms2[i].type + " " + $scope.forms2[i].vari;
 
 							if(i != ($scope.forms2.length-1)){
@@ -99,12 +99,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			
 			$scope.addParameter = function() {
-			       var newParam = {};
-			       $scope.forms.push(newParam);
+				const newParam = {};
+				$scope.forms.push(newParam);
 				}
 			$scope.addParameter2 = function() {
-			       var newParam2 = {};
-			       $scope.forms2.push(newParam2);
+				const newParam2 = {};
+				$scope.forms2.push(newParam2);
 				}
 			$scope.removeParameters = function(){
 				$scope.forms = [
@@ -117,12 +117,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			 //add parameters modal + message
 			$scope.addParam = function() {
-			       var newUser = {};
-			       $scope.parametersArray.push(newUser);
+				const newUser = {};
+				$scope.parametersArray.push(newUser);
 				}
 				$scope.removeParam = function(addr) {
-			       var index = $scope.parametersArray.indexOf(addr);
-			       if(index>0){
+					const index = $scope.parametersArray.indexOf(addr);
+					if(index>0){
 				       $scope.parametersArray.splice(index,1);
 			       }
 				}
@@ -157,12 +157,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			 //add address modal  
 			$scope.addField = function() {
-		       var newUser = {};
-		       $scope.visibleAtFields.push(newUser);
+				const newUser = {};
+				$scope.visibleAtFields.push(newUser);
 			}
 			$scope.removeField = function(addr) {
-		       var index = $scope.visibleAtFields.indexOf(addr);
-		       if(index>0){
+				const index = $scope.visibleAtFields.indexOf(addr);
+				if(index>0){
 			       $scope.visibleAtFields.splice(index,1);
 		       }
 			}
@@ -217,7 +217,19 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.subscribe = function(model, instanceId,roletosub){
+			$scope.ethereumSubscribe = function(model, instanceId,roletosub){
+
+				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
+					$scope.msg = response.data;
+					service.getInstances(model).then(function(response){
+						$scope.instances = response.data;
+						$scope.present = true;
+						$scope.getInstances(model);
+					});
+				});
+			}
+
+			$scope.hyperledgerSubscribe = function(model, instanceId,roletosub){
 				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
 					$scope.msg = response.data;
 					service.getInstances(model).then(function(response){
@@ -239,26 +251,27 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			 $scope.createInstance = function(model, visibleAt){
 				 //console.log(visibleAt);
-				 var visibleAtArray = [];
-				 for(var i = 0; i< visibleAt.length; i++){
-					 if(visibleAt[i].address){
-						 visibleAtArray.push(visibleAt[i].address);
+				 const visibleAtArray = [];
+				 for(let i = 0; i< visibleAt.length; i++){
+					 if(visibleAt[i].name){
+						 visibleAtArray.push(visibleAt[i].name);
 					 }
 				 }
 				 if(visibleAtArray[0] == undefined){
 					 visibleAtArray[0] = "null";
 				 }
-				 var allRoles = angular.copy(model.roles);
+				 const allRoles = angular.copy(model.roles);
 				 if($scope.selectedRoles.length != 0){
-					var allRoleslength = angular.copy(allRoles.length);
-					for (var i= $scope.selectedRoles.length-1; i>=0; i--) {
+					 const allRoleslength = angular.copy(allRoles.length);
+					 for (let i= $scope.selectedRoles.length-1; i>=0; i--) {
 						//remove the role selected from the all roles array
-						var itemselected = allRoles.indexOf($scope.selectedRoles[i])
-						allRoles.splice(itemselected, 1);
+						 const itemselected = allRoles.indexOf($scope.selectedRoles[i]);
+						 allRoles.splice(itemselected, 1);
 				    }
 				 } else {
 					 $scope.selectedRoles[0] = "null";
-				 }		
+				 }
+				 //allRoles ->
 				service.createInstance(model, $cookies.get('UserId'), $scope.selectedRoles, allRoles, visibleAtArray).then(function(){
 					$scope.selectedRoles = [];
 					$scope.visibleAtFields = [
@@ -359,7 +372,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			//$scope.setUser();
-			$scope.addMeta();
+			//$scope.addMeta();
 			
 			
    }]);

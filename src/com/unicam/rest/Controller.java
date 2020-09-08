@@ -307,15 +307,15 @@ public class Controller {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		try {
-			
-			loggedUser = em.find(User.class, cookieId);
+
+			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
 			
 			//if visibleAt is null, it means that the instance is public, otherwise I need to insert also
 			//the user address into the array
 			if(visibleAt.get(0).equals("null")) {
 				visibleAt = null;
 			} else {
-				visibleAt.add(loggedUser.getAddress());
+				visibleAt.add(chorchainLoggedUser.getName());
 			}
 			
 			if(optionalRoles.get(0).equals("null")) {
@@ -326,8 +326,8 @@ public class Controller {
 			List<Instance> modelInstances = model.getInstances();
 			ContractObject deployedContract = new ContractObject();
 			//List<String> visibleAt = new ArrayList<String>();
-			Instance modelInstance = new Instance(model.getName(), 0, mandatoryRoles.size(), new HashMap<String, User>(), mandatoryRoles, optionalRoles,
-					mandatoryRoles, optionalRoles, loggedUser.getAddress(), false,  visibleAt, deployedContract);
+			Instance modelInstance = new Instance(model.getName(), 0, mandatoryRoles.size(), new HashMap<>(), mandatoryRoles, optionalRoles,
+					mandatoryRoles, optionalRoles, chorchainLoggedUser.getName(), false,  visibleAt, deployedContract);
 
 			
 			modelInstances.add(modelInstance);
@@ -384,8 +384,8 @@ public class Controller {
 		EntityManager em = emf.createEntityManager();
 		
 		try {
-			
-			loggedUser = em.find(User.class, cookieId);
+
+			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
 	
 			Instance instanceToSub = em.find(Instance.class, instanceId);
 			
@@ -397,13 +397,13 @@ public class Controller {
 				instanceToSub.setActualNumber(actual + 1);
 				List<String> freeRoles = instanceToSub.getFreeRoles();
 				freeRoles.remove(role);
-				Map<String, User> subscribers = instanceToSub.getParticipants();
-				subscribers.put(role, loggedUser);
+				Map<String, ChorchainUser> subscribers = instanceToSub.getParticipants();
+				subscribers.put(role, chorchainLoggedUser);
 				em.merge(instanceToSub);
 				
-				List<Instance> userInstances = loggedUser.getInstances();
+				List<Instance> userInstances = chorchainLoggedUser.getInstances();
 				userInstances.add(instanceToSub);
-				loggedUser.setInstances(userInstances);
+				chorchainLoggedUser.setInstances(userInstances);
 				
 				tm.commit();
 				//System.out.println(instanceToSub.toStringInstance());
@@ -519,8 +519,8 @@ public class Controller {
 
 		try {
 			Instance inst = em.find(Instance.class, instanceId);
-			Map<String,User> map = inst.getParticipants();
-			for(Map.Entry<String, User> sub : map.entrySet()) {
+			Map<String,ChorchainUser> map = inst.getParticipants();
+			for(Map.Entry<String, ChorchainUser> sub : map.entrySet()) {
 				participants.put(sub.getKey(), sub.getValue().getID());
 			}
 			em.close();
@@ -551,7 +551,8 @@ public class Controller {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		try {
-			loggedUser = em.find(User.class, cookieId);
+			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
+			//loggedUser = em.find(User.class, cookieId);
 			filename = filename + ".bpmn";
 			File uploaded = new File(ContractFunctions.projectPath +  File.separator + "bpmn"+  File.separator + filename);
 
@@ -566,7 +567,8 @@ public class Controller {
 			getRoles.readFile(uploaded);
 			getRoles.getParticipants();
 			List<String> roles = Choreography.participantsWithoutDuplicates;
-			Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
+			//Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
+			Model modelUploaded = new Model(filename, chorchainLoggedUser.getName(), roles, new ArrayList<Instance>());
 			em.persist(modelUploaded);
 			tm.commit();
 		}catch(Exception e) {
@@ -655,18 +657,19 @@ public class Controller {
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
 		//loggedUser = retrieveUser(cookieId);
-		loggedUser = em.find(User.class, cookieId);
+		chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
+		//loggedUser = em.find(User.class, cookieId);
 		Instance instance = em.find(Instance.class, instanceId);
 		try {
 			List<String> optionalRoles = instance.getFreeRolesOptional();
 			optionalRoles.remove(role);
-			Map<String, User> subscribers = instance.getParticipants();
-			subscribers.put(role, loggedUser);
+			Map<String, ChorchainUser> subscribers = instance.getParticipants();
+			subscribers.put(role, chorchainLoggedUser);
             em.merge(instance);
 
-            List<Instance> userInstances = loggedUser.getInstances();
+            List<Instance> userInstances = chorchainLoggedUser.getInstances();
             userInstances.add(instance);
-            loggedUser.setInstances(userInstances);
+			chorchainLoggedUser.setInstances(userInstances);
 
 			tm.commit();
 		}catch(Exception e) {

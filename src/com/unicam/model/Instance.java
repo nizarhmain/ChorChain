@@ -40,9 +40,9 @@ public class Instance {
 	private int actualNumber;
 	private int maxNumber;
 	@JsonIgnore
-	@OneToMany(targetEntity=User.class, fetch = FetchType.EAGER)
+	@OneToMany(targetEntity=ChorchainUser.class, fetch = FetchType.EAGER)
 	@MapKeyColumn(name="role")
-	private Map<String, User> participants = new HashMap<String, User>();
+	private Map<String, ChorchainUser> participants = new HashMap<>();
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> freeRoles;
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -93,11 +93,11 @@ public class Instance {
 		this.maxNumber = maxNumber;
 	}
 
-	public Map<String, User> getParticipants() {
+	public Map<String, ChorchainUser> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(Map<String, User> participants) {
+	public void setParticipants(Map<String, ChorchainUser> participants) {
 		this.participants = participants;
 	}
 
@@ -157,7 +157,7 @@ public class Instance {
 		this.deployedContract = deployedContract;
 	}
 
-	public Instance(String name, int actualNumber, int maxNumber, Map<String, User> participants, List<String> mandatoryRoles, List<String> optionalRoles,
+	public Instance(String name, int actualNumber, int maxNumber, Map<String, ChorchainUser> participants, List<String> mandatoryRoles, List<String> optionalRoles,
 			List<String> freeRoles, List<String> freeRolesOptional, String createdBy, boolean done, List<String> visibleAt, 
 			ContractObject deployedContract) {
 		super();

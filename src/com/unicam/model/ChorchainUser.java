@@ -32,6 +32,7 @@ public class ChorchainUser {
     @Column(unique = true)
     private String name;
     private String password;
+    private String address;
     @OneToMany(targetEntity=Instance.class, fetch = FetchType.EAGER)
     private List<Instance> instances;
 
@@ -59,6 +60,15 @@ public class ChorchainUser {
         this.password = password;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+
     public List<Instance> getInstances() {
         return instances;
     }
@@ -72,6 +82,7 @@ public class ChorchainUser {
         this.password = password;
         this.instances = instances;
     }
+
 
     public ChorchainUser() {
         super();

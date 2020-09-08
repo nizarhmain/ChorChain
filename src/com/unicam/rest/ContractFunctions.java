@@ -37,6 +37,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.unicam.model.ChorchainUser;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.admin.Admin;
 import org.web3j.protocol.admin.methods.response.PersonalUnlockAccount;
@@ -106,7 +107,7 @@ public class ContractFunctions {
 
 
 
-	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
+	public ContractObject createSolidity(String fileName, Map<String, ChorchainUser> participants, List<String> freeRoles, List<String> mandatoryRoles) {
 		Choreography cho = new Choreography();
 		File f = new File(projectPath + File.separator + "bpmn"+ File.separator + fileName);
 		try {
