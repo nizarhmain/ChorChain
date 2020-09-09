@@ -373,6 +373,24 @@ public class Controller {
 	}
 
 	@POST
+	@Path("/updateUserEthAddress/{userAddress}/{cookieId}")
+	public void updateUserEthAddress(@PathParam("userAddress") String userAddress, @PathParam("cookieId") String cookieId) throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
+		try{
+			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
+			chorchainLoggedUser.setAddress(userAddress);
+		} catch (Exception e) {
+			tm.rollback();
+			e.printStackTrace();
+		} finally {
+			tm.commit();
+			em.clear();
+			em.close();
+		}
+	}
+
+	@POST
 	@Path("/subscribe/{role}/{cookieId}/{instanceID}")
 	public String subscribe(@PathParam("role") String role, @PathParam("cookieId") String cookieId,
 			@PathParam("instanceID") String instanceId, Model modelInstance) throws Exception {

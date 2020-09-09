@@ -1,19 +1,20 @@
 'use strict'
 
 
-var module = angular.module('homePage.controllers', ['ngCookies']);
+
+const module = angular.module('homePage.controllers', ['ngCookies']);
 module.controller("controller", [ "$scope","$window", "$location", "service", '$cookies',
 		function($scope,$window, $location,service, $cookies) {
+
 
 			$scope.isLogged = false;
 	        $scope.countPayment = 0;
 	        //user used for sign-up
-			$scope.regUser = {};
+			//$scope.regUser = {};
 			//user used for sign-in
-			$scope.user = {};
+			//$scope.user = {};
 			//user sued for sign-up/in
 			$scope.chorchainUser = { name:"", password:""};
-
 			$scope.role = null;
 			$scope.content = {};
 			$scope.models = {};
@@ -217,17 +218,27 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.ethereumSubscribe = function(model, instanceId,roletosub){
+			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
+                const ethAccount = await $scope.setMetamaskConnection();
+                if($scope.chorchainUser.address && $scope.chorchainUser.address.match(ethAccount)){
+                    if($scope.chorchainUser.address){console.log("esiste")}
+                    /*service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
+                    $scope.msg = response.data;
+                    service.getInstances(model).then(function(response){
+                        $scope.instances = response.data;
+                        $scope.present = true;
+                        $scope.getInstances(model);
+                    });
+                });*/
+                }else if($scope.chorchainUser.address && !$scope.chorchainUser.address.match(ethAccount)){
+                    window.alert("WARNING! switch your metamask account to the one associated to this account")
+                } else{
+                    console.log("MI ASSOCIO L'ADDRESS");
+                   // await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
+                }
 
-				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
-					$scope.msg = response.data;
-					service.getInstances(model).then(function(response){
-						$scope.instances = response.data;
-						$scope.present = true;
-						$scope.getInstances(model);
-					});
-				});
-			}
+
+            }
 
 			$scope.hyperledgerSubscribe = function(model, instanceId,roletosub){
 				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
@@ -244,13 +255,11 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.getInstances = function(model){
 				service.getInstances(model).then(function(response){
 					$scope.model.instances = response.data;
-					//console.log(response.data);
 					$scope.present = true;
 				});
 			}
 			
 			 $scope.createInstance = function(model, visibleAt){
-				 //console.log(visibleAt);
 				 const visibleAtArray = [];
 				 for(let i = 0; i< visibleAt.length; i++){
 					 if(visibleAt[i].name){
@@ -291,9 +300,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.getContracts = function(){
-				//console.log("COOKIE: " + $cookies.get('UserId'));
 				service.getContracts($cookies.get('UserId')).then(function(response){
-					//console.log(response.data);
 					$scope.contracts = response.data;
 				})
 			}
@@ -301,7 +308,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.getXml = function(filename){
 				service.getXml(filename).then(function(response){
 					$scope.model = response.data;
-					//console.log($scope.model);
 				});
 			}
 			
@@ -349,9 +355,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				$window.addEventListener("load", function() {
 				    if (typeof web3 !== "undefined") {
 				     web3 = new Web3(web3.currentProvider);
-				     //console.log(web3);
-				      //web3.eth.getAccounts().then(console.log);
-				    } else {
+                        ethereum.enable();
+
+                        let currentAccount = null;
+                        const account = web3.eth.accounts[0];
+                        console.log(account);
+                    } else {
 				      console.log("No web3? You should consider trying MetaMask!");
 				    }
 
@@ -370,7 +379,18 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$scope.chorchainUser = { name:"", password:""};
 				}
 			}
-			
+
+			$scope.setMetamaskConnection = async function () {
+			    let account;
+                if (window.ethereum) {
+                    window.web3 = new Web3(window.ethereum);
+                    window.ethereum.enable();
+                    account = await web3.eth.getAccounts();
+                    return account[0];
+                }
+            }
+
+            //$scope.setMetamaskConnection();
 			//$scope.setUser();
 			//$scope.addMeta();
 			
