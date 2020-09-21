@@ -222,19 +222,18 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
                 const ethAccount = await $scope.setMetamaskConnection();
                 if($scope.chorchainUser.address && $scope.chorchainUser.address.match(ethAccount)){
                     if($scope.chorchainUser.address){console.log("esiste")}
-                    /*service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
+                    service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
                     $scope.msg = response.data;
                     service.getInstances(model).then(function(response){
                         $scope.instances = response.data;
                         $scope.present = true;
                         $scope.getInstances(model);
                     });
-                });*/
+                });
                 }else if($scope.chorchainUser.address && !$scope.chorchainUser.address.match(ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
                 } else{
-                    console.log("MI ASSOCIO L'ADDRESS");
-                   // await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
+                   await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
                 }
 
 
