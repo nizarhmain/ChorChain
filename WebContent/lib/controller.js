@@ -19,6 +19,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.content = {};
 			$scope.models = {};
 			$scope.instances = {};
+			$scope.hyperledgerInstances = {};
+			$scope.selectedType = "";
 			$scope.present = false;
 			$scope.msg = null;
 			$scope.contracts = {};
@@ -186,6 +188,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			$scope.setModel = function(model){
 				$scope.model = model;
+				/*service.getHyperledgerInstances(model.id).then(function(response){
+					$scope.hyperledgerInstances = response.data.response;
+				});*/
 			}
 			
 			$scope.registerUser = function(){
@@ -221,14 +226,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
                 const ethAccount = await $scope.setMetamaskConnection();
                 if($scope.chorchainUser.address && $scope.chorchainUser.address.match(ethAccount)){
-                    if($scope.chorchainUser.address){console.log("esiste")}
+                   // if($scope.chorchainUser.address){console.log("esiste")}
                     service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
                     $scope.msg = response.data;
-                    service.getInstances(model).then(function(response){
+                    $scope.getInstances(model);
+                    /*service.getInstances(model).then(function(response){
                         $scope.instances = response.data;
                         $scope.present = true;
                         $scope.getInstances(model);
-                    });
+                    });*/
                 });
                 }else if($scope.chorchainUser.address && !$scope.chorchainUser.address.match(ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
@@ -239,14 +245,21 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
             }
 
-			$scope.hyperledgerSubscribe = function(model, instanceId,roletosub){
-				service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
-					$scope.msg = response.data;
-					service.getInstances(model).then(function(response){
+			$scope.hyperledgerSubscribe = function(model, index, instanceId,roletosub) {
+				if(roletosub.includes(' ')){
+					roletosub = roletosub.replace(' ', '_');
+				}
+				const instanceHyperledger = $scope.instances[index];
+				service.newHyperledgerSubscribe(instanceHyperledger._id, roletosub, $cookies.get('UserId')).then(function (response) {
+					if(response.data.response.ok == 1){
+						$scope.msg =  "Subscribed successfully";
+					}
+					$scope.getHyperledgerInstances(model.id);
+					/*service.getInstances(model).then(function (response) {
 						$scope.instances = response.data;
 						$scope.present = true;
 						$scope.getInstances(model);
-					});
+					});*/
 				});
 			}
 			
@@ -254,7 +267,21 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.getInstances = function(model){
 				service.getInstances(model).then(function(response){
 					$scope.model.instances = response.data;
+					$scope.instances = response.data;
 					$scope.present = true;
+					$scope.selectedType = 'eth';
+					/*service.getHyperledgerInstances(model.id).then(function(response){
+						$scope.hyperledgerInstances = response.data.response;
+						console.log($scope.hyperledgerInstances);
+					});*/
+				});
+			}
+
+			$scope.getHyperledgerInstances = function(modelId){
+				service.getHyperledgerInstances(modelId).then(function(response){
+					$scope.instances = response.data.response;
+					//$scope.hyperledgerInstances = response.data.response;
+					$scope.selectedType = 'fab';
 				});
 			}
 			
@@ -286,7 +313,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				        {}
 				    ];
 					$scope.msg = "Instance created";
-					$scope.getInstances(model);
+
+					service.createHyperledgerInstance(model.id).then(function(response){
+						//console.log(response.data);
+						/*service.getHyperledgerInstances(model.id).then(function(response1){
+							$scope.hyperledgerInstances = response1;
+							//console.log($scope.hyperledgerInstances.data);
+						});*/
+						$scope.getInstances(model);
+					});
 				});
 			 }
 			

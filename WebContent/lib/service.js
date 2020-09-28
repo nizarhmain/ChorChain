@@ -36,11 +36,19 @@ angular.module('homePage.services', []).factory('service',
 			service.getInstances = function(model){
 				return $http.post("rest/getInstances/", model);
 			}
+
+			service.getHyperledgerInstances = function(modelId){
+				return $http.get("http://localhost:3000/api/chorinstance/instances?idModel=" + modelId)
+			}
 			
 			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
 				console.log(model.id);
 				const data = {modelID: model.id, optional: optional, mandatory: mandatory, visibleAt: visibleAt};
 				return $http.post("rest/createInstance/" + cookieId ,data);
+			}
+
+			service.createHyperledgerInstance = function(idModel){
+				return $http.get("http://localhost:3000/api/chorinstance/create?idModel=" + idModel);
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){
@@ -60,6 +68,10 @@ angular.module('homePage.services', []).factory('service',
 			}
 			service.newSubscribe = function(instanceId, role, cookieId){
 				return $http.post("rest/newSubscribe/" + instanceId + "/" + role + "/" + cookieId);
+			}
+			service.newHyperledgerSubscribe = function(instanceId, role, cookieId){
+				return $http.get("http://localhost:3000/api/chorinstance/subscribe?idUser=" + cookieId +
+					"&idChorInstance=" + instanceId + "&subRole=" + role);
 			}
 			service.updateUserEthAddress = function(userAddress, cookieId){
 				return $http.post("rest/updateUserEthAddress/" + userAddress + "/" + cookieId);

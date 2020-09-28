@@ -564,10 +564,11 @@ public class Controller {
 	
 	@POST
 	@Path("/saveModel/{fileName}/{cookieId}")
-	public void saveModel(@PathParam("fileName") String filename, @PathParam("cookieId") String cookieId , String xml) throws Exception {
+	public String saveModel(@PathParam("fileName") String filename, @PathParam("cookieId") String cookieId , String xml) throws Exception {
 
 		tm.begin();
 		EntityManager em = emf.createEntityManager();
+		Model modelUploaded = null;
 		try {
 			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
 			//loggedUser = em.find(User.class, cookieId);
@@ -586,14 +587,16 @@ public class Controller {
 			getRoles.getParticipants();
 			List<String> roles = Choreography.participantsWithoutDuplicates;
 			//Model modelUploaded = new Model(filename, loggedUser.getAddress(), roles, new ArrayList<Instance>());
-			Model modelUploaded = new Model(filename, chorchainLoggedUser.getName(), roles, new ArrayList<Instance>());
+			modelUploaded = new Model(filename, chorchainLoggedUser.getName(), roles, new ArrayList<Instance>());
 			em.persist(modelUploaded);
 			tm.commit();
+
 		}catch(Exception e) {
 			e.printStackTrace();
 			tm.rollback();
 		}finally {
 			em.close();
+			return modelUploaded.getID();
 		}
 	}
 	

@@ -152,7 +152,6 @@
                     {{model.name}}</a>
                 </li>
               </ul>
-
             </div>
           </div>
         </div>
@@ -196,9 +195,47 @@
               <div class="alert custom-alert-yellow mt-3" ng-if="model.instances.length == 0">
                 There are no instances for this model
               </div>
-              <div ng-repeat="instance in model.instances | filter:searchRole">
+              <button ng-click="getInstances(model);" id="getEthInstances" class="btn custom-btn-yellow my-2">
+                See Ethereum instances</button>
+              <button ng-click="getHyperledgerInstances(model.id);" id="getHypInstances" class="btn custom-btn-yellow my-2">
+                See Fabric instances</button>
+              <div ng-repeat="instance in instances | filter:searchRole">
+               <!--- <div ng-repeat="instance in hyperledgerInstances">--->
+                <div class="card  my-2" ng-if="selectedType == 'fab'">
+                  <h5 class="card-header ">n° {{instance._id}} </h5>
+                  <div class="card-body">
+                    <p class="card-text">
+                      Free roles in the instance: <span ng-repeat="(key, value) in instance.subscriptions"
+                        ng-if="value==null">{{key}}, </span>
+                     <!--- <span ng-show="instance.freeRoles.length < 1" class="text-danger">There are no free mandatory
+                        roles</span>
+                      <br>
+                      Actual number of subscribed users: {{instance.actualNumber}}
+                      (Max:{{instance.maxNumber}})
+                    </p>
+                  <div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"
+                         data-ng-init="deploy(model, instance.id)">
+                      <div class="spinner-border text-success" role="status">
+                        <span class="">deploying...</span>
+                      </div>
+                    </div>--->
+                    <div class="input-group col-12" >
+                      <select class="custom-select" ng-model="roletosubscribe">
+                        <option ng-repeat="(key, value) in instance.subscriptions track by $index" value="{{key}}"
+                                ng-if="value==null">{{key}} </option>
+                      </select>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary"
+                                ng-click="hyperledgerSubscribe(model, $index, instance.id, roletosubscribe)" type="button">Hyperledger Subscribe
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                </div>
                 <div class="card  my-2"
-                  ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(chorchainUser.name) > -1">
+                  ng-if="(selectedType == 'eth') && (instance.visibleAt == 0 || instance.visibleAt.indexOf(chorchainUser.name)) > -1">
                   <h5 class="card-header ">n° {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
                     <span ng-show="instance.visibleAt.indexOf(chorchainUser.name) > -1" class="float-right"><i
                         style="color: #ffc200" class="fa fa-lock"></i> </span>
@@ -206,7 +243,7 @@
                   <div class="card-body">
                     <p class="card-text">
 
-                      Free roles in the instance: <span ng-repeat="fr in instance.freeRoles">{{fr}} </span><span
+                      Free roles in the instance: <span ng-repeat="fr in instance.freeRoles">{{fr}}, </span><span
                         ng-show="instance.freeRoles.length < 1" class="text-danger">There are no free mandatory
                         roles</span>
                       <br>
@@ -233,9 +270,6 @@
                         <button class="btn btn-outline-secondary"
                           ng-click="ethereumSubscribe(model, instance.id, roletosubscribe)" type="button">Ethereum Subscribe
                         </button>
-                        <button class="btn btn-outline-secondary"
-                                ng-click="hyperledgerSubscribe(model, instance.id, roletosubscribe)" type="button">Hyperledger Subscribe
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -259,7 +293,8 @@
                     </div>
 
                   </div>
-                </div>
+               <!--- </div>--->
+              </div>
               </div>
             </div>
           </div>
