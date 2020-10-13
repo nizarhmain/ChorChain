@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fabric execution panel</title>
+
+    <meta charset="UTF-8">
+    <title>Chorchain | Query</title>
+    <script src="lib/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+            integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+    <!-- graphics -->
+    <link rel="stylesheet" href="css/unicons.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <!-- MAIN STYLE -->
+    <link rel="stylesheet" href="css/tooplate-style.css">
+
+    <link rel="stylesheet" href="css/querying.css">
+</head>
+
+<body ng-app="homePage" ng-controller="controller">
+
+<nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+    <div class="container">
+        <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChain logo">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a href="homePage.html" class="nav-link"><span data-hover="Home Page">Home Page</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="modeler.html" class="nav-link"><span data-hover="Modeler">Modeler</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="deploy.html" class="nav-link"><span data-hover="Execution Page">Execution Page</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="querying.html" class="nav-link active"><span data-hover="Querying">Querying</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="audit.html" class="nav-link"><span data-hover="Audit">Audit</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="personalPage.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 16px;">
+    <div>
+        <object type="text/html" data="http://localhost:9013/?idUser={{chorchainUser}}" width="100%" height="800px" style="overflow:auto;border:5px ridge white">
+        </object>
+    </div>
+</div>
+
+</body>
+</html>

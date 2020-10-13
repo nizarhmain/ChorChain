@@ -228,11 +228,12 @@
                         <button class="btn btn-outline-secondary"
                                 ng-click="hyperledgerSubscribe(model, $index, instance.id, roletosubscribe)" type="button">Hyperledger Subscribe
                         </button>
+                        <button class="btn btn-outline-secondary"
+                                ng-click="hyperledgerDeploy(instance.idChorLedger)" type="button">Hyperledger deploy
+                        </button>
                       </div>
                     </div>
                   </div>
-
-
                 </div>
                 <div class="card  my-2"
                   ng-if="(selectedType == 'eth') && (instance.visibleAt == 0 || instance.visibleAt.indexOf(chorchainUser.name)) > -1">

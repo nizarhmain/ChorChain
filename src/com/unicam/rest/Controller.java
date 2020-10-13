@@ -590,7 +590,6 @@ public class Controller {
 			modelUploaded = new Model(filename, chorchainLoggedUser.getName(), roles, new ArrayList<Instance>());
 			em.persist(modelUploaded);
 			tm.commit();
-
 		}catch(Exception e) {
 			e.printStackTrace();
 			tm.rollback();

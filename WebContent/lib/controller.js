@@ -332,6 +332,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
 				});
 			}
+
+			$scope.hyperledgerDeploy = function(idChorLedger){
+				service.hyperledgerDeploy(idChorLedger).then(function(response){
+					console.log(response);
+				});
+
+			}
 			
 			$scope.getContracts = function(){
 				service.getContracts($cookies.get('UserId')).then(function(response){
