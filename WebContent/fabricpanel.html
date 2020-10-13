@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Fabric execution panel</title>
 
     <meta charset="UTF-8">
-    <title>Chorchain | Query</title>
+    <title>Chorchain | Fabric</title>
     <script src="lib/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
@@ -14,6 +13,7 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
             integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
     <!-- graphics -->
     <link rel="stylesheet" href="css/unicons.css">
     <link rel="stylesheet" href="css/owl.carousel.min.css">
@@ -21,13 +21,20 @@
     <!-- MAIN STYLE -->
     <link rel="stylesheet" href="css/tooplate-style.css">
 
+    <!-- Modeler import -->
+    <link rel="stylesheet" href="css/diagram-js-preview.css" />
+    <link rel="stylesheet" href="vendor/bpmn-js/assets/bpmn-font/css/bpmn.css" />
+    <link rel="stylesheet" href="vendor/chor-js/font/include/css/choreography.css" />
     <link rel="stylesheet" href="css/querying.css">
+
 </head>
 
-<body ng-app="homePage" ng-controller="controller">
+<body>
 
-<nav class="navbar navbar-expand-sm  navbar-light bg-light" data-ng-init="setUser()">
+<!-- MENU -->
+<nav class="navbar navbar-expand-sm  navbar-light bg-light">
     <div class="container">
+
         <img src="ChorChain_logo.png" width="150" height="52" alt="ChorChain logo">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +55,7 @@
                     <a href="deploy.html" class="nav-link"><span data-hover="Execution Page">Execution Page</span></a>
                 </li>
                 <li class="nav-item">
-                    <a href="querying.html" class="nav-link active"><span data-hover="Querying">Querying</span></a>
+                    <a href="querying.html" class="nav-link"><span data-hover="Querying">Querying</span></a>
                 </li>
                 <li class="nav-item">
                     <a href="audit.html" class="nav-link"><span data-hover="Audit">Audit</span></a>
@@ -56,17 +63,47 @@
                 <li class="nav-item">
                     <a href="personalPage.html" class="nav-link"><span data-hover="Personal Page">Personal Page</span></a>
                 </li>
+                <li class="nav-item">
+                    <a href="fabricpanel.html" class="nav-link active"><span data-hover="Fabric Page">Fabric Page</span></a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
+
+
 <div class="container-fluid" style="margin-top: 16px;">
     <div>
-        <object type="text/html" data="http://localhost:9013/?idUser={{chorchainUser}}" width="100%" height="800px" style="overflow:auto;border:5px ridge white">
+        <object id="fabricpage" type="text/html" data="" width="100%" height="800px" style="overflow:auto;border:5px ridge white">
         </object>
     </div>
 </div>
 
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+</script>
+
+<script src="lib/querying/graphql-client-service.js"></script>
+<script src="lib/querying/querying-controller.js"></script>
+
 </body>
+<script>
+    let userid;
+function getCookie() {
+    userid = document.cookie.split("=");
+    document.getElementById("fabricpage").setAttribute("data", "http://localhost:9013/?idUser=" + userid[1]);
+}
+
+getCookie();
+</script>
+
 </html>
