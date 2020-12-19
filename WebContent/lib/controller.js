@@ -409,6 +409,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.setUser = function(){
+				console.log("ciao");
 				if($cookies.get('UserId') != null){
 					$scope.isLogged = true;
 					const userId = $cookies.get('UserId');
