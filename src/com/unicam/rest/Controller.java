@@ -509,20 +509,21 @@ public class Controller {
 
 	@POST
 	@Path("/getCont/{cookieId}/")
-	public List<Instance> getUserContracts(@PathParam("cookieId") String cookieId) {
-
-		try {
-			loggedUser = retrieveUser(cookieId);
-			
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-
+	public List<Instance> getUserContracts(@PathParam("cookieId") String cookieId) throws SystemException, NotSupportedException {
+		tm.begin();
+		EntityManager em = emf.createEntityManager();
 		List<Instance> cList = new ArrayList<>();
-		List<Instance> userInstances = loggedUser.getInstances();
-		for(Instance i : userInstances) {
-			if(i.isDone() == true) cList.add(i);
+		try {
+			chorchainLoggedUser = em.find(ChorchainUser.class, cookieId);
+			List<Instance> userInstances = chorchainLoggedUser.getInstances();
+			for (Instance i : userInstances) {
+				if (i.isDone() == true) cList.add(i);
+			}
+		} catch(Exception e) {
+			tm.rollback();
+			e.printStackTrace();
+		} finally {
+			em.close();
 		}
 
 		return cList;

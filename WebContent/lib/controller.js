@@ -225,7 +225,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
                 const ethAccount = await $scope.setMetamaskConnection();
-                if($scope.chorchainUser.address && $scope.chorchainUser.address.match(ethAccount)){
+                if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address.match(ethAccount))){
                    // if($scope.chorchainUser.address){console.log("esiste")}
                     service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
                     $scope.msg = response.data;
@@ -236,9 +236,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
                         $scope.getInstances(model);
                     });*/
                 });
-                }else if($scope.chorchainUser.address && !$scope.chorchainUser.address.match(ethAccount)){
+                }else if(($scope.chorchainUser.address != "undefined") && !$scope.chorchainUser.address.match(ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
-                } else{
+					console.log($scope.chorchainUser.address);
+					console.log($scope.chorchainUser);
+					console.log(ethAccount);
+				} else{
                    await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
                 }
 
@@ -374,23 +377,24 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 			}
 			
-			$scope.optionalSubscribe = function(instanceId, roletosubscribe){
-				var userId = $cookies.get('UserId');
-				
-					//$scope.user = response.data;
-					service.getContractFromInstance(instanceId).then(function(response){
-						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
-					
-						$scope.myContract.methods.subscribe_as_participant(roletosubscribe).send({
-							from : $scope.user.address,
-							gas: 200000,
-						}).then(function(receipt){
-							service.newSubscribe(instanceId, roletosubscribe, $cookies.get('UserId')).then(function(receipt){
-							});
+			$scope.optionalSubscribe = async function (instanceId, roletosubscribe) {
+				const ethAccount = await $scope.setMetamaskConnection();
+				const userId = $cookies.get('UserId');
+
+				//$scope.user = response.data;
+				service.getContractFromInstance(instanceId).then(function (response) {
+					$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
+
+					$scope.myContract.methods.subscribe_as_participant(roletosubscribe).send({
+						from: ethAccount,
+						gas: 200000,
+					}).then(function (receipt) {
+						service.newSubscribe(instanceId, roletosubscribe, $cookies.get('UserId')).then(function (receipt) {
 						});
 					});
-			
-				
+				});
+
+
 			}
 			$scope.addMeta = function(){
 				$window.addEventListener("load", function() {
@@ -400,7 +404,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
                         let currentAccount = null;
                         const account = web3.eth.accounts[0];
-                        console.log(account);
                     } else {
 				      console.log("No web3? You should consider trying MetaMask!");
 				    }
@@ -409,7 +412,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.setUser = function(){
-				console.log("ciao");
 				if($cookies.get('UserId') != null){
 					$scope.isLogged = true;
 					const userId = $cookies.get('UserId');
@@ -424,6 +426,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 			$scope.setMetamaskConnection = async function () {
 			    let account;
+                const accounts = await ethereum.request({ method: 'eth_accounts' });
+                console.log(accounts);
                 if (window.ethereum) {
                     window.web3 = new Web3(window.ethereum);
                     window.ethereum.enable();
