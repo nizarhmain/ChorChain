@@ -40,11 +40,11 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.forms = [
 			        {}
 			    ];
-			
+
 			$scope.forms2 = [
 		        {}
 		    ];
-		
+
 			$scope.submitform = function(){
 
 				let paytop = document.getElementById('paymentCheckTop').checked;
@@ -99,8 +99,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				$scope.task.fnamebot = "";
 				$scope.task.fnametop="";
 			}
-			
-			
+
+
 			$scope.addParameter = function() {
 				const newParam = {};
 				$scope.forms.push(newParam);
@@ -113,7 +113,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				$scope.forms = [
 			        {}
 			    ];
-			
+
 			$scope.forms2 = [
 		        {}
 		    ];
@@ -129,36 +129,36 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				       $scope.parametersArray.splice(index,1);
 			       }
 				}
-				
+
 				$scope.closeModal = function() {
 					$scope.parametersArray.splice(1,2);
 					}
-				
+
 				$scope.addMessage = function(messageName,messageParam,paramType) {
 					   if(messageParam == null & paramType == undefined)
-						   {  
+						   {
 						   	$scope.str = messageName;
 						   	$('.djs-direct-editing-content').text($scope.str);
-						   	$('.djs-direct-editing-content').focus();					   
-						   	
+						   	$('.djs-direct-editing-content').focus();
+
 						   }
 					   else
 						   {
 						   $scope.str = messageName + "(" + paramType +" "+ messageParam + ")" ;
 						   $('.djs-direct-editing-content').text($scope.str);
 						   $('.djs-direct-editing-content').focus();
-						   
+
 						   }
 					   if($('#paymentCheck').is(':checked')) {
 						$scope.countPayment++;
 					   	$scope.str = "payment"+$scope.countPayment+"()";
 					   	$('.djs-direct-editing-content').text($scope.str);
-					   	$('.djs-direct-editing-content').focus();					   
-					   	
+					   	$('.djs-direct-editing-content').focus();
+
 					   }
 					}
-			
-			 //add address modal  
+
+			 //add address modal
 			$scope.addField = function() {
 				const newUser = {};
 				$scope.visibleAtFields.push(newUser);
@@ -181,25 +181,25 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			    	$scope.selectedRoles.push(roleselected);
 			    }
 			 }
-			
+
 			$scope.setModelName = function(fileName){
 				$scope.modelName = fileName;
 			}
-			
+
 			$scope.setModel = function(model){
 				$scope.model = model;
 				/*service.getHyperledgerInstances(model.id).then(function(response){
 					$scope.hyperledgerInstances = response.data.response;
 				});*/
 			}
-			
+
 			$scope.registerUser = function(){
 				service.registerUser($scope.chorchainUser).then(function(response){
 					$scope.chorchainUser = { name:"", password:""};
 					alert(response.data);
-				});		
+				});
 			}
-			
+
 			$scope.loginUser = function(){
 				service.loginUser($scope.chorchainUser).then(function (response) {
 						if (!response.data) {
@@ -214,22 +214,25 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					});
 			}
 
-			
+
 			$scope.getModels = function(){
 			    $scope.cookieId = $cookies.get('UserId');
 				service.getModels().then(function(response){
 					$scope.models = response.data;
 				});
 			}
-			
+
 			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
                 const ethAccount = await $scope.setMetamaskConnection();
-				if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address.match(ethAccount))){
+				console.log($scope.chorchainUser.address);
+				if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address != null)
+					&& ($scope.chorchainUser.address == ethAccount)){
                     service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
                     $scope.msg = response.data;
                     $scope.getInstances(model);
                 });
-                }else if(($scope.chorchainUser.address != "undefined") && !$scope.chorchainUser.address.match(ethAccount)){
+                }else if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address != null)
+					&& ($scope.chorchainUser.address != ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
 				} else{
                    await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
@@ -250,8 +253,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$scope.getHyperledgerInstances(model.id);
 				});
 			}
-			
-			
+
+
 			$scope.getInstances = function(model){
 				service.getInstances(model).then(function(response){
 					$scope.model.instances = response.data;
@@ -267,7 +270,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$scope.selectedType = 'fab';
 				});
 			}
-			
+
 			 $scope.createInstance = function(model, visibleAt){
 				 const visibleAtArray = [];
 				 for(let i = 0; i< visibleAt.length; i++){
@@ -302,7 +305,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					});
 				});
 			 }
-			
+
 			$scope.deploy = function(model, instanceId){
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
 					//console.log(response.data);
@@ -318,27 +321,27 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				});
 
 			}
-			
+
 			$scope.getContracts = function(){
 				service.getContracts($cookies.get('UserId')).then(function(response){
 					$scope.contracts = response.data;
 				})
 			}
-			
+
 			$scope.getXml = function(filename){
 				service.getXml(filename).then(function(response){
 					$scope.model = response.data;
 				});
 			}
-			
+
 			$scope.getContractFromInstance = function(instanceId, role){
-					
-				
+
+
 				service.getContractFromInstance(instanceId).then(function(response){
 					//console.log(response.data.abi);
 					//console.log(response.data.address);
 				//	$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
-					
+
 					service.newSubscribe(instanceId, user.role, $cookies.get('UserId')).then(function(receipt){
 					});
 				/*	$scope.myContract.methods.subscribe_as_participant($scope.user.role).send({
@@ -352,7 +355,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					});*/
 				});
 			}
-			
+
 			$scope.optionalSubscribe = async function (instanceId, roletosubscribe) {
 				const ethAccount = await $scope.setMetamaskConnection();
 				const userId = $cookies.get('UserId');
@@ -394,7 +397,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					}
 				  });
 			}
-			
+
 			$scope.setUser = function(){
 				if($cookies.get('UserId') != null){
 					$scope.isLogged = true;
@@ -412,7 +415,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
 			    let account;
                 const accounts = await ethereum.request({ method: 'eth_accounts' });
-                console.log(accounts);
+                console.log(accounts[0]);
 				return accounts[0];
 
                 /*if (window.ethereum) {
@@ -426,6 +429,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
             //$scope.setMetamaskConnection();
 			//$scope.setUser();
 			//$scope.addMeta();
-			
-			
+
+
    }]);
