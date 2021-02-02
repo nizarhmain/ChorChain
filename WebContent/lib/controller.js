@@ -372,9 +372,10 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 
 			}
-			$scope.addMeta = function(){
+			$scope.addMeta = async function(){
 				$window.addEventListener("load", function() {
-				    if (typeof web3 !== "undefined") {
+					web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
+				    /* if (typeof web3 !== "undefined") {
 				     web3 = new Web3(web3.currentProvider);
                         ethereum.enable();
 
@@ -382,8 +383,15 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
                         const account = web3.eth.accounts[0];
                     } else {
 				      console.log("No web3? You should consider trying MetaMask!");
-				    }
+				    }*/
 
+					console.log(web3);
+					const accounts = ethereum.request({ method: 'eth_requestAccounts' });
+					const account = accounts[0];
+					console.log(account);
+					if (accounts[0] !== account) {
+						console.log(account);
+					}
 				  });
 			}
 			
@@ -401,15 +409,18 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 
 			$scope.setMetamaskConnection = async function () {
+				web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
 			    let account;
                 const accounts = await ethereum.request({ method: 'eth_accounts' });
                 console.log(accounts);
-                if (window.ethereum) {
+				return accounts[0];
+
+                /*if (window.ethereum) {
                     window.web3 = new Web3(window.ethereum);
                     window.ethereum.enable();
                     account = await web3.eth.getAccounts();
                     return account[0];
-                }
+                }*/
             }
 
             //$scope.setMetamaskConnection();
