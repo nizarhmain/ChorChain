@@ -11,6 +11,7 @@
 	<script src="lib/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.all.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.2.6/dist/web3.min.js" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
 
 	<!-- graphics -->
@@ -117,9 +118,13 @@
 	window.addEventListener('load', function () {
 
 		// Check if Web3 has been injected by the browser (Mist/MetaMask).
-		if (typeof web3 !== 'undefined' && web3.currentProvider.isMetaMask == true) {
+		/*if (typeof web3 !== 'undefined' && web3.currentProvider.isMetaMask == true) {
 			console.log("Metamask presente!");
-			web3js = new Web3(web3.currentProvider);
+			//var Web3 = require('web3');
+			//var web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
+
+			web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
+			console.log(web3);
 			// window.ethereum.enable();
 		} else {
 			Swal.fire({
@@ -149,23 +154,43 @@
 				}
 			})
 
-		}
+		}*/
+		web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
 
 	});
 </script>
 
 <script>
 	// If the MetaMask extension is present,you are asked to log in to your account the permissions to access the wallet
-	ethereum.enable();
-	var account = web3.eth.accounts[0];
 
-	$("#labeladdress").text(web3.toChecksumAddress(account));
+	let account = '';
+	ethereum.enable();
+	async function ciao(){
+		const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+		if (accounts[0] !== account) {
+			account = accounts[0];
+			$("#labeladdress").text(web3.utils.toChecksumAddress(account));
+		}
+	}
+
+	ciao();
+	//var account = web3.eth.accounts[0];
+
+
 
 	var accountInterval = setInterval(function () {
-		if (web3.eth.accounts[0] !== account) {
-			account = web3.eth.accounts[0]
-			$("#labeladdress").text(web3.toChecksumAddress(account));
-		}
+		/*const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+		if (accounts[0] !== account) {
+			account = accounts[0]
+			$("#labeladdress").text($("#labeladdress").text(web3.utils.toChecksumAddress(account)));
+		}*/
+		ciao();
+
+		if (document.getElementById("address").value == account) {
+			document.getElementById("loginbutton").disabled = false;
+		} else
+			document.getElementById("loginbutton").disabled = false;
+
 	}, 100);
 </script>
 
@@ -180,16 +205,17 @@
 </script>
 
 <script>
-	var accountInterval = setInterval(function () {
+/*	var accountInterval = setInterval(function () {
 
-		var selectedAccount = web3.toChecksumAddress(web3.eth.accounts[0]);
+		var selectedAccount = '';
+		//web3.toChecksumAddress(web3.eth.accounts[0]);
 
 		if (document.getElementById("address").value == selectedAccount) {
 			document.getElementById("loginbutton").disabled = false;
 		} else
 			document.getElementById("loginbutton").disabled = true;
 
-	}, 100);
+	}, 100);*/
 </script>
 
 <script>
