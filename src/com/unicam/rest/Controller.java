@@ -270,7 +270,7 @@ public class Controller {
 		em.close();
 		//em.flush();
 		
-		return "<meta http-equiv=\"refresh\" content=\"0; url=http://virtualpros.unicam.it:8080/ChorChain/homePage.html\">";
+		return "<meta http-equiv=\"refresh\" content=\"0; url=http://virtualpros.unicam.it:8080/MultiChain/homePage.html\">";
 	}
 
 	@POST

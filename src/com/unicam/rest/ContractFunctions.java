@@ -390,8 +390,8 @@ public class ContractFunctions {
 	            }
 		  }
 		  TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
-		System.out.println(transactionReceipt.getError());
-		System.out.println(transactionReceipt.getRawResponse());
+		  System.out.println(transactionReceipt.getError());
+		  System.out.println(transactionReceipt.getRawResponse());
 		  //System.out.println(transactionReceiptFinal.getContractAddress());
 		  
 		  String contractAddress = transactionReceiptFinal.getContractAddress();

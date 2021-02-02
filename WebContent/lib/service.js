@@ -4,6 +4,7 @@ angular.module('homePage.services', []).factory('service',
 		[ "$http", function($http) {
 			const service = {};
 			let user = {};
+			const ip = "192.168.56.1";
 
 			service.setUser = function(localUser){
 				user = localUser;
@@ -38,7 +39,7 @@ angular.module('homePage.services', []).factory('service',
 			}
 
 			service.getHyperledgerInstances = function(modelId){
-				return $http.get("http://127.0.0.1:3000/api/chorinstance/instances?idModel=" + modelId)
+				return $http.get("http://" + ip + ":3000/api/chorinstance/instances?idModel=" + modelId)
 			}
 			
 			service.createInstance = function(model, cookieId, optional, mandatory, visibleAt){
@@ -48,7 +49,7 @@ angular.module('homePage.services', []).factory('service',
 			}
 
 			service.createHyperledgerInstance = function(idModel){
-                return $http.get("http://127.0.0.1:3000/api/chorinstance/create?idModel=" + idModel);
+                return $http.get("http://" + ip + ":3000/api/chorinstance/create?idModel=" + idModel);
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){
@@ -58,7 +59,7 @@ angular.module('homePage.services', []).factory('service',
 				let formData = new FormData();
 				let ca = {"idChorLedger": idChorLedger};
 				//formData.append("idChorLedger", idChorLedger);
-				return $http.post("http://127.0.0.1:3000/api/contract/deploy", ca);
+				return $http.post("http://" + ip + ":3000/api/contract/deploy", ca, {timeout:300000});
 			}
 			service.getContracts = function(cookieId){
 				return $http.post("rest/getCont/" + cookieId);
@@ -76,7 +77,7 @@ angular.module('homePage.services', []).factory('service',
 				return $http.post("rest/newSubscribe/" + instanceId + "/" + role + "/" + cookieId);
 			}
 			service.newHyperledgerSubscribe = function(instanceId, role, cookieId){
-				return $http.get("http://127.0.0.1:3000/api/chorinstance/subscribe?idUser=" + cookieId +
+				return $http.get("http://" + ip + ":3000/api/chorinstance/subscribe?idUser=" + cookieId +
 					"&idChorInstance=" + instanceId + "&subRole=" + role);
 			}
 			service.updateUserEthAddress = function(userAddress, cookieId){

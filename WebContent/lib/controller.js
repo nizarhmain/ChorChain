@@ -201,7 +201,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			}
 			
 			$scope.loginUser = function(){
-				console.log($scope.chorchainUser);
 				service.loginUser($scope.chorchainUser).then(function (response) {
 						if (!response.data) {
 							$scope.chorchainUser = { name:"", password:""};
@@ -210,7 +209,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 							$cookies.put('UserId', response.data);
 							$scope.cookieId = response.data;
 							//window.location.href = 'http://virtualpros.unicam.it:8080/ChorChain/homePage.html';
-							window.location.href = 'http://localhost:8080/ChorChain/homePage.html';
+							window.location.href = 'http://virtualpros.unicam.it:8080/MultiChain/homePage.html';
 						}
 					});
 			}
@@ -225,22 +224,13 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			
 			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
                 const ethAccount = await $scope.setMetamaskConnection();
-                if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address.match(ethAccount))){
-                   // if($scope.chorchainUser.address){console.log("esiste")}
+				if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address.match(ethAccount))){
                     service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
                     $scope.msg = response.data;
                     $scope.getInstances(model);
-                    /*service.getInstances(model).then(function(response){
-                        $scope.instances = response.data;
-                        $scope.present = true;
-                        $scope.getInstances(model);
-                    });*/
                 });
                 }else if(($scope.chorchainUser.address != "undefined") && !$scope.chorchainUser.address.match(ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
-					console.log($scope.chorchainUser.address);
-					console.log($scope.chorchainUser);
-					console.log(ethAccount);
 				} else{
                    await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
                 }
@@ -258,11 +248,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						$scope.msg =  "Subscribed successfully";
 					}
 					$scope.getHyperledgerInstances(model.id);
-					/*service.getInstances(model).then(function (response) {
-						$scope.instances = response.data;
-						$scope.present = true;
-						$scope.getInstances(model);
-					});*/
 				});
 			}
 			
@@ -273,17 +258,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$scope.instances = response.data;
 					$scope.present = true;
 					$scope.selectedType = 'eth';
-					/*service.getHyperledgerInstances(model.id).then(function(response){
-						$scope.hyperledgerInstances = response.data.response;
-						console.log($scope.hyperledgerInstances);
-					});*/
 				});
 			}
 
 			$scope.getHyperledgerInstances = function(modelId){
 				service.getHyperledgerInstances(modelId).then(function(response){
 					$scope.instances = response.data.response;
-					//$scope.hyperledgerInstances = response.data.response;
 					$scope.selectedType = 'fab';
 				});
 			}
@@ -318,11 +298,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					$scope.msg = "Instance created";
 
 					service.createHyperledgerInstance(model.id).then(function(response){
-						//console.log(response.data);
-						/*service.getHyperledgerInstances(model.id).then(function(response1){
-							$scope.hyperledgerInstances = response1;
-							//console.log($scope.hyperledgerInstances.data);
-						});*/
 						$scope.getInstances(model);
 					});
 				});
@@ -332,7 +307,8 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
 					//console.log(response.data);
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
-					$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
+					//$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
+					$window.location.href = 'http://virtualpros.unicam.it:8080/MultiChain/deploy.html';
 				});
 			}
 
