@@ -53,6 +53,7 @@ angular.module('homePage.services', []).factory('service',
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){
+				console.log(model);
 				return $http.post("rest/deploy/" + cookieId + "/" + instanceId, model);
 			}
 			service.hyperledgerDeploy = function(idChorLedger){

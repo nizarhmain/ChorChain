@@ -224,7 +224,6 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 			$scope.ethereumSubscribe = async function (model, instanceId, roletosub) {
                 const ethAccount = await $scope.setMetamaskConnection();
-				console.log($scope.chorchainUser.address);
 				if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address != null)
 					&& ($scope.chorchainUser.address == ethAccount)){
                     service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function(response){
@@ -234,12 +233,19 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
                 }else if(($scope.chorchainUser.address != "undefined") && ($scope.chorchainUser.address != null)
 					&& ($scope.chorchainUser.address != ethAccount)){
                     window.alert("WARNING! switch your metamask account to the one associated to this account")
-				} else{
-                   await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
-                }
-
-
-            }
+				} else {
+					await service.updateUserEthAddress(ethAccount, $cookies.get('UserId'));
+					window.alert("Ethereum address associated to your account")
+					const userId = $cookies.get('UserId');
+					service.setUser(userId).then(function (response) {
+						$scope.chorchainUser = response.data;
+						service.subscribe(model, instanceId, roletosub, $cookies.get('UserId')).then(function (response) {
+							$scope.msg = response.data;
+							$scope.getInstances(model);
+						});
+					});
+				}
+			}
 
 			$scope.hyperledgerSubscribe = function(model, index, instanceId,roletosub) {
 				if(roletosub.includes(' ')){
@@ -413,10 +419,12 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 			$scope.setMetamaskConnection = async function () {
 				web3 = new Web3('https://rinkeby.infura.io/v3/080d5a8adcc244f4a289882d6063723c');
-			    let account;
+			    //let account;
                 const accounts = await ethereum.request({ method: 'eth_accounts' });
                 console.log(accounts[0]);
-				return accounts[0];
+                console.log(web3.utils.toChecksumAddress(accounts[0]))
+				return web3.utils.toChecksumAddress(accounts[0]);
+				//return accounts[0];
 
                 /*if (window.ethereum) {
                     window.web3 = new Web3(window.ethereum);

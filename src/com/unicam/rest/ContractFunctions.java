@@ -307,6 +307,7 @@ public class ContractFunctions {
 	}
 	
 	public String deploy(String bin) throws Exception {
+
 		  if(pendingTransaction == true) {
 			  System.out.println("C'è una transazione pendente");
 			  return "ERROR";
@@ -353,7 +354,8 @@ public class ContractFunctions {
 	                GAS_LIMIT,
 	                BigInteger.ZERO,
 			        binar);
-		  
+
+		  System.out.println(transaction);
 		  EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
 		  BigInteger amountUsed = estimation.getAmountUsed();
 		  System.out.println("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + blockGasLimit);
