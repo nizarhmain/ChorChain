@@ -195,7 +195,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 						} else {
 							$cookies.put('UserId', response.data);
 							$scope.cookieId = response.data;
-							window.location.href = 'http://virtualpros.unicam.it:8080/ChorChain/homePage.html';
+							window.location.href = 'http://localhost:8080/ChorChain_war/homePage.html';
 						}
 
 					});
@@ -269,7 +269,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
 					//console.log(response.data);
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
-					$window.location.href = 'http://193.205.92.133:8080/ChorChain/deploy.html';
+					$window.location.href = 'http://localhost:8080/ChorChain_war/deploy.html';
 				});
 			}
 			

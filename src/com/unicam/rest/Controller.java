@@ -228,7 +228,7 @@ public class Controller {
 		em.close();
 		//em.flush();
 		
-		return "<meta http-equiv=\"refresh\" content=\"0; url=http://virtualpros.unicam.it:8080/ChorChain/homePage.html\">";
+		return "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8080/ChorChain_war/homePage.html\">";
 	}
 
 	@POST
@@ -410,11 +410,13 @@ public class Controller {
 
 			
 			contract.compile(instanceForDeploy.getName());
-
+			System.out.println(instanceForDeploy.getName());
 			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
 			
 			String cAddress = contract.deploy(instanceForDeploy.getName());
+			System.out.println(cAddress);
+
 			if(cAddress.equals("ERROR")) {
 				//tm.rollback();
 				return null;
@@ -422,10 +424,15 @@ public class Controller {
 
 			contractReturn.setAddress(cAddress);
 
+
+			String hardcoded = "/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
+
 			contractReturn.setAbi(
-					contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".abi"), false));
+					contract.readLineByLineJava8(hardcoded + ".abi", false));
 			contractReturn.setBin("0x"
-					+ contract.readLineByLineJava8(path + contract.parseName(instanceForDeploy.getName(), ".bin"), true));
+					+ contract.readLineByLineJava8(hardcoded + ".bin", true));
+
+
 			// instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDone(true);
