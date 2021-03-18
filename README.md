@@ -29,6 +29,14 @@ In the code the solc command is set to solcjs instead. (even if you set the alia
 Everything has been changed to 7545 rpc and events in order for the ganache chain to work
 
 
+#Deploying on besu
+
+```
+npx quorum-dev-quickstart
+```
+
+This will create a bunch of Docker images, we don'y need graphana in our case
+
 
 -Requirements:
 
