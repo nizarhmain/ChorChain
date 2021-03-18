@@ -101,8 +101,8 @@ public class ContractFunctions {
 	private static final String unlockedEthSignAcc = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73";
 	
 	public static boolean pendingTransaction = false;
-	
-	public static String projectPath = "/Users/nizapizza/uni/ChorChain/src/com/unicam";
+
+	public static String projectPath = "/home/nizapizza/uni/ChorChain/src/com/unicam";
 
 	// public static String projectPath = System.getenv("ChorChain"); 
 
@@ -221,9 +221,7 @@ public class ContractFunctions {
 					projectPath + "/ChorChain/src/com/unicam/resources/UTC--2019-01-16T15-25-24.286179700Z--1adc6ea9d2ddc4dcb45bfc36f01ca8e266026155");
 			//credentials = getCredentialFromPrivateKey("02D671CA1DC73973ED1E8FB53AA73235CC788DA792E41DB4170616EDED86D23D");
 			
-			//Credentials credentials1 = WalletUtils.loadCredentials("123", "C:/Users/Alessandro/Desktop/ChorChain/src/com/unicam/resources/UTC--2019-01-25T17-30-24.611307800Z--c3939b1fb6c589fc8636085dd4c52e9b61dab675");
-			//Credentials credentials2 = WalletUtils.loadCredentials("123", "C:/Users/Alessandro/Desktop/ChorChain/src/com/unicam/resources/UTC--2019-01-25T17-28-43.107787100Z--bb98c741fc045cd434ad73080c7c90fa13d78958");
-			
+
 			RemoteCall returnv;
 
 			// controllo l'array contenente i metodi per cercare il deploy
@@ -327,11 +325,10 @@ public class ContractFunctions {
 			  return "ERROR";
 		  }
 
-		// String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
 
-		// String binar = new String (Files.readAllBytes(Paths.get("/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_six_sol_six.bin")));
-		
-		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
+		String underscore_file_path = projectPath.replace('/', '_') ;
+
+		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + underscore_file_path + "_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
 		
 		  //Unlocking the account
 		   // PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
@@ -343,25 +340,14 @@ public class ContractFunctions {
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
 
-		  Logger logger = Logger.getLogger("MyLog");
-    	FileHandler fh;
 
-		fh = new FileHandler("/Users/nizapizza/uni/ChorChain/logs/logs.txt");
-        logger.addHandler(fh);
-        SimpleFormatter formatter = new SimpleFormatter();
-        fh.setFormatter(formatter);  
 
         // the following statement is usßed to log any messages
-        logger.info(nonce.toString()); 
 
 		  BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
 		  BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
-
-
-		logger.info("gas limit " + blockGasLimit.toString());
-
 
 		Transaction transaction = Transaction.createContractTransaction(
 			        unlockedEthSignAcc,
@@ -383,10 +369,6 @@ public class ContractFunctions {
 		// tx_test.getResult();
 		// tx_test.getTransactionHash();
 		// tx_test.getError();
-
-
-		logger.info(transaction.getGasPrice().toString());
-
 		// The eth_estimateGas call does not send a transaction. You must call eth_sendRawTransaction to execute the transaction.
 		// it is different in besu
 		// EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
@@ -409,8 +391,8 @@ public class ContractFunctions {
 
 		  // pendingTransaction = true;
 		  if(transactionResponse.hasError()) {
-			  logger.info(transactionResponse.getError().getData());
-			  logger.info(transactionResponse.getError().getMessage());
+			  System.out.println(transactionResponse.getError().getData());
+			  System.out.println(transactionResponse.getError().getMessage());
 		  }
 		  String transactionHash = transactionResponse.getTransactionHash();  
 		  //System.out.println("Thash: " + transactionHash);

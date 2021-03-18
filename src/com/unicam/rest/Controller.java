@@ -424,11 +424,11 @@ public class Controller {
 
 			contractReturn.setAddress(cAddress);
 
-			String projectPath = "/Users/nizapizza/uni/ChorChain/src/com/unicam";
+			String underscore_file_path = ContractFunctions.projectPath.replace('/', '_') ;
 
-			String abi_path = projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".abi";
+			String abi_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".abi";
 
-			String bin_path = projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".bin";
+			String bin_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".bin";
 
 
 			contractReturn.setAbi(
