@@ -424,13 +424,17 @@ public class Controller {
 
 			contractReturn.setAddress(cAddress);
 
+			String projectPath = "/Users/nizapizza/uni/ChorChain/src/com/unicam";
 
-			String hardcoded = "/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
+			String abi_path = projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".abi";
+
+			String bin_path = projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".bin";
+
 
 			contractReturn.setAbi(
-					contract.readLineByLineJava8(hardcoded + ".abi", false));
+					contract.readLineByLineJava8(abi_path, false));
 			contractReturn.setBin("0x"
-					+ contract.readLineByLineJava8(hardcoded + ".bin", true));
+					+ contract.readLineByLineJava8(bin_path, true));
 
 
 			// instanceForDeploy.setDeployedContract(contractReturn);

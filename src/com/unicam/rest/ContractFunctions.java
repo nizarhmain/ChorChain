@@ -97,7 +97,7 @@ public class ContractFunctions {
 	public List<String> tasks;
 	public List<ContractObject> allFunctions;
 	public String CONTRACT_ADDRESS = "";
-	private static final String VirtualProsAccount = "0x55FF63fCb7f0B6cd96B48Eac0026cF42B62683Dd";
+	private static final String VirtualProsAccount = "0x76aE023f51f19b0F3c001aA54951d217dc90FFa6";
 	
 	public static boolean pendingTransaction = false;
 	
@@ -105,10 +105,13 @@ public class ContractFunctions {
 
 	// public static String projectPath = System.getenv("ChorChain"); 
 
+	String rpc_endpoint = "http://localhost:8545";
+	String signer_proxy = "http://localhost:18545";
 
 	
-	Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
-	Admin adm = Admin.build(new HttpService("http://localhost:7545"));
+	Web3j web3j = Web3j.build(new HttpService(rpc_endpoint));
+	Web3j ethsigner = Web3j.build(new HttpService(signer_proxy));
+	Admin adm = Admin.build(new HttpService(rpc_endpoint));
 
 
 	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
@@ -330,7 +333,7 @@ public class ContractFunctions {
 		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
 		
 		  //Unlocking the account
-		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
+		   // PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
 		  //Getting the nonce
 		  
 		  
@@ -387,7 +390,7 @@ public class ContractFunctions {
 			        "0x"+binar);
 
 		  //send sync
-		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).send();
+		  EthSendTransaction transactionResponse = ethsigner.ethSendTransaction(transaction1).send();
 
 		  // pendingTransaction = true;
 		  if(transactionResponse.hasError()) {

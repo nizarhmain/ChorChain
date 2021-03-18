@@ -1,10 +1,18 @@
-Mar 17, 2021 8:15:13 PM com.unicam.rest.ContractFunctions deploy
-INFO: 16
-Mar 17, 2021 8:15:13 PM com.unicam.rest.ContractFunctions deploy
-INFO: gas limit 90000000
-Mar 17, 2021 8:15:13 PM com.unicam.rest.ContractFunctions deploy
+Mar 18, 2021 4:01:24 PM com.unicam.rest.ContractFunctions deploy
+INFO: 6
+Mar 18, 2021 4:01:33 PM com.unicam.rest.ContractFunctions deploy
+INFO: gas limit 16234336
+Mar 18, 2021 4:01:33 PM com.unicam.rest.ContractFunctions deploy
 INFO: 0x324a9a700
-Mar 17, 2021 8:15:15 PM com.unicam.rest.ContractFunctions deploy
-INFO: estimationorg.web3j.protocol.core.methods.response.EthEstimateGas@753dc21a
-Mar 17, 2021 8:15:15 PM com.unicam.rest.ContractFunctions deploy
-INFO: AMOUNT OF GAS USED: 7319704AND current gas block limit(not used): 90000000
+Mar 18, 2021 4:03:45 PM com.unicam.rest.ContractFunctions deploy
+INFO: 6
+Mar 18, 2021 4:03:45 PM com.unicam.rest.ContractFunctions deploy
+INFO: gas limit 16234336
+Mar 18, 2021 4:03:45 PM com.unicam.rest.ContractFunctions deploy
+INFO: 0x324a9a700
+Mar 18, 2021 4:05:12 PM com.unicam.rest.ContractFunctions deploy
+INFO: 6
+Mar 18, 2021 4:05:12 PM com.unicam.rest.ContractFunctions deploy
+INFO: gas limit 16234336
+Mar 18, 2021 4:05:12 PM com.unicam.rest.ContractFunctions deploy
+INFO: 0x324a9a700
