@@ -413,13 +413,12 @@ public class Controller {
 			System.out.println(instanceForDeploy.getName());
 			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
-			
+
 			String cAddress = contract.deploy(instanceForDeploy.getName());
 			System.out.println(cAddress);
 
 			if(cAddress.equals("ERROR")) {
 				//tm.rollback();
-				return null;
 			}
 
 			contractReturn.setAddress(cAddress);
@@ -447,16 +446,19 @@ public class Controller {
 			em2.merge(instanceForDeploy);
 			tm.commit();
 			em2.close();
-			
-			
-			
+
+			return contractReturn;
+
 		}catch(Exception e){
-			tm.rollback();
+
+			System.out.println(e.getMessage());
+
+			// tm.rollback();
 			e.printStackTrace();
-		}finally {
 			return contractReturn;
 		}
 	}
+
 
 	@POST
 	@Path("/getCont/{cookieId}/")
