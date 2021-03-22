@@ -352,7 +352,7 @@
 		$scope.sendParams = {};
 		$scope.contracts = {};
 		$scope.tasks = {};
-		var web777 = new Web3("ws://localhost:20009");
+		var web777 = new Web3("ws://localhost:8546");
 		$scope.actualContract = {};
 		$scope.myContract = {};
 		$scope.abi = {};
@@ -537,11 +537,22 @@
 				}
 			}
 			$scope.abi = JSON.parse($scope.actualContract.abi);
-			console.log($scope)
+
+
+			fetch('http://localhost:3000/eea', {
+			method: 'POST', // or 'PUT'
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ address: $scope.actualContract.address, abi: $scope.actualContract.abi }),
+			})
+			.then(response => console.log(response));
+
+
 			$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
 
 			$scope.myContract.methods.getCurrentState().call().then(function (receipt) {
-				$scope.$apply(function (recepit) {
+				$scope.$apply(function (receipt) {
 					$scope.msgs = receipt[0];
 					$scope.memory = receipt[1];
 					$scope.setRoleActive();

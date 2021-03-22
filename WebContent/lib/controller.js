@@ -321,6 +321,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 					//$scope.user = response.data;
 					service.getContractFromInstance(instanceId).then(function(response){
 						console.log(response)
+
+						// we need to send an eea through the proxy instead 
+
 						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
 
 					
