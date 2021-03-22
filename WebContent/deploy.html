@@ -352,7 +352,7 @@
 		$scope.sendParams = {};
 		$scope.contracts = {};
 		$scope.tasks = {};
-		var web777 = new Web3("ws://localhost:8546");
+		var web777 = new Web3("ws://localhost:20009");
 		$scope.actualContract = {};
 		$scope.myContract = {};
 		$scope.abi = {};
@@ -537,6 +537,7 @@
 				}
 			}
 			$scope.abi = JSON.parse($scope.actualContract.abi);
+			console.log($scope)
 			$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
 
 			$scope.myContract.methods.getCurrentState().call().then(function (receipt) {

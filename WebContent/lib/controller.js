@@ -273,6 +273,7 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 
 
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
+					console.log(response.data)
 					$window.location.href = 'http://localhost:8080/ChorChain_war/deploy.html';
 				});
 			}
@@ -319,7 +320,9 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 				
 					//$scope.user = response.data;
 					service.getContractFromInstance(instanceId).then(function(response){
+						console.log(response)
 						$scope.myContract = new web3.eth.Contract(JSON.parse(response.data.abi), response.data.address);
+
 					
 						$scope.myContract.methods.subscribe_as_participant(roletosubscribe).send({
 							from : $scope.user.address,

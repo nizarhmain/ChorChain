@@ -12,12 +12,14 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.eea.crypto.PrivateTransactionEncoder;
 import org.web3j.protocol.eea.crypto.RawPrivateTransaction;
 import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.BesuPrivacyGasProvider;
 import org.web3j.tx.response.PollingPrivateTransactionReceiptProcessor;
+import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.utils.Base64String;
 import org.web3j.utils.Numeric;
 import org.web3j.utils.Restriction;
@@ -70,8 +72,6 @@ public class BesuFunctions {
         BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
         BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
 
-        BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
-
         Transaction transaction = Transaction.createContractTransaction(
                 unlockedEthSignAcc,
                 nonce,
@@ -89,10 +89,13 @@ public class BesuFunctions {
             System.out.println(transactionResponse.getError().getMessage());
         }
         String transactionHash = transactionResponse.getTransactionHash();
-        EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-        Thread.sleep(5000);
-        return transactionReceipt.getResult().getContractAddress();
-   }
+
+        final PollingTransactionReceiptProcessor receiptProcessor =
+                new PollingTransactionReceiptProcessor(web3j, 1000, 120);
+        final TransactionReceipt receipt =
+                receiptProcessor.waitForTransactionReceipt(transactionHash);
+        return receipt.getContractAddress();
+  }
 
     // PRIVATE SMART CONTRACT
     public String deploy(String bin, List<Base64String> privateFor) {
