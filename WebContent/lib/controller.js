@@ -268,6 +268,10 @@ module.controller("controller", [ "$scope","$window", "$location", "service", '$
 			$scope.deploy = function(model, instanceId){
 				service.deploy(model, instanceId, $cookies.get('UserId')).then(function(response){
 					//console.log(response.data);
+
+					// ask the proxy node server tha has the web3js eea active
+
+
 					sessionStorage.setItem('contract', JSON.stringify(response.data));
 					$window.location.href = 'http://localhost:8080/ChorChain_war/deploy.html';
 				});

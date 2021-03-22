@@ -1,0 +1,17 @@
+{
+  "name": "eea-proxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "proxy.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "web3": "^1.3.4",
+    "web3-eea": "^0.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
