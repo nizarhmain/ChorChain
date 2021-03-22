@@ -72,11 +72,14 @@ const getPrivateContractAddress = (transactionHash) => {
 
 // getValue("0xebf56429e6500e84442467292183d4d621359838");
 
-getPrivateContractAddress(
-  "0x39645440f623218e0c1a1753937791fa95ca62dfa1820b739cf1b9866ad7151d"
-).then((addr) => {
-  console.log(addr);
-});
+web3.eth.getTransactionReceipt("0x38ff0832f05a053e39b9ccb55aafe0e7b8709ac8")
+
+
+// getPrivateContractAddress(
+//   "0x39645440f623218e0c1a1753937791fa95ca62dfa1820b739cf1b9866ad7151d"
+// ).then((addr) => {
+//   console.log(addr);
+// });
 
 //console.log(orion.node1.publicKey);
 //console.log(orion.node2.publicKey);

@@ -429,7 +429,7 @@ public class Controller {
 
 			BesuFunctions besu = new BesuFunctions();
 			// public
-			String cAddress = besu.deploy(instanceForDeploy.getName());
+			String cAddress = besu.deployPublic(instanceForDeploy.getName());
 
 			// private
 			// String cAddress = besu.deploy(instanceForDeploy.getName(), privateForList);

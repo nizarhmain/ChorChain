@@ -32,12 +32,7 @@ import java.util.List;
 
 public class BesuFunctions {
 
-
-
-    //private String address;
-    //private String privateKey;
-    //private String fileName;
-    private List<String> participants;
+   private List<String> participants;
     public List<String> tasks;
     public List<ContractObject> allFunctions;
     public String CONTRACT_ADDRESS = "";
@@ -58,11 +53,10 @@ public class BesuFunctions {
     Besu eea = Besu.build(new HttpService(besu_node1_url));
     Admin adm = Admin.build(new HttpService(rpc_endpoint));
 
-    // each node should have the privateFrom in a configuration file that is being read on runtime
+    // PUBLIC SMART CONTRACT
+    public String deployPublic(String bin) throws Exception {
 
-    public String deploy(String bin) throws Exception {
-
-        String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + "_sol_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + ".bin" )));
+        String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + "_sol_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + ".bin" )));
 
         //Unlocking the account
         // PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
@@ -100,7 +94,7 @@ public class BesuFunctions {
         return transactionReceipt.getResult().getContractAddress();
    }
 
-
+    // PRIVATE SMART CONTRACT
     public String deploy(String bin, List<Base64String> privateFor) {
 
         String underscore_file_path = projectPath.replace('/', '_') ;
