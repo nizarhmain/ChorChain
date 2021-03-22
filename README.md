@@ -37,6 +37,13 @@ npx quorum-dev-quickstart
 
 This will create a bunch of Docker images, we don'y need graphana in our case
 
+public flow
+
+<p align="center">
+  <img src="diagrams/public-besu.png" width="100%" />
+</p>
+
+
 
 -Requirements:
 

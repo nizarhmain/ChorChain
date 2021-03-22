@@ -1,2 +1,6 @@
 .idea
 target
+logs/
+logs/*
+resources/
+bpmn

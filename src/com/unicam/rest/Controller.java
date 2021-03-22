@@ -40,6 +40,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 
+import com.unicam.permissioned.BesuFunctions;
+import com.unicam.permissioned.GanacheFunctions;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 import org.bson.Document;
@@ -67,6 +69,7 @@ import com.unicam.model.Parameters;
 import com.unicam.model.TaskObject;
 import com.unicam.model.User;
 import com.unicam.translator.Choreography;
+import org.web3j.utils.Base64String;
 
 @Path("/")
 public class Controller {
@@ -380,8 +383,9 @@ public class Controller {
 
 		System.out.println(loggedUser);
 		return "Subscribed successfully";
-
 	}
+
+
 	
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
@@ -397,9 +401,7 @@ public class Controller {
 
 			Instance instanceForDeploy = em.find(Instance.class, instanceId);
 			em.close();
-			
 
-			String path = ContractFunctions.projectPath + File.separator + "resources" + File.separator;//modificare compiled con resources
 
 			ContractFunctions contract = new ContractFunctions();
 
@@ -407,30 +409,51 @@ public class Controller {
 
 			contractReturn = contract.createSolidity(instanceForDeploy.getName(), instanceForDeploy.getParticipants(), instanceForDeploy.getOptionalRoles(), instanceForDeploy.getMandatoryRoles());
 
-
 			
 			contract.compile(instanceForDeploy.getName());
 			System.out.println(instanceForDeploy.getName());
 			
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
-			
-			String cAddress = contract.deploy(instanceForDeploy.getName());
+
+			// String cAddress = contract.deploy(instanceForDeploy.getName());
+
+
+			// use ganache
+			// GanacheFunctions ganache = new GanacheFunctions();
+			// String cAddress = ganache.deploy(instanceForDeploy.getName());
+
+			// use Besu public transaction
+			List<Base64String> privateForList = new ArrayList<Base64String>();
+			Base64String orion2 = Base64String.wrap("Ko2bVqD+nNlNYL5EE7y3IdOnviftjiizpjRt+HTuFBs=");
+			privateForList.add(orion2);
+
+			BesuFunctions besu = new BesuFunctions();
+			// public
+			String cAddress = besu.deploy(instanceForDeploy.getName());
+
+			// private
+			// String cAddress = besu.deploy(instanceForDeploy.getName(), privateForList);
+
+
 			System.out.println(cAddress);
 
 			if(cAddress.equals("ERROR")) {
 				//tm.rollback();
-				return null;
 			}
 
 			contractReturn.setAddress(cAddress);
 
+			String underscore_file_path = ContractFunctions.projectPath.replace('/', '_') ;
 
-			String hardcoded = "/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
+			String abi_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".abi";
+
+			String bin_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".bin";
+
 
 			contractReturn.setAbi(
-					contract.readLineByLineJava8(hardcoded + ".abi", false));
+					contract.readLineByLineJava8(abi_path, false));
 			contractReturn.setBin("0x"
-					+ contract.readLineByLineJava8(hardcoded + ".bin", true));
+					+ contract.readLineByLineJava8(bin_path, true));
 
 
 			// instanceForDeploy.setDeployedContract(contractReturn);
@@ -443,16 +466,19 @@ public class Controller {
 			em2.merge(instanceForDeploy);
 			tm.commit();
 			em2.close();
-			
-			
-			
+
+			return contractReturn;
+
 		}catch(Exception e){
-			tm.rollback();
+
+			System.out.println(e.getMessage());
+
+			// tm.rollback();
 			e.printStackTrace();
-		}finally {
 			return contractReturn;
 		}
 	}
+
 
 	@POST
 	@Path("/getCont/{cookieId}/")
