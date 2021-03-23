@@ -42,6 +42,7 @@ import javax.ws.rs.core.Request;
 
 import com.unicam.permissioned.BesuFunctions;
 import com.unicam.permissioned.GanacheFunctions;
+import com.unicam.permissioned.QuorumFunctions;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 import org.bson.Document;
@@ -423,17 +424,17 @@ public class Controller {
 			// String cAddress = ganache.deploy(instanceForDeploy.getName());
 
 			// use Besu public transaction
-			List<Base64String> privateForList = new ArrayList<Base64String>();
-			Base64String orion2 = Base64String.wrap("Ko2bVqD+nNlNYL5EE7y3IdOnviftjiizpjRt+HTuFBs=");
-			privateForList.add(orion2);
+			// List<Base64String> privateForList = new ArrayList<Base64String>();
+			// Base64String orion2 = Base64String.wrap("Ko2bVqD+nNlNYL5EE7y3IdOnviftjiizpjRt+HTuFBs=");
+			// privateForList.add(orion2);
 
-			BesuFunctions besu = new BesuFunctions();
+			// BesuFunctions besu = new BesuFunctions();
 			// public
 			// String cAddress = besu.deployPublic(instanceForDeploy.getName());
 
+			// QuorumFunctions quorum = new QuorumFunctions();
 			// private
-			String cAddress = besu.deploy(instanceForDeploy.getName(), privateForList);
-
+			String cAddress = contract.deploy(instanceForDeploy.getName());
 
 			System.out.println(cAddress);
 
@@ -445,16 +446,12 @@ public class Controller {
 
 			String underscore_file_path = ContractFunctions.projectPath.replace('/', '_') ;
 
-			String abi_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".abi";
-
-			String bin_path = ContractFunctions.projectPath + "/resources/" + underscore_file_path + "_resources_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + "_sol_" + contract.parseNameNoExtension(instanceForDeploy.getName(), ".bin") + ".bin";
-
+			String hardcoded = "/home/nizapizza/uni/ChorChain/src/com/unicam/resources/_home_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
 
 			contractReturn.setAbi(
-					contract.readLineByLineJava8(abi_path, false));
+					contract.readLineByLineJava8(hardcoded + ".abi", false));
 			contractReturn.setBin("0x"
-					+ contract.readLineByLineJava8(bin_path, true));
-
+					+ contract.readLineByLineJava8(hardcoded + ".bin", true));
 
 			// instanceForDeploy.setDeployedContract(contractReturn);
 			instanceForDeploy.setDeployedContract(contractReturn);

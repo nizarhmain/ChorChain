@@ -107,30 +107,21 @@ public class ContractFunctions {
 	public List<String> tasks;
 	public List<ContractObject> allFunctions;
 	public String CONTRACT_ADDRESS = "";
-	private static final String VirtualProsAccount = "0x76aE023f51f19b0F3c001aA54951d217dc90FFa6";
-	private static final String unlockedEthSignAcc = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73";
 
+	// private static final String VirtualProsAccount = "0x76aE023f51f19b0F3c001aA54951d217dc90FFa6";
+	// private static final String unlockedEthSignAcc = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73";
 
+	private static final String VirtualProsAccount = "0xed9d02e382b34818e88b88a309c7fe71e65f419d";
 
-	
 	public static boolean pendingTransaction = false;
 
 	public static String projectPath = "/home/nizapizza/uni/ChorChain/src/com/unicam";
 
 	// public static String projectPath = System.getenv("ChorChain"); 
 
-	String rpc_endpoint = "http://localhost:8545";
-	String signer_proxy = "http://localhost:18545";
-
-	String besu_node1_url = "http://localhost:20000";
-
+	String rpc_endpoint = "http://localhost:21001";
 	Web3j web3j = Web3j.build(new HttpService(rpc_endpoint));
-	Web3j ethsigner = Web3j.build(new HttpService(signer_proxy));
-
-	Besu eea = Besu.build(new HttpService(besu_node1_url));
-
 	Admin adm = Admin.build(new HttpService(rpc_endpoint));
-
 
 	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
 		Choreography cho = new Choreography();
@@ -321,101 +312,60 @@ public class ContractFunctions {
 	}
 
 
-	public String deploy(String bin) throws Exception {
-		if(pendingTransaction == true) {
-			System.out.println("C'è una transazione pendente");
-			return "ERROR";
-		}
 
-		/*System.out.println(solPath);
-
-		String solPath = projectPath + "ChorChain/src/com/unicam/resources/" + parseName(bin, ".sol");
-		String[] comm = {"solc",
-				"--gas",
-				solPath,};
-		Runtime rt = Runtime.getRuntime();
-		Process p = rt.exec(comm);
-		String gasEstimation = getStringFromInputStream(p.getInputStream());
-		System.out.println(gasEstimation);
-		gasEstimation = gasEstimation.split("=/s")[2].replaceAll("/D+","");
-		System.out.println("GAS ESTIMATION: "+ gasEstimation);
-		int result = Integer.parseInt(gasEstimation);*/
-		//sostituire resources con compiled
-		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
-
-
-		//Unlocking the account
-		PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "andrea").send();
-		//Getting the nonce
-
-
-		EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-				VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
-		BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-
-		BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
-		BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
-
-		BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
-
-
-		Transaction transaction = Transaction.createContractTransaction(
-				VirtualProsAccount,
-				nonce,
-				GAS_PRICE,
-				GAS_LIMIT,
-				BigInteger.ZERO,
-				binar);
-
-		EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
-		BigInteger amountUsed = estimation.getAmountUsed();
-		System.out.println("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + blockGasLimit);
-
-
-		Transaction transaction1 = Transaction.createContractTransaction(
-				VirtualProsAccount,
-				nonce,
-				GAS_PRICE,
-				GAS_LIMIT,
-				BigInteger.ZERO,
-				"0x"+binar);
-
-		//send sync
-		EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).sendAsync().get();
-
-		pendingTransaction = true;
-		if(transactionResponse.hasError()) {
-			System.out.println(transactionResponse.getError().getData());
-			System.out.println(transactionResponse.getError().getMessage());
-		}
-		String transactionHash = transactionResponse.getTransactionHash();
-		//System.out.println("Thash: " + transactionHash);
-		EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-
-		//Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
-		for (int i = 0; i < 222220; i++) {
-			if (!transactionReceipt.getTransactionReceipt().isPresent()) {
-				//Thread.sleep(5000);
-				transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-
-			} else {
-				break;
+	public String deploy(String bin) {
+		try {
+			if (pendingTransaction) {
+				System.out.println("C'e' una transazione pendente");
+				return "ERROR";
 			}
-		}
-		TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
-		System.out.println(transactionReceipt.getError());
-		System.out.println(transactionReceipt.getRawResponse());
-		//System.out.println(transactionReceiptFinal.getContractAddress());
 
-		String contractAddress = transactionReceiptFinal.getContractAddress();
-		System.out.println(contractAddress);
-		pendingTransaction = false;
-		//System.out.println(contractAddress);
-		return contractAddress;
+			String binar = new String(Files.readAllBytes(Paths.get(
+					ContractFunctions.projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + "_sol_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + ".bin")));
+
+			//Unlocking the account
+			PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "").send();
+			//Getting the nonce
+
+			EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
+					VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
+			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+
+			BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
+			BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
+
+			Transaction transaction = Transaction.createContractTransaction(
+					VirtualProsAccount,
+					nonce,
+					BigInteger.ZERO,
+					GAS_LIMIT,
+					BigInteger.ZERO,
+					"0x" + binar);
+
+			//send sync
+			EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction).send();
+
+			// pendingTransaction = true;
+			if (transactionResponse.hasError()) {
+				System.out.println(transactionResponse.getError().getData());
+				System.out.println(transactionResponse.getError().getMessage());
+			}
+			String transactionHash = transactionResponse.getTransactionHash();
+			EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+			Thread.sleep(5000);
+
+			return transactionReceipt.getResult().getContractAddress();
+		} catch (IOException | InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return "error happened could not successfully send the transaction";
+		}
 
 	}
 
-		private static String getStringFromInputStream(InputStream is) {
+
+
+
+	private static String getStringFromInputStream(InputStream is) {
 
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();
