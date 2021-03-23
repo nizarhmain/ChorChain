@@ -195,7 +195,7 @@ public class ContractFunctions {
 	}
 
 
-	public static String parseNameNoExtension(String name, String extension) {
+	public static String parseNameNoExtension(String name) {
 		String[] oldName = name.split("\\.");
 		String newName = oldName[0];
 		return newName;
@@ -323,7 +323,7 @@ public class ContractFunctions {
 
 		// String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
 
-		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
+		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin) + "_sol_" + parseNameNoExtension(bin) + ".bin" )));
 		
 		  //Unlocking the account
 		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "").send();
@@ -355,10 +355,11 @@ public class ContractFunctions {
 		logger.info("gas limit " + blockGasLimit.toString());
 
 
+
 		Transaction transaction = Transaction.createContractTransaction(
 			        VirtualProsAccount,
 				  	nonce,
-			        GAS_PRICE,
+			        BigInteger.ZERO,
 	                GAS_LIMIT,
 	                BigInteger.ZERO,
 			        binar);
@@ -367,17 +368,12 @@ public class ContractFunctions {
 		logger.info(transaction.getGasPrice().toString());
 
 
-		EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
-		  BigInteger amountUsed = estimation.getAmountUsed();
+		// EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
 
-		logger.info("estimation" + estimation.toString());
-
-		logger.info("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + blockGasLimit);
-		  
 		  Transaction transaction1 = Transaction.createContractTransaction(
 			        VirtualProsAccount,
 				  	nonce,
-			        GAS_PRICE,
+			        BigInteger.ZERO,
 	                GAS_LIMIT,
 	                BigInteger.ZERO,
 			        "0x"+binar);
