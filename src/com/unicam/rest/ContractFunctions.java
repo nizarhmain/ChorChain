@@ -40,6 +40,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import okhttp3.OkHttpClient;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.admin.Admin;
 import org.web3j.protocol.admin.methods.response.PersonalUnlockAccount;
@@ -52,6 +53,11 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.quorum.Quorum;
+import org.web3j.quorum.enclave.Enclave;
+import org.web3j.quorum.enclave.Tessera;
+import org.web3j.quorum.enclave.protocol.EnclaveService;
+import org.web3j.quorum.tx.QuorumTransactionManager;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 import org.web3j.tx.TransactionManager;
@@ -355,6 +361,37 @@ public class ContractFunctions {
 		logger.info("gas limit " + blockGasLimit.toString());
 
 
+		Quorum quorum = Quorum.build(new HttpService("http://localhost:20000"));
+
+		OkHttpClient okclient = new OkHttpClient.Builder().build();
+
+		EnclaveService enclaveService = new EnclaveService("http://localhost", 9081, okclient);
+		Enclave enclave = new Tessera(enclaveService, quorum);
+
+		Credentials credentials = Credentials.create("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63");
+
+		List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");
+
+		String TM_FROM_KEY = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+
+		QuorumTransactionManager qrtxm = new QuorumTransactionManager(
+				quorum, credentials, TM_FROM_KEY, TM_TO_KEY_ARRAY,
+				enclave,
+				30,     // Retry times
+				2000);  // Sleep
+
+
+		EthSendTransaction transactionpriv =  qrtxm.sendTransaction(
+				BigInteger.ZERO,
+				GAS_LIMIT,
+                null,
+                "0x" + binar,
+				BigInteger.ZERO
+		);
+
+		transactionpriv.getResult();
+
+		EthGetTransactionReceipt transactionReceiptpriv = quorum.ethGetTransactionReceipt(transactionpriv.getTransactionHash()).send();
 
 		Transaction transaction = Transaction.createContractTransaction(
 			        VirtualProsAccount,
@@ -363,6 +400,8 @@ public class ContractFunctions {
 	                GAS_LIMIT,
 	                BigInteger.ZERO,
 			        binar);
+
+
 
 
 		logger.info(transaction.getGasPrice().toString());
@@ -378,7 +417,6 @@ public class ContractFunctions {
 	                BigInteger.ZERO,
 			        "0x"+binar);
 
-		  //send sync
 		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).send();
 
 		  // pendingTransaction = true;

@@ -415,7 +415,7 @@ public class Controller {
 			//String cAddress = contract.signOffline(instanceForDeploy.getName(), "C7805BA63CB8C54E94805BFCFE3DFFD02385CDA364B04B23C65110BE3B2D674D");
 			
 			String cAddress = contract.deploy(instanceForDeploy.getName());
-			System.out.println(cAddress);
+		System.out.println(cAddress);
 
 			if(cAddress.equals("ERROR")) {
 				//tm.rollback();
