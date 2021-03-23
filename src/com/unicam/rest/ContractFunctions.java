@@ -97,18 +97,18 @@ public class ContractFunctions {
 	public List<String> tasks;
 	public List<ContractObject> allFunctions;
 	public String CONTRACT_ADDRESS = "";
-	private static final String VirtualProsAccount = "0x55FF63fCb7f0B6cd96B48Eac0026cF42B62683Dd";
+	private static final String VirtualProsAccount = "0xed9d02e382b34818e88b88a309c7fe71e65f419d";
 	
 	public static boolean pendingTransaction = false;
 	
-	public static String projectPath = "/Users/nizapizza/uni/ChorChain/src/com/unicam";
+	public static String projectPath = "/home/nizapizza/uni/ChorChain/src/com/unicam";
 
 	// public static String projectPath = System.getenv("ChorChain"); 
 
 
 	
-	Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
-	Admin adm = Admin.build(new HttpService("http://localhost:7545"));
+	Web3j web3j = Web3j.build(new HttpService("http://localhost:21001"));
+	Admin adm = Admin.build(new HttpService("http://localhost:21001"));
 
 
 	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
@@ -217,9 +217,7 @@ public class ContractFunctions {
 					projectPath + "/ChorChain/src/com/unicam/resources/UTC--2019-01-16T15-25-24.286179700Z--1adc6ea9d2ddc4dcb45bfc36f01ca8e266026155");
 			//credentials = getCredentialFromPrivateKey("02D671CA1DC73973ED1E8FB53AA73235CC788DA792E41DB4170616EDED86D23D");
 			
-			//Credentials credentials1 = WalletUtils.loadCredentials("123", "C:/Users/Alessandro/Desktop/ChorChain/src/com/unicam/resources/UTC--2019-01-25T17-30-24.611307800Z--c3939b1fb6c589fc8636085dd4c52e9b61dab675");
-			//Credentials credentials2 = WalletUtils.loadCredentials("123", "C:/Users/Alessandro/Desktop/ChorChain/src/com/unicam/resources/UTC--2019-01-25T17-28-43.107787100Z--bb98c741fc045cd434ad73080c7c90fa13d78958");
-			
+
 			RemoteCall returnv;
 
 			// controllo l'array contenente i metodi per cercare il deploy
@@ -325,12 +323,10 @@ public class ContractFunctions {
 
 		// String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
 
-		// String binar = new String (Files.readAllBytes(Paths.get("/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_six_sol_six.bin")));
-		
-		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
+		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin, ".bin") + "_sol_" + parseNameNoExtension(bin, ".bin") + ".bin" )));
 		
 		  //Unlocking the account
-		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
+		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "").send();
 		  //Getting the nonce
 		  
 		  
@@ -342,7 +338,7 @@ public class ContractFunctions {
 		  Logger logger = Logger.getLogger("MyLog");
     	FileHandler fh;
 
-		fh = new FileHandler("/Users/nizapizza/uni/ChorChain/logs/logs.txt");
+		fh = new FileHandler("/home/nizapizza/uni/ChorChain/logs/logs.txt");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);  

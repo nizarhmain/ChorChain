@@ -425,7 +425,7 @@ public class Controller {
 			contractReturn.setAddress(cAddress);
 
 
-			String hardcoded = "/Users/nizapizza/uni/ChorChain/src/com/unicam/resources/_Users_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
+			String hardcoded = "/home/nizapizza/uni/ChorChain/src/com/unicam/resources/_home_nizapizza_uni_ChorChain_src_com_unicam_resources_seven_sol_seven";
 
 			contractReturn.setAbi(
 					contract.readLineByLineJava8(hardcoded + ".abi", false));
