@@ -51,3 +51,30 @@ This will create a bunch of Docker images, we don'y need graphana in our case
 4) The Solidity compiler in your OS (install version 0.5.3 or above from https://github.com/ethereum/solidity/releases. Probably you will have to add it in the "path" environment variable)
 
 5) Metamask plugin in your browser with at least 1 Rinkeby account with some ether (ether available via faucets. Visit https://www.rinkeby.io/#faucet to get some.)
+
+
+# Connect to geth attach http://20000
+
+web3.personal.importRawKey("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63", "123nizarhmain")
+
+run this to add your account to the node
+
+# DONE
+
+- Hyperledger besu: 
+	- deploy public smart contracts  
+	- interact with public smart contracts (permissioned nodes)
+	- deploy private smart contracts
+	x interact with public smart contracts (hard to do)
+
+- deploy public smart contracts  
+
+- GoQuorum:
+	- deploy public smart contracts  
+	- interact with public smart contracts (permissioned nodes)
+	- deploy private smart contracts
+	x interact with public smart contracts (hard to do)
+
+ 
+
+

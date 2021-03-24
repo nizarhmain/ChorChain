@@ -103,7 +103,7 @@ public class ContractFunctions {
 	public List<String> tasks;
 	public List<ContractObject> allFunctions;
 	public String CONTRACT_ADDRESS = "";
-	private static final String VirtualProsAccount = "0xed9d02e382b34818e88b88a309c7fe71e65f419d";
+	private static final String VirtualProsAccount = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73";
 	
 	public static boolean pendingTransaction = false;
 	
@@ -113,8 +113,8 @@ public class ContractFunctions {
 
 
 	
-	Web3j web3j = Web3j.build(new HttpService("http://localhost:21001"));
-	Admin adm = Admin.build(new HttpService("http://localhost:21001"));
+	Web3j web3j = Web3j.build(new HttpService("http://localhost:20000"));
+	Admin adm = Admin.build(new HttpService("http://localhost:20000"));
 
 
 	public ContractObject createSolidity(String fileName, Map<String, User> participants, List<String> freeRoles, List<String> mandatoryRoles) {
@@ -332,7 +332,7 @@ public class ContractFunctions {
 		String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + parseNameNoExtension(bin) + "_sol_" + parseNameNoExtension(bin) + ".bin" )));
 		
 		  //Unlocking the account
-		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "").send();
+		   PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
 		  //Getting the nonce
 		  
 		  
@@ -340,25 +340,11 @@ public class ContractFunctions {
 				  VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
 		  BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-
-		  Logger logger = Logger.getLogger("MyLog");
-    	FileHandler fh;
-
-		fh = new FileHandler("/home/nizapizza/uni/ChorChain/logs/logs.txt");
-        logger.addHandler(fh);
-        SimpleFormatter formatter = new SimpleFormatter();
-        fh.setFormatter(formatter);  
-
-        // the following statement is usßed to log any messages
-        logger.info(nonce.toString()); 
-
 		  BigInteger GAS_PRICE = BigInteger.valueOf(13_500_000_000L);
-		  BigInteger GAS_LIMIT = BigInteger.valueOf(9_000_000L);
+		  // 1 539 897 945
+		  BigInteger GAS_LIMIT = BigInteger.valueOf(10_000_000_000L);
 		 
 		  BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
-
-
-		logger.info("gas limit " + blockGasLimit.toString());
 
 
 		Quorum quorum = Quorum.build(new HttpService("http://localhost:20000"));
@@ -380,8 +366,7 @@ public class ContractFunctions {
 				30,     // Retry times
 				2000);  // Sleep
 
-
-		EthSendTransaction transactionpriv =  qrtxm.sendTransaction(
+		EthSendTransaction transactionResponse =  qrtxm.sendTransaction(
 				BigInteger.ZERO,
 				GAS_LIMIT,
                 null,
@@ -389,74 +374,31 @@ public class ContractFunctions {
 				BigInteger.ZERO
 		);
 
-		transactionpriv.getResult();
-
-		EthGetTransactionReceipt transactionReceiptpriv = quorum.ethGetTransactionReceipt(transactionpriv.getTransactionHash()).send();
-
+		/*
 		Transaction transaction = Transaction.createContractTransaction(
-			        VirtualProsAccount,
-				  	nonce,
-			        BigInteger.ZERO,
-	                GAS_LIMIT,
-	                BigInteger.ZERO,
-			        binar);
-
-
-
-
-		logger.info(transaction.getGasPrice().toString());
-
+						VirtualProsAccount,
+						nonce,
+						BigInteger.ZERO,
+						GAS_LIMIT,
+						BigInteger.ZERO,
+						"0x" + binar);
+		 */
 
 		// EthEstimateGas estimation = web3j.ethEstimateGas(transaction).send();
+		// BigInteger amountUsed = estimation.getAmountUsed();
+		// System.out.println("AMOUNT OF GAS USED: " + amountUsed + "AND current gas block limit(not used): " + GAS_LIMIT);
 
-		  Transaction transaction1 = Transaction.createContractTransaction(
-			        VirtualProsAccount,
-				  	nonce,
-			        BigInteger.ZERO,
-	                GAS_LIMIT,
-	                BigInteger.ZERO,
-			        "0x"+binar);
 
-		  EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction1).send();
+		// EthSendTransaction transactionResponse = web3j.ethSendTransaction(transaction).send();
 
-		  // pendingTransaction = true;
+		// pendingTransaction = true;
 		  if(transactionResponse.hasError()) {
-			  logger.info(transactionResponse.getError().getData());
-			  logger.info(transactionResponse.getError().getMessage());
+			  System.out.println(transactionResponse.getError().getData());
+			  System.out.println(transactionResponse.getError().getMessage());
 		  }
 		  String transactionHash = transactionResponse.getTransactionHash();  
-		  //System.out.println("Thash: " + transactionHash);
-		  EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-
-		  Thread.sleep(5000);
-		  transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-		 
-		  //Optional<TransactionReceipt> receiptOptional = transactionReceipt.getTransactionReceipt();
-		  //for (int i = 0; i < 222220; i++) {
-	       //     if (!transactionReceipt.getTransactionReceipt().isPresent()) {
-	                //Thread.sleep(5000);
-	        //        transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
-	      		    
-	     //       } else {
-	       //         break;
-	         //   }
-		  //}
-
+		 EthGetTransactionReceipt transactionReceipt = quorum.ethGetTransactionReceipt(transactionHash).send();
 		return transactionReceipt.getResult().getContractAddress();
-
-		  //TransactionReceipt transactionReceiptFinal = transactionReceipt.getTransactionReceipt().get();
-
-
-		// logger.info(transactionReceipt.getError().toString());
-		// logger.info(transactionReceipt.getRawResponse());
-		  //System.out.println(transactionReceiptFinal.getContractAddress());
-		  
-		  //String contractAddress = transactionReceiptFinal.getContractAddress();
-		  //logger.info(contractAddress);
-		  // pendingTransaction = false;
-		  //System.out.println(contractAddress);
-		  //return contractAddress;
-
 
 		
 	}

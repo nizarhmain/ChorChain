@@ -9,6 +9,9 @@
 	<script src="lib/angular.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mobiscroll-angularjs@4.0.0/dist/js/mobiscroll.angularjs.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular-cookies.js"></script>
+
+	<script src="node_modules/quorum-js/lib/index.js"></script>
+
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -352,7 +355,6 @@
 		$scope.sendParams = {};
 		$scope.contracts = {};
 		$scope.tasks = {};
-		var web777 = new Web3("http://localhost:21001");
 		$scope.actualContract = {};
 		$scope.myContract = {};
 		$scope.abi = {};
@@ -378,13 +380,14 @@
 
         //var myContract = new web3.eth.Contract(JSON.parse($scope.contract.abi), $scope.contract.address);
 
-
 		$scope.launch = async function (task, $index, refresh, parameter) {
 			$("#submitbtn").prop("disabled", true);
 			//var am = amount;
 
 			var params = parameter;
 			var name = $scope.actualContract.tasks[$index];
+			console.log(params)
+			console.log(name)
 			if (name.includes("payment")) {
 
 				var complete = task + '()';
@@ -399,6 +402,8 @@
 					value: newAmount,
 					gas: 200000,
 				}).then(function (error, receipt) {
+					console.log(error)
+					console.log(receipt)
 					$scope.payment = false;
 					removehighlightmsg($scope.activeSid);
 					if (error) {
@@ -479,6 +484,8 @@
 								from: $scope.user.address,
 								gas: 200000,
 							}).then(function (error, receipt) {
+								console.log(error)
+								console.log(receipt)
 								removehighlightmsg($scope.activeSid);
 								if (error) {
 									$("#submitbtn").prop("disabled", false);
@@ -540,6 +547,7 @@
 			$scope.myContract = new web3.eth.Contract($scope.abi, $scope.actualContract.address);
 
 			$scope.myContract.methods.getCurrentState().call().then(function (receipt) {
+			    console.log(receipt)
 				$scope.$apply(function (recepit) {
 					$scope.msgs = receipt[0];
 					$scope.memory = receipt[1];
@@ -752,6 +760,10 @@
 			$window.addEventListener("load", function () {
 				if (typeof web3 !== "undefined") {
 					web3 = new Web3(web3.currentProvider);
+
+					// const rtmViaAPI = RawTransactionManager(web3, {
+						// privateUrl: "http://localhost:9081"
+					// })
 					//console.log(web3);
 					//web3.eth.getAccounts().then(console.log);
 				} else {
