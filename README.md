@@ -60,12 +60,39 @@ public flow
 5) Metamask plugin in your browser with at least 1 Rinkeby account with some ether (ether available via faucets. Visit https://www.rinkeby.io/#faucet to get some.)
 
 
-## Notes
+## Notes for quorum
 
 ```
 run this to add your account to the node
 web3.personal.importRawKey("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63", "123nizarhmain")
 ```
+
+```
+# privateFrom
+# node 1 on port 20000
+
+BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
+
+# privateTo 
+# node 1 on port 20004
+
+1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=
+
+```
+
+If you are connected from node 2 (port 20002)
+you won't be able to see the smart contract
+
+In ChorChain we can see the contract but not interact with it. Because it was written in angularjs, so I wrote a proxy in node to delegate that to this proxy that would take as param, the method being called and with what params. similar to the eea-proxy concept. Only difference in besu you can't see the state direcltly in ChorChain.
+
+
+```
+// solc SampleContract.sol --combined-json abi,asm,ast,bin,bin-runtime,clone-bin,devdoc,interface,opcodes,srcmap,srcmap-runtime,userdoc > contracts.json
+
+```
+
+
+
 
 thats for member1
 
