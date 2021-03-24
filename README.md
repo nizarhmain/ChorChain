@@ -104,14 +104,14 @@ Hyperledger besu:
 - ✅ deploy public smart contracts
 - ✅ nteract with public smart contracts (permissioned nodes)
 - ✅ deploy private smart contracts
-- x interact with public smart contracts (eea_sendTransction, bad support on Metamask so far)
+- ❌ interact with public smart contracts (eea_sendTransction, bad support on Metamask so far)
 
 GoQuorum:
 
 - ✅ deploy public smart contracts
 - ✅ interact with public smart contracts (permissioned nodes)
 - ✅ deploy private smart contracts
-- x interact with public smart contracts (can see current progress, but not submit, need frontend overhaul )
+- ❌ interact with public smart contracts (can see current progress, but not submit, need frontend overhaul )
 - ✅ can use the remix plugin though
 
 
