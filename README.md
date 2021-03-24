@@ -58,3 +58,36 @@ public flow
 4) The Solidity compiler in your OS (install version 0.5.3 or above from https://github.com/ethereum/solidity/releases. Probably you will have to add it in the "path" environment variable)
 
 5) Metamask plugin in your browser with at least 1 Rinkeby account with some ether (ether available via faucets. Visit https://www.rinkeby.io/#faucet to get some.)
+
+
+## Notes
+
+```
+run this to add your account to the node
+web3.personal.importRawKey("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63", "123nizarhmain")
+```
+
+thats for member1
+
+
+## Practical part
+
+Hyperledger besu:
+
+- ✅ deploy public smart contracts
+- ✅ nteract with public smart contracts (permissioned nodes)
+- ✅ deploy private smart contracts
+- x interact with public smart contracts (eea_sendTransction, bad support on Metamask so far)
+
+GoQuorum:
+
+- ✅ deploy public smart contracts
+- ✅ interact with public smart contracts (permissioned nodes)
+- ✅ deploy private smart contracts
+- x interact with public smart contracts (can see current progress, but not submit, need frontend overhaul )
+- ✅ can use the remix plugin though
+
+
+
+
+
