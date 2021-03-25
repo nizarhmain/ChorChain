@@ -4,5 +4,4 @@ logs/
 logs/*
 resources/
 bpmn
-ChorChain.iml
 node_modules

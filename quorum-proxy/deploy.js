@@ -8,6 +8,9 @@ const Web3 = require("web3");
 
 // WARNING: the keys here are demo purposes ONLY. Please use a tool like Orchestrate or EthSigner for production, rather than hard coding private keys
 const member1AccountAddress = "0xf0e2db6c8dc6c681bb5d6ad121a107f300e9b2b5";
+
+const member2_addr = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73";
+
 // const member1AccountAddress = "0xed9d02e382b34818e88b88a309c7fe71e65f419d"
 const member3TMPubKey = "1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=";
 
@@ -69,29 +72,31 @@ const contractOptions = {
 //    member3TMPubKey,
 // ]);
 
+c_address = "0x42699a7612a82f1d9c36148af9c77354759b210b";
+
+member1.eth.personal.unlockAccount(member2_addr, "123nizarhmain", 100000).then(() => {
+  executeAction(parsed_abi, c_address, "Message_06bv1qa", [true,200]);
+});
+
 // executeAction(
 //   parsed_abi,
-//   "0xfD657Eb45E1412181603e18eB495782E2F6979FA",
-//   "Message_02ckm6k", ["cyberpunk"]
+//   c_address,
+//   "getCurrentState", []
 // );
 
-
-executeAction(
-  parsed_abi,
-  "0xfD657Eb45E1412181603e18eB495782E2F6979FA",
-  "getCurrentState", []
-);
-
-
 function executeAction(abi, contract_address, method_name, params) {
+
+  const member1 = new Web3("http://127.0.0.1:20000");
+
   let contractInstance = new member1.eth.Contract(abi, contract_address);
 
   // console.log(rawTransactionManager);
 
-  var _params = Object.values(params)
+  var _params = Object.values(params);
 
   var methodArgs = {
-    from: member1AccountAddress,
+    from: member2_addr,
+    gas: 0x55d4a80,
     privateFor: [member3TMPubKey],
   };
 
@@ -99,17 +104,14 @@ function executeAction(abi, contract_address, method_name, params) {
     return e.name === method_name;
   });
 
-  console.log(functionAbi);
-
   let callOrSend = functionAbi.constant ? "call" : "send";
 
   let web3Method = contractInstance.methods[method_name](..._params);
 
   web3Method[callOrSend](methodArgs).then((err, res) => {
-    console.log(err)
-    console.log(res)
+    console.log(err);
+    console.log(res);
   });
-
 }
 
 function deployToQuorum(contractInstance, contractOptions, from, to) {
