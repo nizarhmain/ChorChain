@@ -213,16 +213,22 @@
                       Actual number of subscribed users: {{instance.actualNumber}}
                       (Max:{{instance.maxNumber}})
                     </p>
-                    <!-- <button ng-click="deploy(model, instance.id)" class="btn btn-success">
-														Deploy {{instance.name}}
-													</button>-->
 
-                    <div ng-if="instance.actualNumber == instance.maxNumber && instance.done==false"
-                      data-ng-init="deploy(model, instance.id)">
-                      <div class="spinner-border text-success" role="status">
-                        <span class="">deploying...</span>
-                      </div>
-                    </div>
+
+                    <label for="private_key">Private key:</label>
+                    <input type="text" id="private_key" name="fname"><br><br>
+
+                    <label for="node_from">From node:</label>
+                    <input type="text" id="node_from" name="lname"><br><br>
+
+                    <label for="node_to">To: </label>
+                    <input type="text" id="node_to" name="lname"><br><br>
+
+
+
+                    <button ng-click="deploy(model, instance.id)" class="btn btn-success">
+														Deploy {{instance.name}}
+													</button>
 
                     <div class="input-group col-12" ng-if="instance.actualNumber < instance.maxNumber">
                       <select class="custom-select" ng-model="roletosubscribe">

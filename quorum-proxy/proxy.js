@@ -14,14 +14,16 @@ const port = 3000;
 
 function executeAction(from, abi, contract_address, method_name, params, privateFor) {
   const member1 = new Web3("http://127.0.0.1:20000");
-  const member3TMPubKey = "1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=";
 
   let contractInstance = new member1.eth.Contract(abi, contract_address);
+
+
+  let _params = Object.values(params)
 
   var methodArgs = {
     from: from,
     gas: 0x55d4a80,
-    privateFor: [member3TMPubKey],
+    privateFor: privateFor,
   };
 
   const functionAbi = abi.find((e) => {
@@ -30,7 +32,7 @@ function executeAction(from, abi, contract_address, method_name, params, private
 
   let callOrSend = functionAbi.constant ? "call" : "send";
 
-  let web3Method = contractInstance.methods[method_name](params);
+  let web3Method = contractInstance.methods[method_name](..._params);
 
   web3Method[callOrSend](methodArgs).then((err, res) => {
     console.log(err);
@@ -50,7 +52,7 @@ app.post('/quorum', function (req, res) {
 	let address = req.body.address
 	let abi = JSON.parse(req.body.abi);
 	let method = req.body.method.split('(')[0];
-	let params = (req.body.params);
+	let params = (req.body.parArray);
     let privateFor = (req.body.privateFor);
 
     console.log(method)

@@ -46,7 +46,16 @@ angular.module('homePage.services', []).factory('service',
 			}
 			
 			service.deploy = function(model, instanceId, cookieId){
-				return $http.post("rest/deploy/" + cookieId + "/" + instanceId, model);
+
+				let private_key = angular.element( document.getElementById( 'private_key' ) )[0].value;
+				let node_from = angular.element( document.getElementById( 'node_from' ) )[0].value;
+				let node_for = angular.element( document.getElementById( 'node_to' ) )[0].value;
+
+				console.log(private_key)
+				console.log(node_from)
+				console.log(node_for)
+
+				return $http.post("rest/deploy/" + cookieId + "/" + instanceId + '?private_key=' + private_key, model);
 			}
 			service.getContracts = function(cookieId){
 				return $http.post("rest/getCont/" + cookieId);

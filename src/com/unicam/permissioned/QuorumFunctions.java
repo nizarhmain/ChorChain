@@ -6,17 +6,23 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.admin.Admin;
 import org.web3j.protocol.admin.methods.response.PersonalUnlockAccount;
+import org.web3j.protocol.besu.response.privacy.PrivateTransactionReceipt;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.quorum.Quorum;
 import org.web3j.quorum.enclave.Enclave;
 import org.web3j.quorum.enclave.Tessera;
 import org.web3j.quorum.enclave.protocol.EnclaveService;
 import org.web3j.quorum.tx.QuorumTransactionManager;
+import org.web3j.tx.response.PollingPrivateTransactionReceiptProcessor;
+import org.web3j.tx.response.PollingTransactionReceiptProcessor;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -77,11 +83,17 @@ public class QuorumFunctions {
                 System.out.println(transactionResponse.getError().getMessage());
             }
             String transactionHash = transactionResponse.getTransactionHash();
-            EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
+
+            final PollingTransactionReceiptProcessor receiptProcessor =
+                    new PollingTransactionReceiptProcessor(web3j, 1000, 120);
+            final TransactionReceipt transactionReceipt =
+                    receiptProcessor.waitForTransactionReceipt(transactionHash);
+
+            // EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(transactionHash).send();
             // Thread.sleep(5000);
 
-            return transactionReceipt.getResult().getContractAddress();
-        } catch (IOException | InterruptedException | ExecutionException e) {
+            return transactionReceipt.getContractAddress();
+        } catch (IOException | InterruptedException | ExecutionException | TransactionException e) {
             e.printStackTrace();
             return "error happened could not successfully send the transaction";
         }
@@ -89,7 +101,7 @@ public class QuorumFunctions {
     }
 
 
-    public String deployPrivate(String bin) throws Exception {
+    public String deployPrivate(String bin, String privateKey) throws Exception {
         if(pendingTransaction == true) {
             System.out.println("C'� una transazione pendente");
             return "ERROR";
@@ -121,11 +133,11 @@ public class QuorumFunctions {
         EnclaveService enclaveService = new EnclaveService("http://localhost", 9081, okclient);
         Enclave enclave = new Tessera(enclaveService, quorum);
 
-        Credentials credentials = Credentials.create("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63");
-
-        List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");
+        Credentials credentials = Credentials.create(privateKey);
 
         String TM_FROM_KEY = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+
+        List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");
 
         QuorumTransactionManager qrtxm = new QuorumTransactionManager(
                 quorum, credentials, TM_FROM_KEY, TM_TO_KEY_ARRAY,
@@ -147,8 +159,14 @@ public class QuorumFunctions {
             System.out.println(transactionResponse.getError().getMessage());
         }
         String transactionHash = transactionResponse.getTransactionHash();
-        EthGetTransactionReceipt transactionReceipt = quorum.ethGetTransactionReceipt(transactionHash).send();
-        return transactionReceipt.getResult().getContractAddress();
+        // EthGetTransactionReceipt transactionReceipt = quorum.ethGetTransactionReceipt(transactionHash).send();
+
+        final PollingTransactionReceiptProcessor receiptProcessor =
+                new PollingTransactionReceiptProcessor(web3j, 1000, 120);
+        final TransactionReceipt transactionReceipt =
+                receiptProcessor.waitForTransactionReceipt(transactionHash);
+
+        return transactionReceipt.getContractAddress();
 
 
     }
