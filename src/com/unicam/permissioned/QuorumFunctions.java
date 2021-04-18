@@ -101,30 +101,19 @@ public class QuorumFunctions {
     }
 
 
-    public String deployPrivate(String bin, String privateKey) throws Exception {
+    public String deployPrivate(String bin, String privateKey, String nodeFrom, String nodeTo, String account, String password) throws Exception {
         if(pendingTransaction == true) {
             System.out.println("C'� una transazione pendente");
             return "ERROR";
         }
 
         // String binar = new String ( Files.readAllBytes( Paths.get(projectPath + "/resources/" + parseName(bin, ".bin"))));
+        adm.personalUnlockAccount(account, password).send();
 
         String binar = new String ( Files.readAllBytes( Paths.get(ContractFunctions.projectPath + "/resources/" + "_home_nizapizza_uni_ChorChain_src_com_unicam_resources_" + ContractFunctions. parseNameNoExtension(bin, ".bin") + "_sol_" + ContractFunctions.parseNameNoExtension(bin, ".bin") + ".bin" )));
 
-        //Unlocking the account
-        PersonalUnlockAccount personalUnlockAccount = adm.personalUnlockAccount(VirtualProsAccount, "123nizarhmain").send();
-        //Getting the nonce
-
-
-        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-                VirtualProsAccount, DefaultBlockParameterName.LATEST).sendAsync().get();
-        BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-
         // 1 539 897 945
         BigInteger GAS_LIMIT = BigInteger.valueOf(10_000_000_000L);
-
-        BigInteger blockGasLimit = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().getBlock().getGasLimit();
-
 
         Quorum quorum = Quorum.build(new HttpService("http://localhost:20000"));
 
@@ -135,9 +124,11 @@ public class QuorumFunctions {
 
         Credentials credentials = Credentials.create(privateKey);
 
-        String TM_FROM_KEY = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+        // String TM_FROM_KEY = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+        String TM_FROM_KEY = nodeFrom;
 
-        List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");
+        // List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");
+        List<String> TM_TO_KEY_ARRAY = Arrays.asList(nodeTo);
 
         QuorumTransactionManager qrtxm = new QuorumTransactionManager(
                 quorum, credentials, TM_FROM_KEY, TM_TO_KEY_ARRAY,

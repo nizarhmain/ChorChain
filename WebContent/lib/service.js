@@ -47,15 +47,19 @@ angular.module('homePage.services', []).factory('service',
 			
 			service.deploy = function(model, instanceId, cookieId){
 
-				let private_key = angular.element( document.getElementById( 'private_key' ) )[0].value;
-				let node_from = angular.element( document.getElementById( 'node_from' ) )[0].value;
-				let node_for = angular.element( document.getElementById( 'node_to' ) )[0].value;
+				let private_key = encodeURIComponent(angular.element( document.getElementById( 'private_key' ) )[0].value);
+				let password = encodeURIComponent(angular.element( document.getElementById( 'unlock_password' ) )[0].value);
+				let node_from = encodeURIComponent(angular.element( document.getElementById( 'node_from' ) )[0].value);
+				let node_to = encodeURIComponent(angular.element( document.getElementById( 'node_to' ) )[0].value);
+
+				// + and special characters are not passed well in the url signs are wrong
+				// url encode your string
 
 				console.log(private_key)
 				console.log(node_from)
-				console.log(node_for)
+				console.log(node_to)
 
-				return $http.post("rest/deploy/" + cookieId + "/" + instanceId + '?private_key=' + private_key, model);
+				return $http.post("rest/deploy/" + cookieId + "/" + instanceId + '?private_key=' + private_key + "&node_from=" + node_from + "&node_to=" + node_to + "&unlock_password=" + password, model);
 			}
 			service.getContracts = function(cookieId){
 				return $http.post("rest/getCont/" + cookieId);

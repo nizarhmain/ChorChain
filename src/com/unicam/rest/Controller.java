@@ -384,7 +384,12 @@ public class Controller {
 	@POST
 	@Path("/deploy/{cookieId}/{instanceID}")
 	public ContractObject deploy(Model modelInstance, @PathParam("cookieId") String cookieId,
-								 @PathParam("instanceID") String instanceId, @QueryParam("private_key") String privateKey) throws Exception {
+								 @PathParam("instanceID") String instanceId,
+								 @QueryParam("private_key") String privateKey,
+								 @QueryParam("node_from") String nodeFrom,
+								 @QueryParam("node_to") String nodeTo,
+								 @QueryParam("unlock_password") String password
+	) throws Exception {
 		ContractObject contractReturn = new ContractObject();
 		//tm.begin();
 
@@ -427,7 +432,7 @@ public class Controller {
 
 			QuorumFunctions quorum = new QuorumFunctions();
 			// private
-			String cAddress = quorum.deployPrivate(instanceForDeploy.getName(), privateKey);
+			String cAddress = quorum.deployPrivate(instanceForDeploy.getName(), privateKey, nodeFrom, nodeTo, instanceForDeploy.getCreatedBy(), password);
 
 			System.out.println(cAddress);
 

@@ -171,6 +171,14 @@
                                 <div>Contract deployed: {{actualContract.address}} visible at: <a
                                         href="https://rinkeby.etherscan.io/address/{{actualContract.address}}">
                                     etherscan.io</a></div>
+
+                                <label for="node_to">To: </label>
+                                <input type="text" id="node_to" value="1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=" name="lname"><br><br>
+
+                                <label for="unlock_password">Password: </label>
+                                <input id="unlock_password" type="password"><br><br>
+
+
                                 <ul class="list-group">
                                     <li class="list-group-item my-2" ng-repeat="msg in msgs"
                                         ng-if="msg.status == 'Enabled'">
@@ -400,7 +408,9 @@
 
                 var newAmount = web3.utils.toWei(params, 'ether');
 
-                const member3TMPubKey = "1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=";
+                // const member3TMPubKey = "1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=";
+                const member3TMPubKey = document.getElementById("node_to").value
+                console.log(member3TMPubKey)
 
                 $scope.myContract.methods[replaced].apply(this, parArray).send({
                     from: $scope.user.address,
@@ -450,7 +460,7 @@
                 for (var method in $scope.myContract.methods) {
                     //console.log(method);
                     if (method == replaced) {
-                        //await unlock();
+                        // await unlock();
                         var parArray = [];
                         if (parameter.includes(',')) {
                             //var a = parameter;
@@ -491,6 +501,12 @@
 
                             // send to the node proxy instead
 
+                            const nodeTo = document.getElementById("node_to").value
+                            const password = document.getElementById("unlock_password").value
+
+                            console.log(nodeTo)
+                            console.log(password)
+
                             fetch('http://localhost:3000/quorum', {
                                 method: 'POST', // or 'PUT'
                                 headers: {
@@ -498,18 +514,19 @@
                                 },
                                 body: JSON.stringify({
                                     from: $scope.user.address,
+                                    password: password,
                                     address: $scope.actualContract.address,
                                     abi: $scope.actualContract.abi,
                                     method: method,
                                     parArray: parArray,
-                                    privateFor: ["1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg="] }),
+                                    privateFor: [nodeTo] }),
                             })
                                 .then(response => console.log(response));
 
                             $scope.myContract.methods[method].apply(this, parArray).send({
                                 from: $scope.user.address,
                                 gas: 9000000,
-                                privateFor: ["1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg="]
+                                privateFor: [nodeTo]
                             }).then(function (error, receipt) {
                                 console.log(error)
                                 console.log(receipt)
