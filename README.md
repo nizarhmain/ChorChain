@@ -115,6 +115,10 @@ GoQuorum:
 - ✅ can use the remix plugin though
 
 
+Cannot get CUSTOM URL RPC. so we can't really find out which node we are talking to.
+
+
+
 
 
 

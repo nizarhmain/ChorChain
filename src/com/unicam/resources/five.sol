@@ -31,8 +31,8 @@ string insuranceData;
 	Element[] elements;
 	  StateMemory currentMemory;
 	string[] elementsID = ["StartEvent_0gb8jks", "ExclusiveGateway_0uhgcse", "ExclusiveGateway_1e98v4d", "Message_0l75vce", "Message_0hzpgno", "EventBasedGateway_1nphygh", "Message_0cq2w1g", "Message_1ufjjj2", "ExclusiveGateway_04bkb0l", "Message_0to30q0", "ExclusiveGateway_0cfvdeh", "Message_0g4xpdf", "Message_0is10sh", "ParallelGateway_0himv1h", "EndEvent_11pwcmo", "Message_1989eur", "ParallelGateway_0yw95j2", "ExclusiveGateway_1ksw1j2", "Message_1dp5xa4", "ExclusiveGateway_0wc677m", "Message_009a0bz", "Message_0nkjynd", "Message_0b1e9t1", "ExclusiveGateway_05xdg8u", "Message_02ckm6k", "Message_06bv1qa", "Message_0psi2ab", "Message_0lvlunm"];
-	string[] roleList = [ "Bike center", "Customer" ]; 
-	string[] optionalList = ["Insurer" ]; 
+	string[] roleList = [ "Bike center" ]; 
+	string[] optionalList = ["Insurer", "Customer" ]; 
 	mapping(string=>address payable) roles; 
 	mapping(string=>address payable) optionalRoles; 
 constructor() public{
@@ -44,9 +44,8 @@ constructor() public{
          
          //roles definition
          //mettere address utenti in base ai ruoli
-	roles["Bike center"] = 0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73;
-	roles["Customer"] = 0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73;
-	optionalRoles["Insurer"] = 0x0000000000000000000000000000000000000000;         
+	roles["Bike center"] = 0x627306090abaB3A6e1400e9345bC60c78a8BEf57;
+	optionalRoles["Insurer"] = 0x0000000000000000000000000000000000000000;	optionalRoles["Customer"] = 0x0000000000000000000000000000000000000000;         
          //enable the start process
          init();
     }
@@ -129,7 +128,7 @@ else if(currentMemory.isAvailable==true){enable("Message_0l75vce");
  }
 }
 
-function Message_0l75vce(bool insuranceReq) public checkMand(roleList[1]) {
+function Message_0l75vce(bool insuranceReq) public checkOpt(optionalList[1]) {
 	require(elements[position["Message_0l75vce"]].status==State.ENABLED);  
 	done("Message_0l75vce");
 currentMemory.insuranceReq=insuranceReq;
@@ -152,7 +151,7 @@ function EventBasedGateway_1nphygh() private {
 	enable("Message_1989eur"); 
 }
 
-function Message_0cq2w1g(string memory description) public checkMand(roleList[1]) {
+function Message_0cq2w1g(string memory description) public checkOpt(optionalList[1]) {
 	require(elements[position["Message_0cq2w1g"]].status==State.ENABLED);  
 	done("Message_0cq2w1g");
 currentMemory.description=description;
@@ -179,7 +178,7 @@ else if(currentMemory.ask==false){enable("ExclusiveGateway_0cfvdeh");
 }
 }
 
-function Message_0to30q0() public payable checkMand(roleList[1]) {
+function Message_0to30q0() public payable checkOpt(optionalList[1]) {
 	require(elements[position["Message_0to30q0"]].status==State.ENABLED);  
 	done("Message_0to30q0");
 roles["Bike center"].transfer(msg.value);
@@ -222,7 +221,7 @@ function EndEvent_11pwcmo() private {
 	require(elements[position["EndEvent_11pwcmo"]].status==State.ENABLED);
 	done("EndEvent_11pwcmo");  }
 
-function Message_1989eur(string memory feedback) public checkMand(roleList[1]) {
+function Message_1989eur(string memory feedback) public checkOpt(optionalList[1]) {
 	require(elements[position["Message_1989eur"]].status==State.ENABLED);  
 	done("Message_1989eur");
 currentMemory.feedback=feedback;
@@ -244,7 +243,7 @@ function ExclusiveGateway_1ksw1j2() private {
 	enable("Message_1dp5xa4");  
 }
 
-function Message_1dp5xa4(string memory voucherId, string memory bike_Id) public checkMand(roleList[1]) {
+function Message_1dp5xa4(string memory voucherId, string memory bike_Id) public checkOpt(optionalList[1]) {
 	require(elements[position["Message_1dp5xa4"]].status==State.ENABLED);  
 	done("Message_1dp5xa4");
 currentMemory.voucherId=voucherId;
@@ -266,7 +265,7 @@ currentMemory.insuranceCost=insuranceCost;
 	enable("Message_0psi2ab");
 }
 
-function Message_0nkjynd() public payable checkMand(roleList[1]) {
+function Message_0nkjynd() public payable checkOpt(optionalList[1]) {
 	require(elements[position["Message_0nkjynd"]].status==State.ENABLED);  
 	done("Message_0nkjynd");
 roles["Bike center"].transfer(msg.value);
@@ -289,7 +288,7 @@ else if(currentMemory.insuranceReq==true){enable("Message_009a0bz");
  }
 }
 
-function Message_02ckm6k(string memory bikeType) public checkMand(roleList[1]) {
+function Message_02ckm6k(string memory bikeType) public checkOpt(optionalList[1]) {
 	require(elements[position["Message_02ckm6k"]].status==State.ENABLED);  
 	done("Message_02ckm6k");
 currentMemory.bikeType=bikeType;
@@ -305,7 +304,7 @@ currentMemory.cost=cost;
 ExclusiveGateway_1e98v4d(); 
 }
 
-function Message_0psi2ab() public payable checkMand(roleList[1]) {
+function Message_0psi2ab() public payable checkOpt(optionalList[1]) {
 	require(elements[position["Message_0psi2ab"]].status==State.ENABLED);  
 	done("Message_0psi2ab");
 optionalRoles["Insurer"].transfer(msg.value);

@@ -199,7 +199,7 @@
               <div ng-repeat="instance in model.instances | filter:searchRole">
                 <div class="card  my-2"
                   ng-if="instance.visibleAt == 0 || instance.visibleAt.indexOf(user.address) > -1">
-                  <h5 class="card-header ">n° {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
+                  <h5 class="card-header ">nï¿½ {{instance.id}} - <small>created By: {{instance.createdBy}}</small>
                     <span ng-show="instance.visibleAt.indexOf(user.address) > -1" class="float-right"><i
                         style="color: #ffc200" class="fa fa-lock"></i> </span>
                   </h5>
@@ -215,19 +215,27 @@
                     </p>
 
 
-                    <label for="private_key">Private key:</label>
+                    <label for="private_key">(Only if you deploy) Private key:</label>
                     <input type="password" id="private_key" value="8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63" name="fname"><br><br>
 
                     <label for="unlock_password">Password :</label>
                     <input type="password" id="unlock_password" name="fname"><br><br>
 
-                    <label for="node_from">From node:</label>
-                    <input type="text" id="node_from" value="BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=" name="lname"><br><br>
+                   <select name="cars" id="node_from">
+                      <option value="BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=">Node 1</option>
+                      <option value="QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=">Node 2</option>
+                      <option value="1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=">Node 3</option>
+                    </select>
 
-                    <label for="node_to">To: </label>
-                    <input type="text" id="node_to" value="1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=" name="lname"><br><br>
+                   <select name="cars" id="nodes">
+                      <option value="BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=">Node 1</option>
+                      <option value="QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=">Node 2</option>
+                      <option value="1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=">Node 3</option>
+                    </select>
 
-
+                    <button ng-click="node_info" class="btn btn-success">
+													 Get node information from metamask	
+										</button>
 
                     <button ng-click="deploy(model, instance.id)" class="btn btn-success">
 														Deploy {{instance.name}}
@@ -426,10 +434,20 @@
 </script>
 
 <script>
-  $("#close").click(function () {
-
+  $("#node_info").on('click', function () {
+    console.log('i got clicked')
   });
 </script>
+
+
+
+
+<script>
+web3 = new Web3(web3.currentProvider);
+console.log(web3)
+
+</script>
+
 
 <script>
   $("#customFile").change(function () {

@@ -45,7 +45,7 @@ constructor() public{
          //roles definition
          //mettere address utenti in base ai ruoli
 	roles["Bike center"] = 0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73;
-	roles["Customer"] = 0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73;
+	roles["Customer"] = 0x627306090abaB3A6e1400e9345bC60c78a8BEf57;
 	optionalRoles["Insurer"] = 0x0000000000000000000000000000000000000000;         
          //enable the start process
          init();

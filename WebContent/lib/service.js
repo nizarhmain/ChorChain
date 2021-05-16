@@ -50,7 +50,8 @@ angular.module('homePage.services', []).factory('service',
 				let private_key = encodeURIComponent(angular.element( document.getElementById( 'private_key' ) )[0].value);
 				let password = encodeURIComponent(angular.element( document.getElementById( 'unlock_password' ) )[0].value);
 				let node_from = encodeURIComponent(angular.element( document.getElementById( 'node_from' ) )[0].value);
-				let node_to = encodeURIComponent(angular.element( document.getElementById( 'node_to' ) )[0].value);
+				let node_to = encodeURIComponent(angular.element( document.getElementById( 'nodes' ) )[0].value);
+
 
 				// + and special characters are not passed well in the url signs are wrong
 				// url encode your string
