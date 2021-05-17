@@ -40,10 +40,35 @@ public class QuorumFunctions {
     Web3j web3j = Web3j.build(new HttpService(rpc_endpoint));
     Admin adm = Admin.build(new HttpService(rpc_endpoint));
 
+    Web3j first_node = Web3j.build(new HttpService(rpc_endpoint));
+    Web3j second_node = Web3j.build(new HttpService("http://localhost:20002"));
+    Web3j third_node = Web3j.build(new HttpService("http://localhost:20004"));
+
     private static final String VirtualProsAccount = "0xf0e2db6c8dc6c681bb5d6ad121a107f300e9b2b5";
 
     public static boolean pendingTransaction = false;
 
+    public String getNodeOfAccount(String account) {
+
+        try {
+            List<String> accounts = first_node.ethAccounts().send().getAccounts();
+            List<String> accounts_second = second_node.ethAccounts().send().getAccounts();
+            List<String> accounts_third = third_node.ethAccounts().send().getAccounts();
+
+            if (accounts.contains(account))
+                return "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+
+            if (accounts_second.contains(account))
+                return "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
+
+            if (accounts_third.contains(account))
+                return "1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=";
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "not_found";
+    }
 
     public String deploy(String bin) {
         try {
@@ -125,6 +150,9 @@ public class QuorumFunctions {
         Credentials credentials = Credentials.create(privateKey);
 
         // String TM_FROM_KEY = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+
+        String spacex = getNodeOfAccount(account);
+
         String TM_FROM_KEY = nodeFrom;
 
         // List<String> TM_TO_KEY_ARRAY = Arrays.asList("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=");

@@ -67,6 +67,16 @@ run this to add your account to the node
 web3.personal.importRawKey("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63", "123nizarhmain")
 ```
 
+on 20004
+```
+run this to add your account to the node
+web3.personal.importRawKey("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "123nizarhmain")
+```
+
+
+
+
+
 ```
 # privateFrom
 # node 1 on port 20000
